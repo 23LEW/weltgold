@@ -1,363 +1,390 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Weltgold — Edelmetall Preisvergleich</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<title>Physical Gold Price Comparison — Global Markets</title>
+<meta name="description" content="Compare physical gold and silver prices across global markets: Istanbul Grand Bazaar, Shanghai Gold Exchange, Mumbai MCX, Tokyo TOCOM, Dubai Gold Souk vs international spot price.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --gold: #B8973A; --gold-bright: #D4AF5A; --gold-pale: #F0E0A8;
-    --ink: #0C0D0F; --ink2: #16181C; --ink3: #1F2228;
-    --text: #E8E4DC; --text-dim: #7A7870;
-    --green: #5A9E72; --red: #B85A5A; --orange: #C87832;
-    --border: rgba(184,151,58,0.12);
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--ink); color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; min-height: 100vh; overflow-x: hidden; }
-  body::before { content: ''; position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 800px; height: 400px; background: radial-gradient(ellipse, rgba(184,151,58,0.07) 0%, transparent 70%); pointer-events: none; z-index: 0; }
-  .page { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 0 32px 80px; }
+:root {
+  --gold: #B8973A; --gold-bright: #D4AF5A; --gold-pale: #F0E0A8;
+  --ink: #0C0D0F; --ink2: #14161A; --ink3: #1C1F26;
+  --text: #E8E4DC; --dim: #6A6860;
+  --green: #4E9268; --red: #A84A4A; --orange: #C07830;
+  --border: rgba(184,151,58,0.1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;min-height:100vh}
+body::before{content:'';position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:900px;height:500px;background:radial-gradient(ellipse,rgba(184,151,58,0.06) 0%,transparent 70%);pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 28px 80px}
 
-  header { padding: 48px 0 36px; display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 1px solid var(--border); gap: 24px; flex-wrap: wrap; }
-  .brand h1 { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 300; letter-spacing: 0.04em; color: var(--gold-pale); line-height: 1; }
-  .brand h1 em { font-style: normal; color: var(--gold-bright); font-weight: 600; }
-  .brand p { margin-top: 8px; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); }
-  .header-meta { text-align: right; font-size: 11px; color: var(--text-dim); line-height: 2; }
-  .live-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border: 1px solid rgba(90,158,114,0.3); color: var(--green); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
-  .live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: blink 2s ease-in-out infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+/* HEADER */
+header{padding:44px 0 32px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px}
+.logo h1{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:var(--gold-pale);letter-spacing:.03em;line-height:1}
+.logo h1 strong{font-weight:600;color:var(--gold-bright)}
+.logo p{margin-top:7px;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim)}
+.status{text-align:right;font-size:11px;color:var(--dim);line-height:1.9}
+.live-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border:1px solid rgba(78,146,104,0.35);color:var(--green);font-size:10px;letter-spacing:2px;text-transform:uppercase}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
 
-  .metal-toggle { display: flex; margin: 36px 0 32px; border-bottom: 1px solid var(--border); }
-  .metal-btn { padding: 14px 36px; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; background: none; border: none; color: var(--text-dim); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.25s, border-color 0.25s; }
-  .metal-btn:hover { color: var(--gold-pale); }
-  .metal-btn.active { color: var(--gold-bright); border-bottom-color: var(--gold); }
+/* TOGGLE */
+.toggle{display:flex;margin:32px 0 28px;border-bottom:1px solid var(--border)}
+.tbtn{padding:12px 32px;font-family:'Cormorant Garamond',serif;font-size:19px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--dim);cursor:pointer;transition:all .2s}
+.tbtn:hover{color:var(--gold-pale)}
+.tbtn.on{color:var(--gold-bright);border-bottom-color:var(--gold)}
 
-  .spot-hero { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-bottom: 2px; }
-  .spot-card { background: var(--ink2); padding: 32px 36px; position: relative; overflow: hidden; opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease, transform 0.5s ease; }
-  .spot-card.visible { opacity: 1; transform: none; }
-  .spot-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent 0%, var(--gold) 40%, transparent 100%); }
-  .spot-card-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 16px; }
-  .spot-price { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; color: var(--gold-pale); line-height: 1; letter-spacing: -1px; }
-  .spot-price sup { font-size: 22px; font-weight: 400; vertical-align: super; color: var(--gold); margin-right: 4px; }
-  .spot-sub { margin-top: 10px; font-size: 11px; color: var(--text-dim); letter-spacing: 1px; }
+/* SPOT CARDS */
+.spots{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:2px}
+.spot{background:var(--ink2);padding:28px 32px;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s}
+.spot.show{opacity:1;transform:none}
+.spot::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.spot-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+.spot-price{font-family:'Cormorant Garamond',serif;font-size:46px;font-weight:300;color:var(--gold-pale);line-height:1;letter-spacing:-1px}
+.spot-price sup{font-size:20px;vertical-align:super;color:var(--gold);margin-right:3px}
+.spot-sub{margin-top:8px;font-size:10px;color:var(--dim);letter-spacing:1px}
 
-  .section-title { font-family: 'Cormorant Garamond', serif; font-size: 13px; font-weight: 400; letter-spacing: 4px; text-transform: uppercase; color: var(--text-dim); margin: 40px 0 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+/* SECTION HEADER */
+.sec{display:flex;justify-content:space-between;align-items:center;margin:36px 0 16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--dim)}
+.sec-note{font-size:10px;color:var(--dim)}
 
-  /* MAIN TABLE */
-  .compare-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr { border-bottom: 1px solid var(--border); }
-  th { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); font-weight: 400; padding: 10px 14px; text-align: left; white-space: nowrap; }
-  th.right { text-align: right; }
-  td { padding: 18px 14px; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; }
-  td.right { text-align: right; }
-  tr:hover td { background: rgba(255,255,255,0.015); }
-  tr.ref-row td { background: rgba(184,151,58,0.04); }
-  tr.ref-row td:first-child { border-left: 2px solid var(--gold); }
-  tr.best-row td:first-child { border-left: 2px solid var(--green); }
-  tr.worst-row td:first-child { border-left: 2px solid var(--red); }
+/* TABLE */
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:1px solid var(--border)}
+th{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--dim);font-weight:400;padding:10px 14px;text-align:left;white-space:nowrap}
+th.r{text-align:right}
+td{padding:17px 14px;border-bottom:1px solid rgba(255,255,255,0.025);vertical-align:middle}
+td.r{text-align:right}
+tr:hover td{background:rgba(255,255,255,0.012)}
+tr.ref-row td{background:rgba(184,151,58,0.03)}
+tr.ref-row td:first-child{border-left:2px solid var(--gold)}
+tr.lo td:first-child{border-left:2px solid var(--green)}
+tr.hi td:first-child{border-left:2px solid var(--red)}
 
-  .td-market { display: flex; align-items: center; gap: 12px; }
-  .td-flag { font-size: 22px; }
-  .td-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; }
-  .td-city { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; margin-top: 2px; }
-  .td-price { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--gold-pale); }
-  .td-price-sub { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
-  .td-usd { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; }
-  .td-eur { font-family: 'Cormorant Garamond', serif; font-size: 17px; color: var(--text-dim); }
+.mkt{display:flex;align-items:center;gap:11px}
+.flag{font-size:21px}
+.mname{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600}
+.mcity{font-size:10px;color:var(--dim);letter-spacing:1px;margin-top:2px}
+.plocal{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--gold-pale)}
+.punit{font-size:10px;color:var(--dim);margin-top:2px}
+.pusd{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600}
+.peur{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--dim)}
 
-  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; padding: 4px 10px; }
-  .badge.pos { background: rgba(90,158,114,0.12); color: var(--green); }
-  .badge.neg { background: rgba(184,90,90,0.12); color: var(--red); }
-  .badge.neu { background: rgba(122,120,112,0.1); color: var(--text-dim); }
-  .badge.calc { background: rgba(200,120,50,0.1); color: var(--orange); font-size: 10px; letter-spacing: 1px; }
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:3px 8px;border-radius:1px}
+.badge.pos{background:rgba(78,146,104,.1);color:var(--green)}
+.badge.neg{background:rgba(168,74,74,.1);color:var(--red)}
+.badge.neu{background:rgba(106,104,96,.1);color:var(--dim)}
+.badge.calc{background:rgba(192,120,48,.08);color:var(--orange);font-size:9px;letter-spacing:1px}
+.badge.live{background:rgba(78,146,104,.08);color:var(--green);font-size:9px;letter-spacing:1px}
 
-  .source-tag { font-size: 10px; color: var(--text-dim); opacity: 0.7; }
+/* INFO BOX */
+.info{margin-top:36px;border:1px solid var(--border);border-left:2px solid var(--gold-bright);background:rgba(184,151,58,.03);padding:18px 22px;font-size:11px;color:var(--dim);line-height:1.9}
+.info strong{color:var(--gold-pale)}
+.info a{color:var(--gold-bright);text-decoration:none}
+.info a:hover{text-decoration:underline}
 
-  .error-box { background: rgba(184,90,90,0.08); border: 1px solid rgba(184,90,90,0.25); padding: 16px 20px; font-size: 12px; color: var(--red); margin: 16px 0; display: none; }
-  .loading-msg { color: var(--text-dim); font-size: 12px; padding: 32px 0; text-align: center; }
+/* ERROR */
+.err{background:rgba(168,74,74,.07);border:1px solid rgba(168,74,74,.2);padding:14px 18px;font-size:12px;color:var(--red);margin:14px 0;display:none}
 
-  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--text-dim); }
-  footer a { color: var(--gold-bright); text-decoration: none; }
+/* LOADING */
+.loading{color:var(--dim);text-align:center;padding:40px 0;font-size:12px}
 
-  @media (max-width: 900px) { .spot-hero { grid-template-columns: 1fr; } .page { padding: 0 16px 60px; } .brand h1 { font-size: 30px; } .spot-price { font-size: 36px; } }
+/* FOOTER */
+footer{margin-top:70px;padding-top:22px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:10px;color:var(--dim);letter-spacing:.5px}
+footer a{color:var(--gold-bright);text-decoration:none}
+
+@media(max-width:860px){.spots{grid-template-columns:1fr}.wrap{padding:0 16px 60px}.logo h1{font-size:28px}.spot-price{font-size:34px}}
 </style>
 </head>
 <body>
-<div class="page">
+<div class="wrap">
 
-  <header>
-    <div class="brand">
-      <h1>Welt<em>gold</em></h1>
-      <p>Edelmetall · Preisvergleich · Weltmärkte</p>
-    </div>
-    <div class="header-meta">
-      <div class="live-pill"><div class="live-dot"></div> Live</div>
-      <div style="margin-top:8px;" id="update-time">Lade Daten…</div>
-      <div style="margin-top:4px; font-size:10px;">Aktualisierung alle 15 Min.</div>
-    </div>
-  </header>
-
-  <div class="metal-toggle">
-    <button class="metal-btn active" onclick="setMetal('gold', this)">Gold</button>
-    <button class="metal-btn" onclick="setMetal('silver', this)">Silber</button>
+<header>
+  <div class="logo">
+    <h1>Physical <strong>Gold</strong> Compare</h1>
+    <p>Global Physical Market Price Comparison</p>
   </div>
-
-  <div class="error-box" id="error-box">Fehler beim Laden. Bitte Seite neu laden.</div>
-
-  <div class="spot-hero">
-    <div class="spot-card" id="card-usd">
-      <div class="spot-card-label">Internationaler Spotpreis · USD / Troy Oz</div>
-      <div class="spot-price"><sup>$</sup><span id="spot-usd">—</span></div>
-      <div class="spot-sub">LBMA London / COMEX New York · Weltbenchmark</div>
-    </div>
-    <div class="spot-card" id="card-eur">
-      <div class="spot-card-label">Spotpreis · EUR / Gramm</div>
-      <div class="spot-price"><sup>€</sup><span id="spot-eur">—</span></div>
-      <div class="spot-sub">Umgerechnet via ECB Wechselkurs</div>
-    </div>
+  <div class="status">
+    <div class="live-badge"><div class="dot"></div>Live</div>
+    <div style="margin-top:7px" id="upd">Loading…</div>
+    <div style="margin-top:3px;font-size:9px">Updates every 15 min</div>
   </div>
+</header>
 
-  <div class="section-title" style="margin-top:40px;">
-    <span>Marktpreisvergleich</span>
-    <span style="font-size:10px; font-family:'DM Mono',monospace;">🟡 Echter Marktpreis &nbsp;|&nbsp; 🟠 Berechnet</span>
+<div class="toggle">
+  <button class="tbtn on" onclick="setMetal('XAU',this)">Gold</button>
+  <button class="tbtn" onclick="setMetal('XAG',this)">Silver</button>
+</div>
+
+<div class="err" id="err">Failed to load price data. Please check your internet connection and reload.</div>
+
+<div class="spots">
+  <div class="spot" id="s-usd">
+    <div class="spot-label">International Spot Price · USD / Troy Oz</div>
+    <div class="spot-price"><sup>$</sup><span id="v-usd">—</span></div>
+    <div class="spot-sub">LBMA London / COMEX New York · Global Benchmark</div>
   </div>
-
-  <div class="error-box" id="table-error"></div>
-  <div id="loading-msg" class="loading-msg">Lade Marktdaten vom Server…</div>
-
-  <div class="compare-wrap" id="compare-wrap" style="display:none;">
-    <table>
-      <thead>
-        <tr>
-          <th>Markt</th>
-          <th>Lokalpreis</th>
-          <th class="right">USD / oz</th>
-          <th class="right">EUR / oz</th>
-          <th class="right">Diff. USD</th>
-          <th class="right">Diff. %</th>
-          <th>Quelle</th>
-        </tr>
-      </thead>
-      <tbody id="market-tbody"></tbody>
-    </table>
+  <div class="spot" id="s-eur">
+    <div class="spot-label">Spot Price · EUR / Gram</div>
+    <div class="spot-price"><sup>€</sup><span id="v-eur">—</span></div>
+    <div class="spot-sub">Converted via ECB exchange rate</div>
   </div>
+</div>
 
-  <footer>
-    <div>Weltgold © 2026 · Nur zur Information · Keine Anlageberatung</div>
-    <div>Server: <a href="https://weltgold.onrender.com" target="_blank">weltgold.onrender.com</a> · Spot: <a href="https://gold-api.com" target="_blank">gold-api.com</a></div>
-  </footer>
+<div class="sec">
+  <div class="sec-title">Market Comparison</div>
+  <div class="sec-note">🟢 Live market data &nbsp;|&nbsp; 🟠 Calculated (Spot × FX rate)</div>
+</div>
+
+<div id="loading" class="loading">Loading market data…</div>
+<div class="tscroll" id="tbl" style="display:none">
+<table>
+<thead>
+  <tr>
+    <th>Market</th>
+    <th>Local Price</th>
+    <th class="r">USD / oz</th>
+    <th class="r">EUR / oz</th>
+    <th class="r">vs. Spot (USD)</th>
+    <th class="r">vs. Spot (%)</th>
+    <th>Source</th>
+  </tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+<div class="info">
+  <strong>About the data</strong><br><br>
+  <strong>🟢 Live data</strong> — Istanbul (Kapalıçarşı Grand Bazaar): Real buy/sell prices from the Istanbul physical gold market, updated in real time.<br><br>
+  <strong>🟠 Calculated data</strong> — Shanghai (SGE), Mumbai (MCX/IBJA), Tokyo (TOCOM), Dubai, Jakarta (Antam): These prices are calculated as international spot price × local currency exchange rate, plus known local premiums where applicable. They represent an approximation of the local price.<br><br>
+  For Shanghai the typical SGE premium over COMEX has historically ranged from −$10 to +$50/oz depending on Chinese demand and PBOC import restrictions. 
+  For India a ~13% premium applies due to 15% import duty + 3% GST.
+  For Istanbul the actual premium varies 0–5% depending on local demand — <strong>use the live Kapalıçarşı data for the real price</strong>.<br><br>
+  Data sources: <a href="https://gold-api.com" target="_blank">gold-api.com</a> (spot) · 
+  <a href="https://frankfurter.app" target="_blank">frankfurter.app</a> (FX) · 
+  <a href="https://kapali-carsi-altin-api.vercel.app" target="_blank">Kapalıçarşı API</a> (Istanbul)
+</div>
+
+<footer>
+  <div>Physical Gold Compare · For informational purposes only · Not financial advice</div>
+  <div>Built with open data · <a href="https://gold-api.com" target="_blank">gold-api.com</a> · <a href="https://frankfurter.app" target="_blank">frankfurter.app</a></div>
+</footer>
 </div>
 
 <script>
-const API = "https://weltgold.onrender.com/api/prices";
-const GRAM = 31.1035;
-const CURR = { USD:'$', EUR:'€', GBP:'£', TRY:'₺', CNY:'¥', INR:'₹', JPY:'¥', IDR:'Rp', AED:'د.إ' };
+const G = 31.1035; // grams per troy oz
+let metal = 'XAU';
+let spot = null, fx = null, istanbul = null;
 
-let currentMetal = 'gold';
-let lastData = null;
+const CS = {USD:'$',EUR:'€',GBP:'£',TRY:'₺',CNY:'¥',INR:'₹',JPY:'¥',IDR:'Rp',AED:'د.إ'};
 
-function fmt(n, dec) {
-  if (n == null || isNaN(n)) return '—';
-  return Number(n).toLocaleString('de-DE', { minimumFractionDigits: dec ?? 2, maximumFractionDigits: dec ?? 2 });
+const MARKETS = [
+  {
+    id:'istanbul', name:'Grand Bazaar', city:'Istanbul · Turkey', flag:'🇹🇷',
+    currency:'TRY', unit:'gram', unitLabel:'TRY / gram',
+    // Premium over spot: 0–5% depending on demand, use live data
+    calcPremium: 0.02, // 2% as fallback estimate
+    isLive: true, // has real data source
+    desc:'Physical gold market, Kapalıçarşı'
+  },
+  {
+    id:'shanghai', name:'Shanghai Gold Exch.', city:'Shanghai · China (SGE)', flag:'🇨🇳',
+    currency:'CNY', unit:'gram', unitLabel:'CNY / gram',
+    calcPremium: 0.01, // SGE premium varies −$10 to +$50/oz; using ~1% as neutral estimate
+    isLive: false,
+    desc:'SGE Au(T+D) contract (approx.)'
+  },
+  {
+    id:'india', name:'MCX / IBJA', city:'Mumbai · India', flag:'🇮🇳',
+    currency:'INR', unit:'gram10', unitLabel:'INR / 10g',
+    calcPremium: 0.13, // 15% import duty + 3% GST = ~13% net premium
+    isLive: false,
+    desc:'MCX India — includes 13% duty+GST'
+  },
+  {
+    id:'japan', name:'TOCOM', city:'Tokyo · Japan', flag:'🇯🇵',
+    currency:'JPY', unit:'gram', unitLabel:'JPY / gram',
+    calcPremium: 0.005,
+    isLive: false,
+    desc:'TOCOM physical gold contract (approx.)'
+  },
+  {
+    id:'dubai', name:'Dubai Gold Souk', city:'Dubai · UAE', flag:'🇦🇪',
+    currency:'AED', unit:'gram', unitLabel:'AED / gram',
+    calcPremium: 0.005, // Dubai known for very low premiums
+    isLive: false,
+    desc:'Dubai physical market (approx.)'
+  },
+  {
+    id:'jakarta', name:'Antam / Logam Mulia', city:'Jakarta · Indonesia', flag:'🇮🇩',
+    currency:'IDR', unit:'gram', unitLabel:'IDR / gram',
+    calcPremium: 0.05,
+    isLive: false,
+    desc:'Antam certified gold bars (approx.)'
+  },
+];
+
+function fmt(n, d) {
+  if (n==null||isNaN(n)) return '—';
+  return Number(n).toLocaleString('en-US',{minimumFractionDigits:d??2,maximumFractionDigits:d??2});
 }
 
-function pctBadge(pct) {
-  if (pct == null) return '<span class="badge neu">—</span>';
-  const sign = pct > 0 ? '+' : '';
-  const cls = pct > 0.5 ? 'neg' : pct < -0.5 ? 'pos' : 'neu';
-  return `<span class="badge ${cls}">${sign}${pct.toFixed(2)}%</span>`;
+function badge(pct) {
+  if (pct==null) return '<span class="badge neu">—</span>';
+  const s = pct>0?'+':'', c = pct>0.5?'neg':pct<-0.5?'pos':'neu';
+  return `<span class="badge ${c}">${s}${pct.toFixed(2)}%</span>`;
 }
 
-function diffBadge(diff) {
-  if (diff == null) return '<span class="badge neu">—</span>';
-  const sign = diff > 0 ? '+' : '';
-  const cls = diff > 5 ? 'neg' : diff < -5 ? 'pos' : 'neu';
-  return `<span class="badge ${cls}">${sign}$${fmt(diff, 2)}</span>`;
+function diffBadge(d) {
+  if (d==null) return '<span class="badge neu">—</span>';
+  const s=d>0?'+':'', c=d>5?'neg':d<-5?'pos':'neu';
+  return `<span class="badge ${c}">${s}$${fmt(d,2)}</span>`;
 }
 
-function sourceBadge(source, isCalc) {
-  if (isCalc) return `<span class="badge calc">⚠ berechnet</span>`;
-  return `<span class="source-tag">🟡 ${source || 'live'}</span>`;
+function calcMarket(m) {
+  if (!spot||!fx) return null;
+  const spotUSD = metal==='XAU'?spot.XAU:spot.XAG;
+  if (!spotUSD) return null;
+  const fxRate = fx[m.currency]||1;
+  let localPrice, usdOz;
+
+  if (m.id==='istanbul' && istanbul) {
+    // Real data
+    localPrice = metal==='XAU' ? istanbul.gold : istanbul.silver;
+    if (!localPrice) localPrice = (spotUSD/G)*fxRate*(1+m.calcPremium);
+    usdOz = (localPrice/fxRate)*G;
+  } else {
+    const basePerGram = (spotUSD/G)*fxRate*(1+m.calcPremium);
+    localPrice = m.unit==='gram10' ? basePerGram*10 : basePerGram;
+    usdOz = spotUSD*(1+m.calcPremium);
+  }
+  return {localPrice, usdOz};
 }
 
-async function fetchPrices() {
+async function load() {
   try {
-    document.getElementById('error-box').style.display = 'none';
-    const r = await fetch(API);
-    if (!r.ok) throw new Error('Server Fehler');
-    const json = await r.json();
-    lastData = json.data;
+    document.getElementById('err').style.display='none';
 
-    const now = new Date();
-    document.getElementById('update-time').textContent =
-      'Stand: ' + now.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
+    // 1. Spot prices
+    const [gr, sr] = await Promise.all([
+      fetch('https://api.gold-api.com/price/XAU').then(r=>r.json()),
+      fetch('https://api.gold-api.com/price/XAG').then(r=>r.json())
+    ]);
+    spot = {XAU: gr.price, XAG: sr.price};
+
+    // 2. FX rates
+    const fxr = await fetch('https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,IDR,AED').then(r=>r.json());
+    fx = {...fxr.rates, USD:1};
+
+    // 3. Istanbul live data
+    try {
+      const ist = await fetch('https://kapali-carsi-altin-api.vercel.app/api/altin').then(r=>r.json());
+      let gold=null, silver=null;
+      for (const item of ist) {
+        const c = (item.code||'').toUpperCase();
+        if (c==='ALTIN') {
+          const a=parseFloat(item.alis||0), s=parseFloat(item.satis||0);
+          if (a&&s) gold=Math.round((a+s)/2*100)/100;
+        }
+        if (c==='GUMUS'||c==='GÜMÜŞ') {
+          const a=parseFloat(item.alis||0), s=parseFloat(item.satis||0);
+          if (a&&s) silver=Math.round((a+s)/2*100)/100;
+        }
+      }
+      if (gold) istanbul = {gold, silver};
+    } catch(e) {
+      console.warn('Istanbul API failed, using calculated fallback', e);
+      istanbul = null;
+    }
+
+    document.getElementById('upd').textContent =
+      'Updated: '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+' UTC';
 
     render();
   } catch(e) {
-    document.getElementById('error-box').style.display = 'block';
-    document.getElementById('error-box').textContent =
-      'Server antwortet nicht. Render startet nach Inaktivität neu — bitte 30 Sekunden warten und neu laden.';
+    document.getElementById('err').style.display='block';
     console.error(e);
   }
 }
 
 function render() {
-  if (!lastData) return;
-  const d = lastData;
-  const spot = d.spot || {};
-  const fx = d.fx || {};
+  if (!spot||!fx) return;
+  const spotUSD = metal==='XAU'?spot.XAU:spot.XAG;
+  const eurOz = spotUSD&&fx.EUR ? spotUSD*fx.EUR : null;
+  const eurGram = eurOz ? eurOz/G : null;
 
-  const spotUSD = currentMetal === 'gold' ? spot.XAU : spot.XAG;
-  const eurPerOz = spotUSD && fx.EUR ? spotUSD * fx.EUR : null;
-  const eurPerGram = eurPerOz ? eurPerOz / GRAM : null;
+  // Spot hero
+  document.getElementById('v-usd').textContent = fmt(spotUSD,2);
+  document.getElementById('v-eur').textContent = fmt(eurGram,2);
+  document.getElementById('s-usd').classList.add('show');
+  document.getElementById('s-eur').classList.add('show');
 
-  // Spot Hero
-  document.getElementById('spot-usd').textContent = fmt(spotUSD, 2);
-  document.getElementById('spot-eur').textContent = fmt(eurPerGram, 2);
-  document.getElementById('card-usd').classList.add('visible');
-  document.getElementById('card-eur').classList.add('visible');
+  // Build rows
+  const rows = MARKETS.map(m => {
+    const calc = calcMarket(m);
+    if (!calc) return null;
+    const {localPrice, usdOz} = calc;
+    const diff = usdOz - spotUSD;
+    const pct = (diff/spotUSD)*100;
+    const eurOzLocal = fx.EUR ? usdOz*fx.EUR : null;
+    const isRealIst = m.id==='istanbul' && istanbul && istanbul.gold;
+    const isLive = isRealIst;
+    return {...m, localPrice, usdOz, diff, pct, eurOzLocal, isLive};
+  }).filter(Boolean).sort((a,b)=>a.usdOz-b.usdOz);
 
-  // Märkte definieren
-  const markets = buildMarkets(d, spot, fx, spotUSD);
+  const loUSD = rows.filter(r=>r.id!=='istanbul'||r.isLive).reduce((min,r)=>r.usdOz<min?r.usdOz:min, Infinity);
+  const hiUSD = rows.filter(r=>r.id!=='istanbul'||r.isLive).reduce((max,r)=>r.usdOz>max?r.usdOz:max, -Infinity);
 
-  // Tabelle
-  document.getElementById('loading-msg').style.display = 'none';
-  document.getElementById('compare-wrap').style.display = '';
+  document.getElementById('loading').style.display='none';
+  document.getElementById('tbl').style.display='';
 
-  // Sortieren nach USD-Äquivalent
-  const sorted = [...markets].sort((a, b) => (a.usdOz || 0) - (b.usdOz || 0));
+  // Reference row
+  const refEur = fx.EUR ? spotUSD*fx.EUR : null;
+  let html = `<tr class="ref-row">
+    <td><div class="mkt"><span class="flag">🌍</span><div><div class="mname">LBMA / COMEX</div><div class="mcity">London / New York · Reference</div></div></div></td>
+    <td><div class="plocal">$${fmt(spotUSD,2)}</div><div class="punit">USD / troy oz</div></td>
+    <td class="r"><div class="pusd">$${fmt(spotUSD,2)}</div></td>
+    <td class="r"><div class="peur">€${fmt(refEur,2)}</div></td>
+    <td class="r"><span class="badge neu">Reference</span></td>
+    <td class="r"><span class="badge neu">0.00%</span></td>
+    <td><span class="badge live">🟢 LIVE</span></td>
+  </tr>`;
 
-  const bestUSD = sorted.find(m => !m.isRef)?.usdOz;
-  const worstUSD = [...sorted].reverse().find(m => !m.isRef)?.usdOz;
-
-  document.getElementById('market-tbody').innerHTML = sorted.map(m => {
-    const diff = m.usdOz != null && spotUSD ? m.usdOz - spotUSD : null;
-    const pct = diff != null && spotUSD ? (diff / spotUSD * 100) : null;
-    const eurOz = m.usdOz && fx.EUR ? m.usdOz * fx.EUR : null;
-
-    let rowCls = '';
-    if (m.isRef) rowCls = 'ref-row';
-    else if (m.usdOz === bestUSD) rowCls = 'best-row';
-    else if (m.usdOz === worstUSD) rowCls = 'worst-row';
-
+  html += rows.map(r => {
+    const sym = CS[r.currency]||r.currency;
+    const lp = r.localPrice > 10000 ? fmt(r.localPrice,0) : fmt(r.localPrice,2);
+    const rowCls = r.usdOz===loUSD?'lo':r.usdOz===hiUSD?'hi':'';
+    const srcBadge = r.isLive
+      ? '<span class="badge live">🟢 LIVE</span>'
+      : '<span class="badge calc">🟠 CALC</span>';
     return `<tr class="${rowCls}">
-      <td>
-        <div class="td-market">
-          <span class="td-flag">${m.flag}</span>
-          <div>
-            <div class="td-name">${m.name}</div>
-            <div class="td-city">${m.city}</div>
-          </div>
-        </div>
-      </td>
-      <td>
-        <div class="td-price">${m.localStr}</div>
-        <div class="td-price-sub">${m.unit}</div>
-      </td>
-      <td class="right"><div class="td-usd">${m.usdOz != null ? '$'+fmt(m.usdOz,2) : '—'}</div></td>
-      <td class="right"><div class="td-eur">${eurOz != null ? '€'+fmt(eurOz,2) : '—'}</div></td>
-      <td class="right">${m.isRef ? '<span class="badge neu">Referenz</span>' : diffBadge(diff)}</td>
-      <td class="right">${m.isRef ? '<span class="badge neu">0,00%</span>' : pctBadge(pct)}</td>
-      <td>${sourceBadge(m.source, m.isCalc)}</td>
+      <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div></div></div></td>
+      <td><div class="plocal">${sym} ${lp}</div><div class="punit">${r.unitLabel}</div></td>
+      <td class="r"><div class="pusd">$${fmt(r.usdOz,2)}</div></td>
+      <td class="r"><div class="peur">€${fmt(r.eurOzLocal,2)}</div></td>
+      <td class="r">${diffBadge(r.diff)}</td>
+      <td class="r">${badge(r.pct)}</td>
+      <td>${srcBadge}</td>
     </tr>`;
   }).join('');
+
+  document.getElementById('tbody').innerHTML = html;
 }
 
-function buildMarkets(d, spot, fx, spotUSD) {
-  const isGold = currentMetal === 'gold';
-  const markets = [];
-
-  // REFERENZ: COMEX/LBMA
-  markets.push({
-    flag: '🌍', name: 'COMEX / LBMA', city: 'New York · London',
-    localStr: spotUSD ? '$' + fmt(spotUSD, 2) : '—',
-    unit: 'USD / Troy Oz',
-    usdOz: spotUSD,
-    source: 'gold-api.com', isCalc: false, isRef: true
-  });
-
-  // ISTANBUL
-  const ist = d.istanbul;
-  if (ist) {
-    const price = isGold ? ist.gold_try_gram : ist.silver_try_gram;
-    const usdOz = price && fx.TRY ? (price / fx.TRY) * GRAM : null;
-    markets.push({
-      flag: '🇹🇷', name: 'Kapalıçarşı', city: 'Istanbul · Türkei',
-      localStr: price ? '₺ ' + fmt(price, 2) : '—',
-      unit: 'TRY / Gramm',
-      usdOz, source: ist.source, isCalc: !!ist.is_calculated
-    });
-  }
-
-  // SHANGHAI SGE
-  const sge = d.shanghai;
-  if (sge) {
-    const usdOz = isGold ? sge.gold_usd_oz : sge.silver_usd_oz;
-    const cnyGram = usdOz && fx.CNY ? (usdOz / GRAM) * fx.CNY : null;
-    markets.push({
-      flag: '🇨🇳', name: 'Shanghai Gold Exch.', city: 'Shanghai · China (SGE)',
-      localStr: cnyGram ? '¥ ' + fmt(cnyGram, 2) : '—',
-      unit: 'CNY / Gramm',
-      usdOz, source: sge.source, isCalc: !!sge.is_calculated
-    });
-  }
-
-  // INDIEN IBJA
-  const ind = d.india;
-  if (ind) {
-    const price10g = isGold ? ind.gold_inr_10g : null;
-    const priceKg = !isGold ? ind.silver_inr_kg : null;
-    const localPrice = isGold ? price10g : priceKg;
-    const usdOz = isGold && price10g && fx.INR
-      ? (price10g / 10 / fx.INR) * GRAM
-      : (!isGold && priceKg && fx.INR ? (priceKg / 1000 / fx.INR) * GRAM : null);
-    markets.push({
-      flag: '🇮🇳', name: 'MCX / IBJA', city: 'Mumbai · Indien',
-      localStr: localPrice ? '₹ ' + fmt(localPrice, 0) : '—',
-      unit: isGold ? 'INR / 10 Gramm' : 'INR / kg',
-      usdOz, source: ind.source, isCalc: !!ind.is_calculated
-    });
-  }
-
-  // JAPAN TOCOM
-  const jpn = d.japan;
-  if (jpn) {
-    const price = jpn.gold_jpy_gram;
-    const usdOz = price && fx.JPY ? (price / fx.JPY) * GRAM : null;
-    markets.push({
-      flag: '🇯🇵', name: 'TOCOM', city: 'Tokyo · Japan',
-      localStr: price ? '¥ ' + fmt(price, 0) : '—',
-      unit: 'JPY / Gramm',
-      usdOz, source: jpn.source, isCalc: !!jpn.is_calculated
-    });
-  }
-
-  // INDONESIEN ANTAM
-  const idn = d.indonesia;
-  if (idn) {
-    const price = idn.gold_idr_gram;
-    const usdOz = price && fx.IDR ? (price / fx.IDR) * GRAM : null;
-    markets.push({
-      flag: '🇮🇩', name: 'Antam / Logam Mulia', city: 'Jakarta · Indonesien',
-      localStr: price ? 'Rp ' + fmt(price, 0) : '—',
-      unit: 'IDR / Gramm',
-      usdOz, source: idn.source, isCalc: !!idn.is_calculated
-    });
-  }
-
-  return markets;
-}
-
-function setMetal(metal, btn) {
-  currentMetal = metal;
-  document.querySelectorAll('.metal-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+function setMetal(m, btn) {
+  metal = m;
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
   render();
 }
 
-fetchPrices();
-setInterval(fetchPrices, 15 * 60 * 1000);
+load();
+setInterval(load, 15*60*1000);
 </script>
 </body>
 </html>
