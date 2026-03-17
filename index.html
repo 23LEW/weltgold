@@ -127,6 +127,15 @@
   .td-city { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
   .rank-num { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 11px; border: 1px solid var(--border); color: var(--text-dim); }
   .rank-num.gold-rank { border-color: var(--gold); color: var(--gold); background: rgba(184,151,58,0.08); }
+  .td-num { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--gold-pale); }
+  .td-dim { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .pct-badge { display: inline-flex; align-items: center; font-size: 12px; font-weight: 500; padding: 3px 10px; }
+  .pct-badge.pos { background: rgba(90,158,114,0.12); color: var(--green); }
+  .pct-badge.neg { background: rgba(184,90,90,0.12); color: var(--red); }
+  .pct-badge.neu { background: rgba(122,120,112,0.1); color: var(--text-dim); }
+  .col-group-header { background: rgba(184,151,58,0.04); }
+  .col-group-header th { padding-top: 8px; padding-bottom: 8px; border-bottom: none; color: var(--gold); font-size: 9px; letter-spacing: 2px; }
+  tr.spot-row td { background: rgba(184,151,58,0.04); border-left: 2px solid var(--gold); }
 
   .error-box { background: rgba(184,90,90,0.08); border: 1px solid rgba(184,90,90,0.25); padding: 16px 20px; font-size: 12px; color: var(--red); margin: 16px 0; display: none; }
 
@@ -189,13 +198,19 @@
   <div class="compare-wrap">
     <table>
       <thead>
+        <tr class="col-group-header">
+          <th colspan="2"></th>
+          <th colspan="3" style="text-align:center; border-left:1px solid var(--border);">— Preis pro Troy Oz —</th>
+          <th colspan="2" style="text-align:center; border-left:1px solid var(--border);">— vs. Spotpreis —</th>
+        </tr>
         <tr>
           <th>#</th>
           <th>Markt</th>
-          <th>Lokalpreis</th>
-          <th>USD / oz (äquiv.)</th>
-          <th>Aufschlag vs. Spot</th>
-          <th>Einheit</th>
+          <th style="border-left:1px solid var(--border);">Lokalwährung</th>
+          <th>USD / oz</th>
+          <th>EUR / oz</th>
+          <th style="border-left:1px solid var(--border);">Differenz USD</th>
+          <th>Differenz %</th>
         </tr>
       </thead>
       <tbody id="compare-tbody"></tbody>
@@ -337,20 +352,40 @@ function render() {
     return { ...m, price, usdEq, premPct };
   }).filter(r => r.usdEq).sort((a, b) => a.usdEq - b.usdEq);
 
-  document.getElementById('compare-tbody').innerHTML = rows.map((r, i) => {
+  // Add spot reference row at top
+  const eurPerOz = fxRates.EUR ? spotUSD * fxRates.EUR : null;
+
+  let tbodyHtml = `<tr class="spot-row">
+    <td><div class="rank-num" style="border-color:var(--gold);color:var(--gold);">★</div></td>
+    <td><div class="td-market"><span class="td-flag">🌍</span><div><div class="td-name">Internationaler Spot</div><div class="td-city">LBMA London · Referenz</div></div></div></td>
+    <td style="border-left:1px solid var(--border);"><div class="td-num">$${fmt(spotUSD, 2)}</div><div class="td-dim">USD / oz</div></td>
+    <td><div class="td-num">$${fmt(spotUSD, 2)}</div></td>
+    <td><div class="td-num">€${fmt(eurPerOz, 2)}</div></td>
+    <td style="border-left:1px solid var(--border);"><span class="pct-badge neu">Referenz</span></td>
+    <td><span class="pct-badge neu">0,00%</span></td>
+  </tr>`;
+
+  tbodyHtml += rows.map((r, i) => {
     const sign = r.premPct > 0 ? '+' : '';
-    const color = r.premPct > 0.5 ? 'var(--red)' : r.premPct < -0.5 ? 'var(--green)' : 'var(--text-dim)';
+    const badgeCls = r.premPct > 0.5 ? 'pos' : r.premPct < -0.5 ? 'neg' : 'neu';
     const sym = CURR_SYM[r.currency] || r.currency;
     const priceDisplay = r.price > 1000 ? fmt(r.price, 0) : fmt(r.price, 2);
+    const eurEq = fxRates.EUR ? r.usdEq * fxRates.EUR : null;
+    const diffUSD = r.usdEq - spotUSD;
+    const diffSign = diffUSD > 0 ? '+' : '';
+
     return `<tr>
       <td><div class="rank-num ${i === 0 ? 'gold-rank' : ''}">${i + 1}</div></td>
       <td><div class="td-market"><span class="td-flag">${r.flag}</span><div><div class="td-name">${r.name}</div><div class="td-city">${r.city}</div></div></div></td>
-      <td style="font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--gold-pale);">${sym} ${priceDisplay}</td>
-      <td style="font-weight:500;">$${fmt(r.usdEq, 2)}</td>
-      <td style="color:${color};font-weight:500;">${sign}${r.premPct.toFixed(2)}%</td>
-      <td style="color:var(--text-dim);">${r.unitLabel}</td>
+      <td style="border-left:1px solid var(--border);"><div class="td-num">${sym} ${priceDisplay}</div><div class="td-dim">${r.currency} ${r.unitLabel}</div></td>
+      <td><div class="td-num">$${fmt(r.usdEq, 2)}</div></td>
+      <td><div class="td-num">€${fmt(eurEq, 2)}</div></td>
+      <td style="border-left:1px solid var(--border);"><span class="pct-badge ${badgeCls}">${diffSign}$${fmt(diffUSD, 2)}</span></td>
+      <td><span class="pct-badge ${badgeCls}">${sign}${r.premPct.toFixed(2)}%</span></td>
     </tr>`;
   }).join('');
+
+  document.getElementById('compare-tbody').innerHTML = tbodyHtml;
 }
 
 function setMetal(code, btn) {
