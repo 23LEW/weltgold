@@ -64,7 +64,7 @@ def fetch_istanbul():
             return {
                 "gold_try_gram": gold_try_gram,
                 "silver_try_gram": silver_try_gram,
-                "source": "Kapalıçarşı (kapali-carsi-altin-api)",
+                "source": "Kapalıçarşı live API",
                 "unit": "TRY/gram",
                 "is_calculated": False
             }
@@ -80,7 +80,6 @@ def fetch_shanghai():
             headers=HEADERS, timeout=15
         )
         soup = BeautifulSoup(r.text, "html.parser")
-        # Suche direkt nach dem Preis-Element
         gold_usd_oz = None
         silver_usd_oz = None
         for tag in soup.find_all(["span", "div", "td", "p"]):
@@ -123,7 +122,7 @@ def fetch_india():
                         val = float(val_clean)
                     except:
                         continue
-                    if ("gold" in label or "altin" in label or "sona" in label) and 50000 < val < 250000:
+                    if ("gold" in label or "sona" in label) and 50000 < val < 250000:
                         gold_inr_10g = val
                         break
                     if "silver" in label and 50000 < val < 500000:
@@ -172,7 +171,6 @@ def fetch_japan():
 
 def fetch_indonesia():
     try:
-        # Versuche zuerst logammulia.com
         r = requests.get("https://www.logammulia.com/en", headers=HEADERS, timeout=15)
         soup = BeautifulSoup(r.text, "html.parser")
         gold_idr_gram = None
@@ -191,8 +189,6 @@ def fetch_indonesia():
                         pass
                 if gold_idr_gram:
                     break
-
-        # Fallback: goldprice.org Indonesia
         if not gold_idr_gram:
             r2 = requests.get(
                 "https://goldprice.org/gold-price-indonesia.html",
@@ -200,14 +196,13 @@ def fetch_indonesia():
             )
             soup2 = BeautifulSoup(r2.text, "html.parser")
             for tag in soup2.find_all(["span", "div", "td"]):
-                t = tag.get_text(strip=True).replace(",", "").replace(".", "")
+                t = re.sub(r'[^\d]', '', tag.get_text(strip=True))
                 try:
                     val = float(t)
                     if 1_000_000 < val < 6_000_000 and gold_idr_gram is None:
                         gold_idr_gram = val
                 except:
                     pass
-
         if gold_idr_gram:
             return {
                 "gold_idr_gram": gold_idr_gram,
@@ -230,41 +225,38 @@ def update_prices():
     japan     = fetch_japan()
     indonesia = fetch_indonesia()
 
-    print(f"  Istanbul: {'OK' if istanbul and not istanbul.get('is_calculated') else 'FALLBACK'}")
-    print(f"  Shanghai: {'OK' if shanghai and not shanghai.get('is_calculated') else 'FALLBACK'}")
-    print(f"  India:    {'OK' if india and not india.get('is_calculated') else 'FALLBACK'}")
-    print(f"  Japan:    {'OK' if japan and not japan.get('is_calculated') else 'FALLBACK'}")
-    print(f"  Indonesia:{'OK' if indonesia and not indonesia.get('is_calculated') else 'FALLBACK'}")
+    print(f"  Istanbul:  {'LIVE' if istanbul and not istanbul.get('is_calculated') else 'FALLBACK'}")
+    print(f"  Shanghai:  {'LIVE' if shanghai and not shanghai.get('is_calculated') else 'FALLBACK'}")
+    print(f"  India:     {'LIVE' if india and not india.get('is_calculated') else 'FALLBACK'}")
+    print(f"  Japan:     {'LIVE' if japan and not japan.get('is_calculated') else 'FALLBACK'}")
+    print(f"  Indonesia: {'LIVE' if indonesia and not indonesia.get('is_calculated') else 'FALLBACK'}")
 
     prices = {}
     if spot: prices["spot"] = spot
-    if fx:   prices["fx"] = fx
+    if fx:   prices["fx"]   = fx
 
-    def with_fallback(result, key, fallback_fn):
-        if result:
-            prices[key] = result
-        elif spot and fx:
-            prices[key] = fallback_fn()
+    def save(key, result, fallback):
+        prices[key] = result if result else (fallback() if spot and fx else None)
 
-    with_fallback(istanbul, "istanbul", lambda: {
+    save("istanbul",  istanbul,  lambda: {
         "gold_try_gram": round((spot["XAU"] / GRAM_PER_OZ) * fx["TRY"], 2),
         "silver_try_gram": round((spot["XAG"] / GRAM_PER_OZ) * fx["TRY"], 2),
         "source": "berechnet (Spot × TRY)", "unit": "TRY/gram", "is_calculated": True
     })
-    with_fallback(shanghai, "shanghai", lambda: {
+    save("shanghai",  shanghai,  lambda: {
         "gold_usd_oz": spot["XAU"], "silver_usd_oz": spot["XAG"],
         "source": "berechnet (Spot)", "unit": "USD/oz", "is_calculated": True
     })
-    with_fallback(india, "india", lambda: {
+    save("india",     india,     lambda: {
         "gold_inr_10g": round((spot["XAU"] / GRAM_PER_OZ) * fx["INR"] * 10 * 1.13, 2),
         "silver_inr_kg": round((spot["XAG"] / GRAM_PER_OZ) * fx["INR"] * 1000 * 1.03, 2),
         "source": "berechnet (Spot × INR + 13% Zoll)", "unit": "INR/10g", "is_calculated": True
     })
-    with_fallback(japan, "japan", lambda: {
+    save("japan",     japan,     lambda: {
         "gold_jpy_gram": round((spot["XAU"] / GRAM_PER_OZ) * fx["JPY"], 2),
         "source": "berechnet (Spot × JPY)", "unit": "JPY/gram", "is_calculated": True
     })
-    with_fallback(indonesia, "indonesia", lambda: {
+    save("indonesia", indonesia, lambda: {
         "gold_idr_gram": round((spot["XAU"] / GRAM_PER_OZ) * fx["IDR"] * 1.05, 2),
         "source": "berechnet (Spot × IDR)", "unit": "IDR/gram", "is_calculated": True
     })
@@ -278,10 +270,20 @@ def background_updater():
         update_prices()
         time.sleep(15 * 60)
 
+# ── Wird beim Import durch gunicorn ausgeführt ──
+_started = False
+def _startup():
+    global _started
+    if not _started:
+        _started = True
+        update_prices()
+        t = threading.Thread(target=background_updater, daemon=True)
+        t.start()
+
+_startup()
+
 @app.route("/api/prices")
 def get_prices():
-    if not cache["prices"]:
-        update_prices()
     return jsonify({ "data": cache["prices"], "last_updated": cache["last_updated"], "status": "ok" })
 
 @app.route("/health")
@@ -293,7 +295,4 @@ def index():
     return jsonify({ "name": "Weltgold API", "endpoints": ["/api/prices", "/health"], "last_updated": cache["last_updated"] })
 
 if __name__ == "__main__":
-    update_prices()
-    t = threading.Thread(target=background_updater, daemon=True)
-    t.start()
     app.run(host="0.0.0.0", port=10000)
