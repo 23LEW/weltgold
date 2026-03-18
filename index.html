@@ -245,7 +245,7 @@ footer a{color:var(--gold-b);text-decoration:none}
   <strong>About the data</strong><br><br>
   <strong>🇹🇷 Istanbul Grand Bazaar:</strong> Real-time buy/sell prices from Nadir Döviz, Istanbul's leading precious metals dealer. Updated every 10 minutes.<br><br>
   <strong>🌍 LBMA / COMEX Spot:</strong> Live Bid/Ask from Kitco. Updated every 10 minutes via our server.<br><br>
-  <strong>🟠 Calculated</strong> (Shanghai SGE, Mumbai MCX, Tokyo TOCOM, Dubai, Jakarta Antam): Spot × FX + known structural premiums. India ~13% due to import duty + GST. SGE premium historically −$10 to +$50/oz.<br><br>
+  <strong>🟠 Calculated</strong> (Shanghai SGE, Tokyo TOCOM, Dubai, Jakarta Antam): Spot × FX + known structural premiums.</p><p><strong>🟢 Live India</strong> (MCX / IBJA): Real daily rates from ibjarates.com — India's official bullion association. SGE premium historically −$10 to +$50/oz.<br><br>
   Sources: <a href="https://www.kitco.com" target="_blank">kitco.com</a> (spot bid/ask) · <a href="https://www.nadirdoviz.com" target="_blank">nadirdoviz.com</a> (Istanbul) · <a href="https://frankfurter.app" target="_blank">frankfurter.app</a> (FX) · <a href="https://freegoldapi.com" target="_blank">freegoldapi.com</a> (history)
 </div>
 
@@ -265,7 +265,7 @@ footer a{color:var(--gold-b);text-decoration:none}
 const G = 31.1035; // grams per troy oz
 let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
-let spot = null, fx = null, istanbul = null;
+let spot = null, fx = null, istanbul = null, indiaLive = null;
 let histData = []; // historical spot prices
 let currentRange = '1D';
 let chartSpot = null, chartIst = null, chartAll = null;
@@ -327,12 +327,15 @@ function calcMarket(m){
   if(m.id==='istanbul'){
     const istPrice = metal==='XAU' ? istanbul?.gold : istanbul?.silver;
     if(istPrice){
-      localPrice = istPrice; // TRY per gram
+      localPrice = istPrice;
       usdOz = (istPrice/fxRate)*G;
     } else {
       localPrice = (spotUSD/G)*fxRate*(1+m.calcPremium);
       usdOz = spotUSD*(1+m.calcPremium);
     }
+  } else if(m.id==='india' && indiaLive?.gold_inr_10g && metal==='XAU'){
+    localPrice = indiaLive.gold_inr_10g;
+    usdOz = (localPrice/10/fxRate)*G;
   } else {
     localPrice = (spotUSD/G)*fxRate*(1+m.calcPremium);
     if(m.per10g) localPrice *= 10;
@@ -392,10 +395,19 @@ async function load(){
         try{last=JSON.parse(localStorage.getItem('ist_last')||'null');}catch(e){}
         istanbul=last?{...last,status:'closed'}:{gold:null,silver:null,status:'closed',ts:null};
       }
+      // India IBJA
+      const ind = vps?.india;
+      if(ind && ind.gold_inr_10g && !ind.is_calculated){
+        indiaLive = {gold_inr_10g: ind.gold_inr_10g, source: ind.source};
+      } else {
+        indiaLive = null;
+      }
+
     }catch(e){
       let last=null;
       try{last=JSON.parse(localStorage.getItem('ist_last')||'null');}catch(ex){}
       istanbul=last?{...last,status:'closed'}:{gold:null,silver:null,status:'closed',ts:null};
+      indiaLive = null;
       console.warn('VPS fetch failed',e);
     }
 
@@ -654,13 +666,15 @@ function render(){
     // Local price: always in local currency per gram (or per 10g for India)
     const lp = r.per10g ? fmt(r.localPrice,0) : (r.localPrice>1000?fmt(r.localPrice,0):fmt(r.localPrice,2));
     const rowCls=r.usdOz===lo?'lo':r.usdOz===hi?'hi':'';
+    const indiaIsLive = r.id==='india' && indiaLive?.gold_inr_10g && metal==='XAU';
     let srcBadge;
-    if(r.istLive)srcBadge='<span class="badge live">🟢 LIVE</span>';
+    if(r.istLive)srcBadge='<span class="badge live">🟢 LIVE · nadirdoviz.com</span>';
     else if(r.istClosed){
       const ts=istanbul?.ts?' '+new Date(istanbul.ts).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
       const hasLast=istanbul?.gold!=null;
       srcBadge=`<span class="badge closed">⚫ CLOSED${hasLast?ts:''}</span>`;
-    } else srcBadge='<span class="badge calc">🟠 CALC</span>';
+    } else if(indiaIsLive) srcBadge='<span class="badge live">🟢 LIVE · ibjarates.com</span>';
+    else srcBadge='<span class="badge calc">🟠 CALC</span>';
 
     // Local price cell: buy / sell
     let priceCell;
