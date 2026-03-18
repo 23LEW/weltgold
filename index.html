@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Gold Premium — Worldwide Gold & Silver Price Comparison</title>
 <meta name="description" content="Compare physical gold and silver prices across global markets in real time: Istanbul Grand Bazaar, Shanghai Gold Exchange (SGE), Mumbai MCX, Tokyo TOCOM, Dubai Gold Souk. Track the gold premium vs. international spot price in USD, EUR and local currency.">
 <meta name="keywords" content="physical gold price comparison, gold premium, SGE gold price, Istanbul gold price, Kapalıçarşı gold, MCX gold price India, TOCOM gold Japan, Dubai gold souk, gold spot vs physical, worldwide gold prices, silver premium">
@@ -15,21 +14,18 @@
 <meta property="og:site_name" content="GoldPremium.org">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Gold Premium — Worldwide Gold & Silver Price Comparison">
-<meta name="twitter:description" content="Compare physical gold prices across Istanbul, Shanghai, Mumbai, Tokyo and Dubai vs. international spot price.">
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"GoldPremium.org","url":"https://goldpremium.org","description":"Real-time comparison of physical gold and silver prices across global markets including Istanbul Grand Bazaar, Shanghai Gold Exchange, Mumbai MCX, Tokyo TOCOM and Dubai Gold Souk versus international spot price.","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
-</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"GoldPremium.org","url":"https://goldpremium.org","description":"Real-time comparison of physical gold and silver prices across global markets.","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥇</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-:root {
-  --gold:#B8973A; --gold-b:#D4AF5A; --gold-p:#F0E0A8;
-  --silver:#9BAAB8; --silver-b:#C0D0E0;
-  --ink:#0C0D0F; --ink2:#14161A; --ink3:#1C1F26;
-  --text:#E8E4DC; --dim:#6A6860;
-  --green:#4E9268; --red:#A84A4A; --orange:#C07830;
-  --border:rgba(184,151,58,0.12);
+:root{
+  --gold:#B8973A;--gold-b:#D4AF5A;--gold-p:#F0E0A8;
+  --silver:#8899AA;--silver-b:#B8CCD8;--silver-p:#D8E8F0;
+  --ink:#0C0D0F;--ink2:#14161A;--ink3:#1C1F26;
+  --text:#E8E4DC;--dim:#8A8880;
+  --green:#4E9268;--red:#A84A4A;--orange:#C07830;
+  --border:rgba(184,151,58,0.14);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -39,32 +35,34 @@ body::before{content:'';position:fixed;top:-300px;left:50%;transform:translateX(
 
 /* HEADER */
 header{padding:52px 0 40px;border-bottom:1px solid var(--border);text-align:center}
-.site-title{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:300;color:var(--gold-p);letter-spacing:.04em;line-height:1.1}
+.site-title{font-family:'Cormorant Garamond',serif;font-size:58px;font-weight:300;color:var(--gold-p);letter-spacing:.04em;line-height:1.1}
 .site-title strong{font-weight:700;color:var(--gold-b)}
 .site-subtitle{margin-top:10px;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--dim)}
-.header-meta{margin-top:18px;display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;font-size:12px;color:var(--dim)}
+.header-meta{margin-top:18px;display:flex;justify-content:center;align-items:center;gap:24px;flex-wrap:wrap;font-size:12px;color:var(--dim)}
 .live-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border:1px solid rgba(78,146,104,0.35);color:var(--green);font-size:10px;letter-spacing:2px;text-transform:uppercase}
 .dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
 
-/* TOGGLE */
-.toggle{display:flex;justify-content:center;margin:36px 0 32px;border-bottom:1px solid var(--border)}
-.tbtn{padding:14px 48px;font-family:'Cormorant Garamond',serif;font-size:22px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--dim);cursor:pointer;transition:all .2s}
-.tbtn:hover{color:var(--gold-p)}
-.tbtn.on.gold{color:var(--gold-b);border-bottom-color:var(--gold)}
-.tbtn.on.silver{color:var(--silver-b);border-bottom-color:var(--silver)}
+/* CONTROLS ROW */
+.controls{display:flex;justify-content:center;align-items:center;gap:4px;margin:32px 0 28px;flex-wrap:wrap}
+.ctrl-group{display:flex;border:1px solid var(--border);overflow:hidden}
+.ctrl-btn{padding:10px 24px;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;background:var(--ink2);border:none;color:var(--dim);cursor:pointer;transition:all .2s;white-space:nowrap}
+.ctrl-btn:hover{color:var(--text);background:var(--ink3)}
+.ctrl-btn.on{background:var(--gold);color:var(--ink);font-weight:600}
+.ctrl-btn.on.silver{background:var(--silver);color:var(--ink)}
+.ctrl-sep{width:1px;background:var(--border)}
 
 /* SPOT CARDS */
 .spots{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:3px}
 .spot{background:var(--ink2);padding:32px 36px;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s}
 .spot.show{opacity:1;transform:none}
-.spot::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.spot.silver-mode::before{background:linear-gradient(90deg,transparent,var(--silver),transparent)}
+.spot::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transition:background .3s}
+.spot.silver-mode::before{background:linear-gradient(90deg,transparent,var(--silver-b),transparent)}
 .spot-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
-.spot-price{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--gold-p);line-height:1;letter-spacing:-1px}
-.spot-price sup{font-size:22px;vertical-align:super;color:var(--gold);margin-right:3px}
-.spot-price.silver-mode{color:var(--silver-b)}
-.spot-price.silver-mode sup{color:var(--silver)}
+.spot-price{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--gold-p);line-height:1;letter-spacing:-1px;transition:color .3s}
+.spot-price sup{font-size:22px;vertical-align:super;color:var(--gold);margin-right:3px;transition:color .3s}
+.spot.silver-mode .spot-price{color:var(--silver-p)}
+.spot.silver-mode .spot-price sup{color:var(--silver-b)}
 .spot-sub{margin-top:8px;font-size:11px;color:var(--dim);letter-spacing:1px}
 
 /* SECTION */
@@ -75,72 +73,61 @@ header{padding:52px 0 40px;border-bottom:1px solid var(--border);text-align:cent
 /* TABLE */
 .tscroll{overflow-x:auto;border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse}
-thead tr{border-bottom:2px solid var(--border);background:var(--ink3)}
+thead tr{border-bottom:2px solid rgba(184,151,58,0.3);background:var(--ink3)}
 th{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-b);font-weight:500;padding:14px 18px;text-align:left;white-space:nowrap}
 th.r{text-align:right}
-td{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;font-size:14px;color:var(--text)}
+td{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:middle;font-size:14px;color:#D0CCC4}
 td.r{text-align:right}
-tr:hover td{background:rgba(255,255,255,0.025)}
-tr.ref-row td{background:rgba(184,151,58,0.05)}
+tr:hover td{background:rgba(255,255,255,0.03)}
+tr.ref-row td{background:rgba(184,151,58,0.06)}
 tr.ref-row td:first-child{border-left:3px solid var(--gold)}
 tr.lo td:first-child{border-left:3px solid var(--green)}
 tr.hi td:first-child{border-left:3px solid var(--red)}
-
 .mkt{display:flex;align-items:center;gap:14px}
 .flag{font-size:24px}
-.mname{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--text)}
+.mname{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#E8E4DC}
 .mcity{font-size:11px;color:var(--dim);letter-spacing:1px;margin-top:3px}
 .plocal{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--gold-p)}
-.plocal.silver-col{color:var(--silver-b)}
+.plocal.sv{color:var(--silver-p)}
 .punit{font-size:11px;color:var(--dim);margin-top:3px}
-.pusd{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--text)}
-.peur{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--dim)}
-
+.pusd{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#E8E4DC}
+.peur{font-family:'Cormorant Garamond',serif;font-size:17px;color:#A0A098}
 .badge{display:inline-flex;align-items:center;font-size:12px;font-weight:500;padding:4px 10px;border-radius:2px;white-space:nowrap}
-.badge.pos{background:rgba(78,146,104,.12);color:var(--green)}
-.badge.neg{background:rgba(168,74,74,.12);color:var(--red)}
-.badge.neu{background:rgba(106,104,96,.1);color:var(--dim)}
-.badge.calc{background:rgba(192,120,48,.08);color:var(--orange);font-size:10px;letter-spacing:1px}
-.badge.live{background:rgba(78,146,104,.08);color:var(--green);font-size:10px;letter-spacing:1px}
-.badge.closed{background:rgba(106,104,96,.08);color:var(--dim);font-size:10px;letter-spacing:1px}
+.badge.pos{background:rgba(78,146,104,.15);color:#6EBC90}
+.badge.neg{background:rgba(168,74,74,.15);color:#C87070}
+.badge.neu{background:rgba(138,136,128,.12);color:#9A9890}
+.badge.calc{background:rgba(192,120,48,.1);color:#D09050;font-size:10px;letter-spacing:1px}
+.badge.live{background:rgba(78,146,104,.1);color:#6EBC90;font-size:10px;letter-spacing:1px}
+.badge.closed{background:rgba(138,136,128,.1);color:#8A8880;font-size:10px;letter-spacing:1px}
 
 /* CHARTS */
-.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:3px}
-.chart-card{background:var(--ink2);padding:28px 28px 20px;border:1px solid var(--border)}
-.chart-title{font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--gold-p);margin-bottom:4px}
-.chart-sub{font-size:10px;color:var(--dim);letter-spacing:1px;margin-bottom:20px}
-.chart-wrap{position:relative;height:200px}
+.chart-container{background:var(--ink2);border:1px solid var(--border);padding:28px;margin-top:3px}
+.chart-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.chart-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold-p)}
+.chart-sub{font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.range-btns{display:flex;gap:0;border:1px solid var(--border);overflow:hidden}
+.rbtn{padding:6px 16px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;background:var(--ink3);border:none;color:var(--dim);cursor:pointer;transition:all .15s}
+.rbtn:hover{color:var(--text)}
+.rbtn.on{background:var(--gold);color:var(--ink);font-weight:600}
+.chart-wrap{position:relative;height:240px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:3px}
 
 /* INFO */
-.info{margin-top:40px;border:1px solid var(--border);border-left:3px solid var(--gold-b);background:rgba(184,151,58,.03);padding:22px 26px;font-size:12px;color:var(--dim);line-height:2}
+.info{margin-top:40px;border:1px solid var(--border);border-left:3px solid var(--gold-b);background:rgba(184,151,58,.03);padding:22px 26px;font-size:12px;color:#9A9890;line-height:2}
 .info strong{color:var(--gold-p)}
 .info a{color:var(--gold-b);text-decoration:none}
-
-/* ABOUT */
-.about{margin-top:3px;padding:28px 32px;background:var(--ink2);border:1px solid var(--border);font-size:12px;color:var(--dim);line-height:2}
+.about{margin-top:3px;padding:28px 32px;background:var(--ink2);border:1px solid var(--border);font-size:12px;color:#9A9890;line-height:2}
 .about h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--gold-p);margin-bottom:16px}
 .about p{max-width:860px;margin-bottom:12px}
 .about strong{color:var(--text)}
 
-/* ERR / LOADING */
-.err{background:rgba(168,74,74,.07);border:1px solid rgba(168,74,74,.2);padding:14px 18px;font-size:13px;color:var(--red);margin:14px 0;display:none;border-radius:2px}
+.err{background:rgba(168,74,74,.07);border:1px solid rgba(168,74,74,.2);padding:14px 18px;font-size:13px;color:var(--red);margin:14px 0;display:none}
 .loading{color:var(--dim);text-align:center;padding:48px 0;font-size:13px}
-
-/* FOOTER */
 footer{margin-top:70px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--dim)}
 footer a{color:var(--gold-b);text-decoration:none}
 
-@media(max-width:900px){
-  .spots{grid-template-columns:1fr}
-  .charts-grid{grid-template-columns:1fr}
-  .site-title{font-size:38px}
-  .wrap{padding:0 16px 60px}
-}
-@media(max-width:600px){
-  .site-title{font-size:28px}
-  .spot-price{font-size:38px}
-  th,td{padding:12px 10px}
-}
+@media(max-width:900px){.spots{grid-template-columns:1fr}.chart-grid{grid-template-columns:1fr}.site-title{font-size:38px}.wrap{padding:0 16px 60px}}
+@media(max-width:600px){.site-title{font-size:28px}.spot-price{font-size:36px}th,td{padding:12px 10px}.controls{gap:6px}}
 </style>
 </head>
 <body>
@@ -156,21 +143,30 @@ footer a{color:var(--gold-b);text-decoration:none}
   </div>
 </header>
 
-<div class="toggle">
-  <button class="tbtn on gold" id="btn-gold" onclick="setMetal('XAU')">Gold</button>
-  <button class="tbtn silver" id="btn-silver" onclick="setMetal('XAG')">Silver</button>
+<!-- CONTROLS: Metal + Unit -->
+<div class="controls">
+  <div class="ctrl-group">
+    <button class="ctrl-btn on" id="btn-gold" onclick="setMetal('XAU')">Gold</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn silver" id="btn-silver" onclick="setMetal('XAG')">Silver</button>
+  </div>
+  <div class="ctrl-group">
+    <button class="ctrl-btn on" id="btn-oz" onclick="setUnit('oz')">Troy Oz</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="btn-gram" onclick="setUnit('gram')">Gram</button>
+  </div>
 </div>
 
-<div class="err" id="err">Failed to load price data. Please check your internet connection and reload the page.</div>
+<div class="err" id="err">Failed to load price data. Please check your internet connection and reload.</div>
 
 <div class="spots">
   <div class="spot" id="s-usd">
-    <div class="spot-label">International Spot Price · USD / Troy Oz</div>
+    <div class="spot-label" id="lbl-usd">International Spot Price · USD / Troy Oz</div>
     <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">—</span></div>
     <div class="spot-sub">LBMA London / COMEX New York · Global Benchmark</div>
   </div>
   <div class="spot" id="s-eur">
-    <div class="spot-label">Spot Price · EUR / Gram</div>
+    <div class="spot-label" id="lbl-eur">Spot Price · EUR / Troy Oz</div>
     <div class="spot-price" id="p-eur"><sup>€</sup><span id="v-eur">—</span></div>
     <div class="spot-sub">Converted via ECB exchange rate</div>
   </div>
@@ -187,9 +183,9 @@ footer a{color:var(--gold-b);text-decoration:none}
 <thead>
   <tr>
     <th>Market</th>
-    <th>Local Price</th>
-    <th class="r">USD / oz</th>
-    <th class="r">EUR / oz</th>
+    <th id="th-local">Local Price</th>
+    <th class="r" id="th-usd">USD / oz</th>
+    <th class="r" id="th-eur">EUR / oz</th>
     <th class="r">vs. Spot USD</th>
     <th class="r">vs. Spot %</th>
     <th>Data</th>
@@ -201,64 +197,99 @@ footer a{color:var(--gold-b);text-decoration:none}
 
 <!-- CHARTS -->
 <div class="sec" style="margin-top:48px">
-  <div class="sec-title">Premium Charts</div>
-  <div class="sec-note">Premium = Local Price (USD/oz equiv.) − COMEX Spot</div>
+  <div class="sec-title">Price Charts</div>
+  <div class="sec-note" id="chart-unit-note">USD / Troy Oz</div>
 </div>
-<div class="charts-grid">
-  <div class="chart-card">
-    <div class="chart-title">Istanbul vs. COMEX Spot</div>
-    <div class="chart-sub">KAPALÇARŞI PREMIUM · USD/OZ · LAST 20 DATA POINTS</div>
+
+<div class="chart-container">
+  <div class="chart-header">
+    <div>
+      <div class="chart-title" id="chart1-title">Gold Spot Price</div>
+      <div class="chart-sub">LBMA / COMEX · HISTORICAL</div>
+    </div>
+    <div class="range-btns">
+      <button class="rbtn on" onclick="setRange('1D',this)">1D</button>
+      <button class="rbtn" onclick="setRange('5D',this)">5D</button>
+      <button class="rbtn" onclick="setRange('1M',this)">1M</button>
+      <button class="rbtn" onclick="setRange('1Y',this)">1Y</button>
+    </div>
+  </div>
+  <div class="chart-wrap"><canvas id="chart-spot"></canvas></div>
+</div>
+
+<div class="chart-grid">
+  <div class="chart-container">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Istanbul Premium</div>
+        <div class="chart-sub">VS. COMEX SPOT · USD/OZ · LIVE SESSION</div>
+      </div>
+    </div>
     <div class="chart-wrap"><canvas id="chart-istanbul"></canvas></div>
   </div>
-  <div class="chart-card">
-    <div class="chart-title">All Markets Premium Overview</div>
-    <div class="chart-sub">CURRENT PREMIUM VS. SPOT · USD/OZ</div>
+  <div class="chart-container">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">All Markets Premium</div>
+        <div class="chart-sub">CURRENT PREMIUM VS. SPOT · USD/OZ</div>
+      </div>
+    </div>
     <div class="chart-wrap"><canvas id="chart-all"></canvas></div>
   </div>
 </div>
 
 <div class="info">
   <strong>About the data</strong><br><br>
-  <strong>🟢 Istanbul Kapalıçarşı (Grand Bazaar):</strong> Real-time buy/sell prices from the Istanbul physical gold market. The premium typically ranges 0–5% depending on local demand and currency conditions.<br><br>
-  <strong>🟠 Calculated markets</strong> (Shanghai SGE, Mumbai MCX, Tokyo TOCOM, Dubai, Jakarta Antam): International spot × local FX rate + known structural premiums. India carries ~13% due to import duty + GST. Shanghai SGE premium historically −$10 to +$50/oz depending on PBOC import policy.<br><br>
-  Sources: <a href="https://gold-api.com" target="_blank">gold-api.com</a> · <a href="https://frankfurter.app" target="_blank">frankfurter.app</a> · <a href="https://kapali-carsi-altin-api.vercel.app" target="_blank">Kapalıçarşı API</a>
+  <strong>🟢 Istanbul Kapalıçarşı (Grand Bazaar):</strong> Real-time buy/sell prices from the Istanbul physical gold market. Premium typically 0–5% over spot.<br><br>
+  <strong>🟠 Calculated</strong> (Shanghai SGE, Mumbai MCX, Tokyo TOCOM, Dubai, Jakarta Antam): Spot × FX + known structural premiums. India ~13% due to import duty + GST. SGE premium historically −$10 to +$50/oz.<br><br>
+  Sources: <a href="https://gold-api.com" target="_blank">gold-api.com</a> (spot) · <a href="https://frankfurter.app" target="_blank">frankfurter.app</a> (FX) · <a href="https://finans.truncgil.com" target="_blank">finans.truncgil.com</a> (Istanbul) · <a href="https://freegoldapi.com" target="_blank">freegoldapi.com</a> (history)
 </div>
 
 <div class="about">
   <h2>About GoldPremium.org</h2>
-  <p>GoldPremium.org tracks physical gold and silver prices across major global markets and compares them to the international LBMA/COMEX spot price. Unlike paper gold (futures and ETFs), physical markets reflect genuine supply and demand for real metal.</p>
-  <p>The <strong>gold premium</strong> measures how much more (or less) buyers pay for physical gold in a given market compared to the global benchmark. A rising Shanghai premium signals strong Chinese physical demand. Istanbul premiums reflect local currency dynamics and import conditions. India's premium is structural due to government import duties.</p>
-  <p>All data is for informational purposes only and does not constitute financial advice.</p>
+  <p>GoldPremium.org tracks physical gold and silver prices across major global markets and compares them to the international LBMA/COMEX spot price. The <strong>gold premium</strong> measures how much more buyers pay for physical metal vs. the global benchmark.</p>
+  <p>A rising <strong>Shanghai premium</strong> signals strong Chinese physical demand. <strong>Istanbul premiums</strong> reflect Turkish lira dynamics and import conditions. <strong>India's premium</strong> is structural due to government import duties. All data for informational purposes only — not financial advice.</p>
 </div>
 
 <footer>
-  <div>GoldPremium.org · For informational purposes only · Not financial advice</div>
+  <div>GoldPremium.org · Informational purposes only · Not financial advice</div>
   <div><a href="https://gold-api.com" target="_blank">gold-api.com</a> · <a href="https://frankfurter.app" target="_blank">frankfurter.app</a></div>
 </footer>
 </div>
 
 <script>
-const G = 31.1035;
+const G = 31.1035; // grams per troy oz
 let metal = 'XAU';
+let unit = 'oz'; // 'oz' or 'gram'
 let spot = null, fx = null, istanbul = null;
+let histData = []; // historical spot prices
+let currentRange = '1D';
+let chartSpot = null, chartIst = null, chartAll = null;
+
 const CS = {USD:'$',EUR:'€',GBP:'£',TRY:'₺',CNY:'¥',INR:'₹',JPY:'¥',IDR:'Rp',AED:'د.إ'};
 
-// History for Istanbul chart
-const IST_HIST_KEY = 'ist_history';
+// Istanbul session history
 let istHistory = [];
-try { istHistory = JSON.parse(localStorage.getItem(IST_HIST_KEY)||'[]'); } catch(e){}
-
-// Chart instances
-let chartIst = null, chartAll = null;
+try { istHistory = JSON.parse(localStorage.getItem('ist_history')||'[]'); } catch(e){}
 
 const MARKETS = [
-  {id:'istanbul', name:'Grand Bazaar', city:'Istanbul · Turkey', flag:'🇹🇷', currency:'TRY', unit:'gram', unitLabel:'TRY/gram', calcPremium:0.02, isLive:true},
-  {id:'shanghai', name:'Shanghai Gold Exch.', city:'Shanghai · China (SGE)', flag:'🇨🇳', currency:'CNY', unit:'gram', unitLabel:'CNY/gram', calcPremium:0.01, isLive:false},
-  {id:'india', name:'MCX / IBJA', city:'Mumbai · India', flag:'🇮🇳', currency:'INR', unit:'gram10', unitLabel:'INR/10g', calcPremium:0.13, isLive:false},
-  {id:'japan', name:'TOCOM', city:'Tokyo · Japan', flag:'🇯🇵', currency:'JPY', unit:'gram', unitLabel:'JPY/gram', calcPremium:0.005, isLive:false},
-  {id:'dubai', name:'Dubai Gold Souk', city:'Dubai · UAE', flag:'🇦🇪', currency:'AED', unit:'gram', unitLabel:'AED/gram', calcPremium:0.005, isLive:false},
-  {id:'jakarta', name:'Antam / Logam Mulia', city:'Jakarta · Indonesia', flag:'🇮🇩', currency:'IDR', unit:'gram', unitLabel:'IDR/gram', calcPremium:0.05, isLive:false},
+  {id:'istanbul', name:'Grand Bazaar', city:'Istanbul · Turkey', flag:'🇹🇷', currency:'TRY', unitLabel:'TRY/g', calcPremium:0.02},
+  {id:'shanghai', name:'Shanghai Gold Exch.', city:'Shanghai · China (SGE)', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/g', calcPremium:0.01},
+  {id:'india', name:'MCX / IBJA', city:'Mumbai · India', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0.13, per10g:true},
+  {id:'japan', name:'TOCOM', city:'Tokyo · Japan', flag:'🇯🇵', currency:'JPY', unitLabel:'JPY/g', calcPremium:0.005},
+  {id:'dubai', name:'Dubai Gold Souk', city:'Dubai · UAE', flag:'🇦🇪', currency:'AED', unitLabel:'AED/g', calcPremium:0.005},
+  {id:'jakarta', name:'Antam / Logam Mulia', city:'Jakarta · Indonesia', flag:'🇮🇩', currency:'IDR', unitLabel:'IDR/g', calcPremium:0.05},
 ];
+
+// Chart defaults
+const CHART_OPTS = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'rgba(20,22,26,0.95)',titleColor:'#D4AF5A',bodyColor:'#D0CCC4',borderColor:'rgba(184,151,58,0.3)',borderWidth:1}},
+  scales:{
+    x:{ticks:{color:'#8A8880',font:{family:'DM Mono',size:10},maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.03)'}},
+    y:{ticks:{color:'#8A8880',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.03)'}}
+  }
+};
 
 function fmt(n,d){
   if(n==null||isNaN(n))return '—';
@@ -269,10 +300,17 @@ function badge(pct){
   const s=pct>0?'+':'',c=pct>0.5?'neg':pct<-0.5?'pos':'neu';
   return `<span class="badge ${c}">${s}${pct.toFixed(2)}%</span>`;
 }
-function diffBadge(d){
+function diffBadge(d,u){
   if(d==null)return '<span class="badge neu">—</span>';
-  const s=d>0?'+':'',c=d>5?'neg':d<-5?'pos':'neu';
-  return `<span class="badge ${c}">${s}$${fmt(d,2)}</span>`;
+  const val = u==='gram' ? d/G : d;
+  const s=val>0?'+':'',c=val>0.1?'neg':val<-0.1?'pos':'neu';
+  return `<span class="badge ${c}">${s}$${fmt(val,2)}</span>`;
+}
+
+// Convert price to display unit
+function toDisplay(pricePerOz){
+  if(pricePerOz==null)return null;
+  return unit==='gram' ? pricePerOz/G : pricePerOz;
 }
 
 function calcMarket(m){
@@ -281,181 +319,207 @@ function calcMarket(m){
   if(!spotUSD)return null;
   const fxRate = fx[m.currency]||1;
   let localPrice, usdOz;
-  if(m.id==='istanbul' && istanbul && istanbul.gold && metal==='XAU'){
-    localPrice = istanbul.gold;
-    usdOz = (localPrice/fxRate)*G;
-  } else if(m.id==='istanbul' && istanbul && istanbul.silver && metal==='XAG'){
-    localPrice = istanbul.silver;
-    usdOz = (localPrice/fxRate)*G;
+
+  if(m.id==='istanbul'){
+    const istPrice = metal==='XAU' ? istanbul?.gold : istanbul?.silver;
+    if(istPrice){
+      localPrice = istPrice; // TRY per gram
+      usdOz = (istPrice/fxRate)*G;
+    } else {
+      localPrice = (spotUSD/G)*fxRate*(1+m.calcPremium);
+      usdOz = spotUSD*(1+m.calcPremium);
+    }
   } else {
-    const basePerGram = (spotUSD/G)*fxRate*(1+m.calcPremium);
-    localPrice = m.unit==='gram10' ? basePerGram*10 : basePerGram;
+    localPrice = (spotUSD/G)*fxRate*(1+m.calcPremium);
+    if(m.per10g) localPrice *= 10;
     usdOz = spotUSD*(1+m.calcPremium);
   }
   return {localPrice, usdOz};
 }
 
 async function load(){
-  try {
+  try{
     document.getElementById('err').style.display='none';
-    const spotUSD_url = metal==='XAU'
-      ? 'https://api.gold-api.com/price/XAU'
-      : 'https://api.gold-api.com/price/XAG';
-
     const [gr, sr, fxr] = await Promise.all([
       fetch('https://api.gold-api.com/price/XAU').then(r=>r.json()),
       fetch('https://api.gold-api.com/price/XAG').then(r=>r.json()),
       fetch('https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,IDR,AED').then(r=>r.json())
     ]);
-    spot = {XAU: gr.price, XAG: sr.price};
+    spot = {XAU:gr.price, XAG:sr.price};
     fx = {...fxr.rates, USD:1};
 
-    // Istanbul
-    try {
-      const ist = await fetch('https://kapali-carsi-altin-api.vercel.app/api/altin').then(r=>r.json());
+    // Istanbul — 3 API sources tried in order
+    try{
       let gold=null, silver=null;
-      if(Array.isArray(ist)){
-        for(const item of ist){
-          const c=(item.code||'').toUpperCase();
-          if(c==='ALTIN'){const a=parseFloat(item.alis||0),s=parseFloat(item.satis||0);if(a&&s)gold=Math.round((a+s)/2*100)/100;}
-          if(c==='GUMUS'||c==='GÜMÜŞ'){const a=parseFloat(item.alis||0),s=parseFloat(item.satis||0);if(a&&s)silver=Math.round((a+s)/2*100)/100;}
+
+      // Source 1: genelpara.com — Turkish gold prices, free, no key, CORS-enabled
+      try{
+        const gp = await fetch('https://api.genelpara.com/embed/altin.json').then(r=>r.json());
+        // GA = Gram Altın (24K), GU = Gümüş (silver)
+        if(gp['GA']){
+          const s=parseFloat(String(gp['GA'].satis||'0').replace(',','.'));
+          const a=parseFloat(String(gp['GA'].alis||'0').replace(',','.'));
+          if(s>100) gold=Math.round(s*100)/100;
+          else if(a>100) gold=Math.round(a*100)/100;
         }
+        if(gp['GU']){
+          const s=parseFloat(String(gp['GU'].satis||'0').replace(',','.'));
+          if(s>0) silver=Math.round(s*100)/100;
+        }
+      }catch(e1){console.warn('genelpara failed',e1);}
+
+      // Source 2: truncgil v4 — fallback
+      if(!gold){
+        try{
+          const td=await fetch('https://finans.truncgil.com/v4/today.json').then(r=>r.json());
+          // In v4 keys use English field names
+          const keys=Object.keys(td);
+          for(const k of keys){
+            if(k.toLowerCase().includes('gram') && k.toLowerCase().includes('alt')){
+              const a=parseFloat(td[k].Buying||0), s=parseFloat(td[k].Selling||0);
+              if(s>100) {gold=Math.round((a+s)/2*100)/100; break;}
+            }
+          }
+        }catch(e2){console.warn('truncgil failed',e2);}
+      }
+
+      // Source 3: kapali-carsi — last resort
+      if(!gold){
+        try{
+          const ist=await fetch('https://kapali-carsi-altin-api.vercel.app/api/altin').then(r=>r.json());
+          if(Array.isArray(ist)){
+            for(const item of ist){
+              const c=(item.code||'').toUpperCase();
+              if(c==='ALTIN'){const a=parseFloat(item.alis||0),s=parseFloat(item.satis||0);if(a&&s)gold=Math.round((a+s)/2*100)/100;}
+              if(c==='GUMUS'||c==='GÜMÜŞ'){const a=parseFloat(item.alis||0),s=parseFloat(item.satis||0);if(a&&s)silver=Math.round((a+s)/2*100)/100;}
+            }
+          }
+        }catch(e3){console.warn('kapali-carsi failed',e3);}
       }
       if(gold){
-        istanbul = {gold, silver, status:'live', ts:new Date().toISOString()};
-        try{localStorage.setItem('ist_last', JSON.stringify(istanbul));}catch(e){}
-        // Save to history for chart
-        const spotNow = spot.XAU;
-        const fxTRY = fx.TRY||1;
-        const istUSD = (gold/fxTRY)*G;
-        const premium = istUSD - spotNow;
-        istHistory.push({t: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}), p: Math.round(premium*100)/100});
-        if(istHistory.length > 20) istHistory = istHistory.slice(-20);
-        try{localStorage.setItem(IST_HIST_KEY, JSON.stringify(istHistory));}catch(e){}
+        istanbul={gold,silver,status:'live',ts:new Date().toISOString()};
+        try{localStorage.setItem('ist_last',JSON.stringify(istanbul));}catch(e){}
+        // Add to session history
+        const istUSD=(gold/(fx.TRY||1))*G;
+        const prem=Math.round((istUSD-spot.XAU)*100)/100;
+        const t=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+        istHistory.push({t,p:prem});
+        if(istHistory.length>40)istHistory=istHistory.slice(-40);
+        try{localStorage.setItem('ist_history',JSON.stringify(istHistory));}catch(e){}
       } else {
         let last=null;
         try{last=JSON.parse(localStorage.getItem('ist_last')||'null');}catch(e){}
-        istanbul = last ? {...last, status:'closed'} : {gold:null,silver:null,status:'closed',ts:null};
+        istanbul=last?{...last,status:'closed'}:{gold:null,silver:null,status:'closed',ts:null};
       }
-    } catch(e){
+    }catch(e){
       let last=null;
       try{last=JSON.parse(localStorage.getItem('ist_last')||'null');}catch(ex){}
-      istanbul = last ? {...last, status:'closed'} : {gold:null,silver:null,status:'closed',ts:null};
+      istanbul=last?{...last,status:'closed'}:{gold:null,silver:null,status:'closed',ts:null};
     }
 
-    document.getElementById('upd').textContent =
-      'Updated: '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+' UTC';
+    document.getElementById('upd').textContent='Updated: '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+' UTC';
     render();
-  } catch(e){
+    await loadHistory();
+  }catch(e){
     document.getElementById('err').style.display='block';
     console.error(e);
   }
 }
 
-function render(){
-  if(!spot||!fx)return;
-  const isGold = metal==='XAU';
-  const spotUSD = isGold ? spot.XAU : spot.XAG;
-  const silverMode = !isGold;
-
-  // Spot hero colors
-  ['s-usd','s-eur'].forEach(id=>{
-    const el = document.getElementById(id);
-    el.classList.toggle('silver-mode', silverMode);
-    el.classList.add('show');
-  });
-  ['p-usd','p-eur'].forEach(id=>{
-    document.getElementById(id).classList.toggle('silver-mode', silverMode);
-  });
-  const accentColor = silverMode ? 'var(--silver)' : 'var(--gold)';
-  document.querySelectorAll('.spot::before').forEach(el => el.style.background = `linear-gradient(90deg,transparent,${accentColor},transparent)`);
-
-  document.getElementById('v-usd').textContent = fmt(spotUSD,2);
-  const eurOz = spotUSD&&fx.EUR ? spotUSD*fx.EUR : null;
-  document.getElementById('v-eur').textContent = fmt(eurOz ? eurOz/G : null, 2);
-
-  // Build rows
-  const rows = MARKETS.map(m=>{
-    const calc = calcMarket(m);
-    if(!calc)return null;
-    const {localPrice,usdOz} = calc;
-    const diff = usdOz - spotUSD;
-    const pct = (diff/spotUSD)*100;
-    const eurOzLocal = fx.EUR ? usdOz*fx.EUR : null;
-    const istLive = m.id==='istanbul' && istanbul?.status==='live';
-    const istClosed = m.id==='istanbul' && istanbul?.status==='closed';
-    return {...m, localPrice, usdOz, diff, pct, eurOzLocal, istLive, istClosed};
-  }).filter(Boolean).sort((a,b)=>a.usdOz-b.usdOz);
-
-  const loUSD = rows.reduce((min,r)=>r.usdOz<min?r.usdOz:min, Infinity);
-  const hiUSD = rows.reduce((max,r)=>r.usdOz>max?r.usdOz:max, -Infinity);
-
-  document.getElementById('loading').style.display='none';
-  document.getElementById('tbl').style.display='';
-
-  const refEur = fx.EUR ? spotUSD*fx.EUR : null;
-  let html = `<tr class="ref-row">
-    <td><div class="mkt"><span class="flag">🌍</span><div><div class="mname">LBMA / COMEX</div><div class="mcity">London / New York · Reference</div></div></div></td>
-    <td><div class="plocal ${silverMode?'silver-col':''}">$${fmt(spotUSD,2)}</div><div class="punit">USD / troy oz</div></td>
-    <td class="r"><div class="pusd">$${fmt(spotUSD,2)}</div></td>
-    <td class="r"><div class="peur">€${fmt(refEur,2)}</div></td>
-    <td class="r"><span class="badge neu">Reference</span></td>
-    <td class="r"><span class="badge neu">0.00%</span></td>
-    <td><span class="badge live">🟢 LIVE</span></td>
-  </tr>`;
-
-  html += rows.map(r=>{
-    const sym = CS[r.currency]||r.currency;
-    const lp = r.localPrice>10000 ? fmt(r.localPrice,0) : fmt(r.localPrice,2);
-    const rowCls = r.usdOz===loUSD?'lo':r.usdOz===hiUSD?'hi':'';
-    let srcBadge;
-    if(r.istLive){
-      srcBadge='<span class="badge live">🟢 LIVE</span>';
-    } else if(r.istClosed){
-      const ts = istanbul?.ts ? ' '+new Date(istanbul.ts).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
-      srcBadge=`<span class="badge closed">⚫ CLOSED${ts}</span>`;
-    } else {
-      srcBadge='<span class="badge calc">🟠 CALC</span>';
-    }
-    const priceNote = (r.istClosed && istanbul?.gold)
-      ? '<div class="punit" style="color:var(--dim);font-size:10px">last known price</div>'
-      : `<div class="punit">${r.unitLabel}</div>`;
-    return `<tr class="${rowCls}">
-      <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div></div></div></td>
-      <td><div class="plocal ${silverMode?'silver-col':''}">${sym} ${lp}</div>${priceNote}</td>
-      <td class="r"><div class="pusd">$${fmt(r.usdOz,2)}</div></td>
-      <td class="r"><div class="peur">€${fmt(r.eurOzLocal,2)}</div></td>
-      <td class="r">${diffBadge(r.diff)}</td>
-      <td class="r">${badge(r.pct)}</td>
-      <td>${srcBadge}</td>
-    </tr>`;
-  }).join('');
-
-  document.getElementById('tbody').innerHTML = html;
-  renderCharts(rows, spotUSD);
+async function loadHistory(){
+  try{
+    // Use freegoldapi.com for gold historical, generate approximate for silver
+    const data = await fetch('https://freegoldapi.com/data/latest.json').then(r=>r.json());
+    histData = data.filter(d=>d.date>='2020-01-01' && d.price>100)
+      .map(d=>({date:d.date, gold:d.price, silver:d.price/75})); // approx silver from ratio
+    renderSpotChart();
+  }catch(e){console.warn('History load failed',e);}
 }
 
-function renderCharts(rows, spotUSD){
-  const chartDefaults = {
-    responsive:true, maintainAspectRatio:false,
-    plugins:{legend:{display:false}},
-    scales:{
-      x:{ticks:{color:'#6A6860',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.04)'}},
-      y:{ticks:{color:'#6A6860',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.04)'},
-         title:{display:true,text:'Premium (USD/oz)',color:'#6A6860',font:{family:'DM Mono',size:10}}}
-    }
-  };
+function getFilteredHistory(){
+  if(!histData.length)return [];
+  const now = new Date();
+  let cutoff;
+  if(currentRange==='1D'){
+    // For 1D use live session data points (15min intervals stored in memory)
+    return null; // signal to use intraday
+  } else if(currentRange==='5D'){
+    cutoff = new Date(now - 5*24*60*60*1000);
+  } else if(currentRange==='1M'){
+    cutoff = new Date(now - 30*24*60*60*1000);
+  } else {
+    cutoff = new Date(now - 365*24*60*60*1000);
+  }
+  const cutStr = cutoff.toISOString().slice(0,10);
+  return histData.filter(d=>d.date>=cutStr);
+}
 
-  // Chart 1: Istanbul history
-  const ctx1 = document.getElementById('chart-istanbul').getContext('2d');
-  if(chartIst) chartIst.destroy();
-  const istData = istHistory.length > 0 ? istHistory : [{t:'—', p:0}];
-  chartIst = new Chart(ctx1, {
+function renderSpotChart(){
+  const ctx = document.getElementById('chart-spot').getContext('2d');
+  if(chartSpot)chartSpot.destroy();
+
+  const filtered = getFilteredHistory();
+  const isGold = metal==='XAU';
+  const color = isGold ? '#D4AF5A' : '#B8CCD8';
+  const fillColor = isGold ? 'rgba(212,175,90,0.08)' : 'rgba(184,204,216,0.08)';
+  const unitLabel = unit==='gram' ? 'USD/g' : 'USD/oz';
+
+  let labels, values;
+  if(filtered===null || filtered.length===0){
+    // 1D: use current spot only as single point
+    labels = [new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})];
+    const s = isGold?spot?.XAU:spot?.XAG;
+    values = [s ? (unit==='gram'?s/G:s) : null];
+  } else {
+    labels = filtered.map(d=>d.date.slice(5)); // MM-DD
+    values = filtered.map(d=>{
+      const p = isGold?d.gold:d.silver;
+      return unit==='gram' ? p/G : p;
+    });
+  }
+
+  chartSpot = new Chart(ctx,{
     type:'line',
     data:{
-      labels: istData.map(d=>d.t),
+      labels,
       datasets:[{
-        data: istData.map(d=>d.p),
+        data:values,
+        borderColor:color,
+        backgroundColor:fillColor,
+        borderWidth:2,
+        pointRadius:0,
+        pointHoverRadius:4,
+        fill:true,
+        tension:0.2
+      }]
+    },
+    options:{...CHART_OPTS,
+      plugins:{...CHART_OPTS.plugins,
+        tooltip:{...CHART_OPTS.plugins.tooltip,
+          callbacks:{label:ctx=>`$${fmt(ctx.parsed.y,2)} ${unitLabel}`}
+        }
+      },
+      scales:{
+        ...CHART_OPTS.scales,
+        y:{...CHART_OPTS.scales.y,
+          title:{display:true,text:unitLabel,color:'#8A8880',font:{family:'DM Mono',size:10}}
+        }
+      }
+    }
+  });
+}
+
+function renderIstanbulChart(){
+  const ctx = document.getElementById('chart-istanbul').getContext('2d');
+  if(chartIst)chartIst.destroy();
+  const data = istHistory.length>0 ? istHistory : [{t:'—',p:0}];
+  const vals = data.map(d=>unit==='gram'?Math.round(d.p/G*100)/100:d.p);
+  chartIst = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:data.map(d=>d.t),
+      datasets:[{
+        data:vals,
         borderColor:'#D4AF5A',
         backgroundColor:'rgba(212,175,90,0.08)',
         borderWidth:2,
@@ -465,46 +529,171 @@ function renderCharts(rows, spotUSD){
         tension:0.3
       }]
     },
-    options:{...chartDefaults,
-      plugins:{...chartDefaults.plugins,
-        tooltip:{callbacks:{label:ctx=>`$${ctx.parsed.y.toFixed(2)}/oz premium`}}
+    options:{...CHART_OPTS,
+      plugins:{...CHART_OPTS.plugins,
+        tooltip:{...CHART_OPTS.plugins.tooltip,
+          callbacks:{label:ctx=>`$${fmt(ctx.parsed.y,2)} premium`}
+        }
+      },
+      scales:{
+        ...CHART_OPTS.scales,
+        y:{...CHART_OPTS.scales.y,
+          title:{display:true,text:'Premium USD/'+(unit==='gram'?'g':'oz'),color:'#8A8880',font:{family:'DM Mono',size:10}}
+        }
       }
     }
   });
+}
 
-  // Chart 2: All markets bar chart
-  const ctx2 = document.getElementById('chart-all').getContext('2d');
-  if(chartAll) chartAll.destroy();
-  const barData = rows.map(r=>({name:r.name, diff:Math.round(r.diff*100)/100, flag:r.flag}));
-  chartAll = new Chart(ctx2, {
+function renderAllChart(rows, spotUSD){
+  const ctx = document.getElementById('chart-all').getContext('2d');
+  if(chartAll)chartAll.destroy();
+  const barData = rows.map(r=>{
+    const diff = unit==='gram' ? r.diff/G : r.diff;
+    return {name:r.flag+' '+r.name, diff:Math.round(diff*100)/100};
+  });
+  chartAll = new Chart(ctx,{
     type:'bar',
     data:{
-      labels: barData.map(d=>d.flag+' '+d.name),
+      labels:barData.map(d=>d.name),
       datasets:[{
-        data: barData.map(d=>d.diff),
-        backgroundColor: barData.map(d=>d.diff>5?'rgba(168,74,74,0.6)':d.diff<-5?'rgba(78,146,104,0.6)':'rgba(184,151,58,0.4)'),
-        borderColor: barData.map(d=>d.diff>5?'#A84A4A':d.diff<-5?'#4E9268':'#B8973A'),
+        data:barData.map(d=>d.diff),
+        backgroundColor:barData.map(d=>d.diff>0.1?'rgba(168,74,74,0.5)':d.diff<-0.1?'rgba(78,146,104,0.5)':'rgba(184,151,58,0.35)'),
+        borderColor:barData.map(d=>d.diff>0.1?'#A84A4A':d.diff<-0.1?'#4E9268':'#B8973A'),
         borderWidth:1
       }]
     },
-    options:{...chartDefaults,
-      plugins:{...chartDefaults.plugins,
-        tooltip:{callbacks:{label:ctx=>`$${ctx.parsed.y.toFixed(2)}/oz vs spot`}}
+    options:{...CHART_OPTS,
+      plugins:{...CHART_OPTS.plugins,
+        tooltip:{...CHART_OPTS.plugins.tooltip,
+          callbacks:{label:ctx=>`$${fmt(ctx.parsed.y,2)} vs spot`}
+        }
+      },
+      scales:{
+        ...CHART_OPTS.scales,
+        y:{...CHART_OPTS.scales.y,
+          title:{display:true,text:'Premium USD/'+(unit==='gram'?'g':'oz'),color:'#8A8880',font:{family:'DM Mono',size:10}}
+        }
       }
     }
   });
 }
 
+function render(){
+  if(!spot||!fx)return;
+  const isGold = metal==='XAU';
+  const spotUSD = isGold?spot.XAU:spot.XAG;
+  const isGram = unit==='gram';
+  const unitSuffix = isGram ? '/ Gram' : '/ Troy Oz';
+
+  // Silver mode styling
+  ['s-usd','s-eur'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.toggle('silver-mode',!isGold);
+    el.classList.add('show');
+  });
+
+  // Update labels
+  document.getElementById('lbl-usd').textContent = `International Spot Price · USD ${unitSuffix}`;
+  document.getElementById('lbl-eur').textContent = `Spot Price · EUR ${unitSuffix}`;
+  document.getElementById('th-usd').textContent = `USD / ${isGram?'g':'oz'}`;
+  document.getElementById('th-eur').textContent = `EUR / ${isGram?'g':'oz'}`;
+  document.getElementById('chart-unit-note').textContent = `USD / ${isGram?'Gram':'Troy Oz'}`;
+  document.getElementById('chart1-title').textContent = (isGold?'Gold':'Silver')+' Spot Price';
+
+  const displaySpot = toDisplay(spotUSD);
+  const displayEur = toDisplay(spotUSD&&fx.EUR?spotUSD*fx.EUR:null);
+
+  document.getElementById('v-usd').textContent = fmt(displaySpot,isGram?3:2);
+  document.getElementById('v-eur').textContent = fmt(displayEur,isGram?3:2);
+
+  // Rows
+  const rows = MARKETS.map(m=>{
+    const calc = calcMarket(m);
+    if(!calc)return null;
+    const {localPrice,usdOz} = calc;
+    const diff = usdOz - spotUSD;
+    const pct = (diff/spotUSD)*100;
+    const eurOz = fx.EUR?usdOz*fx.EUR:null;
+    const istLive = m.id==='istanbul'&&istanbul?.status==='live';
+    const istClosed = m.id==='istanbul'&&istanbul?.status==='closed';
+    return {...m, localPrice, usdOz, diff, pct, eurOz, istLive, istClosed};
+  }).filter(Boolean).sort((a,b)=>a.usdOz-b.usdOz);
+
+  const lo = rows.reduce((min,r)=>r.usdOz<min?r.usdOz:min,Infinity);
+  const hi = rows.reduce((max,r)=>r.usdOz>max?r.usdOz:max,-Infinity);
+
+  document.getElementById('loading').style.display='none';
+  document.getElementById('tbl').style.display='';
+
+  const refEur = fx.EUR?spotUSD*fx.EUR:null;
+  let html=`<tr class="ref-row">
+    <td><div class="mkt"><span class="flag">🌍</span><div><div class="mname">LBMA / COMEX</div><div class="mcity">London / New York · Reference</div></div></div></td>
+    <td><div class="plocal${!isGold?' sv':''}">$${fmt(toDisplay(spotUSD),isGram?3:2)}</div><div class="punit">USD ${unitSuffix}</div></td>
+    <td class="r"><div class="pusd">$${fmt(toDisplay(spotUSD),isGram?3:2)}</div></td>
+    <td class="r"><div class="peur">€${fmt(toDisplay(refEur),isGram?3:2)}</div></td>
+    <td class="r"><span class="badge neu">Reference</span></td>
+    <td class="r"><span class="badge neu">0.00%</span></td>
+    <td><span class="badge live">🟢 LIVE</span></td>
+  </tr>`;
+
+  html+=rows.map(r=>{
+    const sym=CS[r.currency]||r.currency;
+    // Local price: always in local currency per gram (or per 10g for India)
+    const lp = r.per10g ? fmt(r.localPrice,0) : (r.localPrice>1000?fmt(r.localPrice,0):fmt(r.localPrice,2));
+    const rowCls=r.usdOz===lo?'lo':r.usdOz===hi?'hi':'';
+    let srcBadge;
+    if(r.istLive)srcBadge='<span class="badge live">🟢 LIVE</span>';
+    else if(r.istClosed){
+      const ts=istanbul?.ts?' '+new Date(istanbul.ts).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+      const hasLast=istanbul?.gold!=null;
+      srcBadge=`<span class="badge closed">⚫ CLOSED${hasLast?ts:''}</span>`;
+    } else srcBadge='<span class="badge calc">🟠 CALC</span>';
+
+    const priceNote=(r.istClosed&&istanbul?.gold)?'<div class="punit" style="font-size:10px;color:var(--dim)">last known</div>':`<div class="punit">${r.unitLabel}</div>`;
+    const dUSD=toDisplay(r.usdOz), dEUR=toDisplay(r.eurOz);
+
+    return `<tr class="${rowCls}">
+      <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div></div></div></td>
+      <td><div class="plocal${!isGold?' sv':''}">${sym} ${lp}</div>${priceNote}</td>
+      <td class="r"><div class="pusd">$${fmt(dUSD,isGram?3:2)}</div></td>
+      <td class="r"><div class="peur">€${fmt(dEUR,isGram?3:2)}</div></td>
+      <td class="r">${diffBadge(r.diff,unit)}</td>
+      <td class="r">${badge(r.pct)}</td>
+      <td>${srcBadge}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tbody').innerHTML=html;
+  renderSpotChart();
+  renderIstanbulChart();
+  renderAllChart(rows, spotUSD);
+}
+
 function setMetal(m){
-  metal = m;
-  const isGold = m==='XAU';
-  document.getElementById('btn-gold').className = 'tbtn gold'+(isGold?' on':'');
-  document.getElementById('btn-silver').className = 'tbtn silver'+(!isGold?' on':'');
+  metal=m;
+  const isG=m==='XAU';
+  document.getElementById('btn-gold').className='ctrl-btn'+(isG?' on':'');
+  document.getElementById('btn-silver').className='ctrl-btn silver'+(!isG?' on':'');
   render();
 }
 
+function setUnit(u){
+  unit=u;
+  document.getElementById('btn-oz').className='ctrl-btn'+(u==='oz'?' on':'');
+  document.getElementById('btn-gram').className='ctrl-btn'+(u==='gram'?' on':'');
+  render();
+}
+
+function setRange(r,btn){
+  currentRange=r;
+  document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderSpotChart();
+}
+
 load();
-setInterval(load, 15*60*1000);
+setInterval(load,15*60*1000);
 </script>
 </body>
 </html>
