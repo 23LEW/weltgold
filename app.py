@@ -162,6 +162,24 @@ def fetch_istanbul():
         print(f"Istanbul error: {e}")
         return None
 
+def fetch_india():
+    try:
+        r = requests.get("https://ibjarates.com/", timeout=10)
+        import re as re2
+        m = re2.search(r'GoldRatesCompare999[^>]*>([0-9,]+)<', r.text)
+        if m:
+            gold_inr_10g = float(m.group(1).replace(",", ""))
+            print(f"IBJA: gold={gold_inr_10g} INR/10g")
+            return {
+                "gold_inr_10g": gold_inr_10g,
+                "source": "ibjarates.com",
+                "is_calculated": False
+            }
+        return None
+    except Exception as e:
+        print(f"IBJA error: {e}")
+        return None
+
 def update():
     print(f"[{datetime.now()}] Updating prices...")
     fx = fetch_fx()
@@ -170,6 +188,7 @@ def update():
         print("Kitco failed, using fallback...")
         spot = fetch_spot_fallback()
     ist = fetch_istanbul()
+    india = fetch_india()
 
     prices = {}
     if spot: prices["spot"] = spot
@@ -181,6 +200,15 @@ def update():
         prices["istanbul"] = {
             "gold_try_gram": round((spot["XAU"] / GRAM) * fx["TRY"], 2),
             "silver_try_gram": round((spot["XAG"] / GRAM) * fx["TRY"], 2) if spot.get("XAG") else None,
+            "source": "calculated",
+            "is_calculated": True
+        }
+
+    if india:
+        prices["india"] = india
+    elif spot and fx:
+        prices["india"] = {
+            "gold_inr_10g": round((spot["XAU"] / GRAM) * fx["INR"] * 10 * 1.13, 2),
             "source": "calculated",
             "is_calculated": True
         }
