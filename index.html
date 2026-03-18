@@ -355,14 +355,18 @@ async function load(){
       const vpsData = await fetch('https://api.goldpremium.org/api/prices').then(r=>r.json());
       const vps = vpsData?.data;
 
-      // Update spot bid/ask from Kitco via VPS
+      // Update spot bid/ask + change from Kitco via VPS
       if(vps?.spot?.XAU_bid && vps?.spot?.XAU_ask){
         spot.XAU = vps.spot.XAU || spot.XAU;
         spot.XAU_bid = vps.spot.XAU_bid;
         spot.XAU_ask = vps.spot.XAU_ask;
+        spot.XAU_ch = vps.spot.XAU_ch;
+        spot.XAU_chp = vps.spot.XAU_chp;
         spot.XAG = vps.spot.XAG || spot.XAG;
         spot.XAG_bid = vps.spot.XAG_bid || spot.XAG;
         spot.XAG_ask = vps.spot.XAG_ask || spot.XAG;
+        spot.XAG_ch = vps.spot.XAG_ch;
+        spot.XAG_chp = vps.spot.XAG_chp;
       }
 
       // Istanbul
