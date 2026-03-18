@@ -183,10 +183,10 @@ footer a{color:var(--gold-b);text-decoration:none}
 <thead>
   <tr>
     <th>Market</th>
-    <th id="th-local">Local Price (Buy / Sell)</th>
-    <th class="r" id="th-usd">USD / oz (Bid / Ask)</th>
+    <th id="th-local">Local Price</th>
+    <th class="r" id="th-usd">USD / oz</th>
     <th class="r">Premium USD</th>
-    <th class="r" id="th-eur">EUR / oz (Bid / Ask)</th>
+    <th class="r" id="th-eur">EUR / oz</th>
     <th class="r">Premium EUR</th>
     <th>Data</th>
   </tr>
@@ -559,7 +559,7 @@ function render(){
   const isGold = metal==='XAU';
   const spotUSD = isGold?spot.XAU:spot.XAG;
   const isGram = unit==='gram';
-  const unitSuffix = isGram ? '/ Gram' : '/ Troy Oz';
+  const unitSuffix = isGram ? '/ Gramm' : '/ Troy Oz';
 
   // Silver mode styling
   ['s-usd','s-eur'].forEach(id=>{
@@ -571,8 +571,8 @@ function render(){
   // Update labels
   document.getElementById('lbl-usd').textContent = `International Spot Price · USD ${unitSuffix}`;
   document.getElementById('lbl-eur').textContent = `Spot Price · EUR ${unitSuffix}`;
-  document.getElementById('th-usd').textContent = `USD / ${isGram?'g':'oz'} (Bid/Ask)`;
-  document.getElementById('th-eur').textContent = `EUR / ${isGram?'g':'oz'} (Bid/Ask)`;
+  document.getElementById('th-usd').textContent = `USD / ${isGram?'Gramm':'oz'}`;
+  document.getElementById('th-eur').textContent = `EUR / ${isGram?'Gramm':'oz'}`;
   document.getElementById('chart-unit-note').textContent = `USD / ${isGram?'Gram':'Troy Oz'}`;
   document.getElementById('chart1-title').textContent = (isGold?'Gold':'Silver')+' Spot Price';
 
