@@ -3,8 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Physical Gold Price Comparison — Global Markets</title>
-<meta name="description" content="Compare physical gold and silver prices across global markets: Istanbul Grand Bazaar, Shanghai Gold Exchange, Mumbai MCX, Tokyo TOCOM, Dubai Gold Souk vs international spot price.">
+
+<!-- Primary SEO -->
+<title>Gold Premium — Physical Gold Price Comparison Worldwide</title>
+<meta name="description" content="Compare physical gold prices across global markets in real time: Istanbul Grand Bazaar, Shanghai Gold Exchange (SGE), Mumbai MCX, Tokyo TOCOM, Dubai Gold Souk. Track the gold premium vs. international spot price in USD, EUR and local currency.">
+<meta name="keywords" content="physical gold price comparison, gold premium, SGE gold price, Istanbul gold price, Kapalıçarşı gold, MCX gold price India, TOCOM gold Japan, Dubai gold souk, gold spot vs physical, worldwide gold prices">
+<link rel="canonical" href="https://goldpremium.org/">
+
+<!-- Open Graph (for sharing on social media) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://goldpremium.org/">
+<meta property="og:title" content="Gold Premium — Physical Gold Price Comparison Worldwide">
+<meta property="og:description" content="Track physical gold prices and premiums across global markets: Istanbul, Shanghai, Mumbai, Tokyo, Dubai vs. LBMA/COMEX spot price. Live data updated every 15 minutes.">
+<meta property="og:site_name" content="GoldPremium.org">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gold Premium — Physical Gold Price Comparison Worldwide">
+<meta name="twitter:description" content="Compare physical gold prices across Istanbul, Shanghai, Mumbai, Tokyo and Dubai vs. international spot price. Live updates every 15 min.">
+
+<!-- Structured Data for Google -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "GoldPremium.org",
+  "url": "https://goldpremium.org",
+  "description": "Real-time comparison of physical gold prices across global markets including Istanbul Grand Bazaar, Shanghai Gold Exchange, Mumbai MCX, Tokyo TOCOM and Dubai Gold Souk versus international spot price.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥇</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -160,14 +196,33 @@ footer a{color:var(--gold-bright);text-decoration:none}
 
 <div class="info">
   <strong>About the data</strong><br><br>
-  <strong>🟢 Live data</strong> — Istanbul (Kapalıçarşı Grand Bazaar): Real buy/sell prices from the Istanbul physical gold market, updated in real time.<br><br>
-  <strong>🟠 Calculated data</strong> — Shanghai (SGE), Mumbai (MCX/IBJA), Tokyo (TOCOM), Dubai, Jakarta (Antam): These prices are calculated as international spot price × local currency exchange rate, plus known local premiums where applicable. They represent an approximation of the local price.<br><br>
-  For Shanghai the typical SGE premium over COMEX has historically ranged from −$10 to +$50/oz depending on Chinese demand and PBOC import restrictions. 
-  For India a ~13% premium applies due to 15% import duty + 3% GST.
-  For Istanbul the actual premium varies 0–5% depending on local demand — <strong>use the live Kapalıçarşı data for the real price</strong>.<br><br>
-  Data sources: <a href="https://gold-api.com" target="_blank">gold-api.com</a> (spot) · 
-  <a href="https://frankfurter.app" target="_blank">frankfurter.app</a> (FX) · 
-  <a href="https://kapali-carsi-altin-api.vercel.app" target="_blank">Kapalıçarşı API</a> (Istanbul)
+  <strong>🟢 Live data — Istanbul Kapalıçarşı (Grand Bazaar):</strong> Real-time buy and sell prices from the Istanbul physical gold market, sourced directly from the Kapalıçarşı price feed. The Istanbul gold premium over international spot price typically ranges from 0% to 5% depending on local demand, currency volatility, and import conditions.<br><br>
+  <strong>🟠 Calculated data:</strong> Prices for Shanghai (SGE), Mumbai (MCX/IBJA), Tokyo (TOCOM), Dubai Gold Souk and Jakarta (Antam) are calculated as the international spot price × local currency exchange rate, plus known structural premiums. These represent close approximations of real local prices.<br><br>
+  <strong>Why do physical gold prices differ from the spot price?</strong> The international spot price (LBMA/COMEX) reflects paper gold trading in London and New York. Physical gold markets in Asia and the Middle East trade real metal and reflect actual supply and demand — including import duties, taxes, local demand cycles, and currency effects. The Shanghai Gold Exchange (SGE) premium is closely watched as an indicator of Chinese physical demand. India applies approximately 13% duty+GST on gold imports, creating a structural premium. Japan (TOCOM) and Dubai typically trade close to spot.<br><br>
+  Data sources: <a href="https://gold-api.com" target="_blank">gold-api.com</a> (spot prices) ·
+  <a href="https://frankfurter.app" target="_blank">frankfurter.app</a> (FX rates) ·
+  <a href="https://kapali-carsi-altin-api.vercel.app" target="_blank">Kapalıçarşı API</a> (Istanbul live data)
+</div>
+
+<!-- SEO content block -->
+<div style="margin-top:40px;padding:28px 32px;background:var(--ink2);border:1px solid var(--border)">
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--gold-pale);margin-bottom:16px">About GoldPremium.org</h2>
+  <p style="color:var(--dim);line-height:1.9;font-size:12px;max-width:800px">
+    GoldPremium.org is the only free tool that compares physical gold prices across major global markets in real time.
+    Unlike paper gold (futures and ETFs), physical gold markets in Istanbul, Shanghai, Mumbai, Tokyo and Dubai
+    reflect genuine supply and demand for real metal — and often trade at significant premiums or discounts
+    to the international LBMA/COMEX spot price.
+  </p>
+  <p style="color:var(--dim);line-height:1.9;font-size:12px;max-width:800px;margin-top:12px">
+    Tracking the <strong style="color:var(--text)">gold premium</strong> across markets is valuable for investors,
+    traders and anyone buying or selling physical gold internationally. A rising Shanghai premium often signals
+    strong Chinese physical demand. An elevated Istanbul premium reflects local currency dynamics and import conditions.
+    The India premium is largely structural due to government import duties.
+  </p>
+  <p style="color:var(--dim);line-height:1.9;font-size:12px;max-width:800px;margin-top:12px">
+    Prices update automatically every 15 minutes. All data is for informational purposes only and does not
+    constitute financial advice.
+  </p>
 </div>
 
 <footer>
@@ -281,25 +336,44 @@ async function load() {
     const fxr = await fetch('https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,IDR,AED').then(r=>r.json());
     fx = {...fxr.rates, USD:1};
 
-    // 3. Istanbul live data
+    // 3. Istanbul live data — with last-known-price cache
+    const IST_KEY = 'ist_last';
     try {
       const ist = await fetch('https://kapali-carsi-altin-api.vercel.app/api/altin').then(r=>r.json());
       let gold=null, silver=null;
-      for (const item of ist) {
-        const c = (item.code||'').toUpperCase();
-        if (c==='ALTIN') {
-          const a=parseFloat(item.alis||0), s=parseFloat(item.satis||0);
-          if (a&&s) gold=Math.round((a+s)/2*100)/100;
-        }
-        if (c==='GUMUS'||c==='GÜMÜŞ') {
-          const a=parseFloat(item.alis||0), s=parseFloat(item.satis||0);
-          if (a&&s) silver=Math.round((a+s)/2*100)/100;
+      if (Array.isArray(ist)) {
+        for (const item of ist) {
+          const c = (item.code||'').toUpperCase();
+          if (c==='ALTIN') {
+            const a=parseFloat(item.alis||0), s=parseFloat(item.satis||0);
+            if (a&&s) gold=Math.round((a+s)/2*100)/100;
+          }
+          if (c==='GUMUS'||c==='GÜMÜŞ') {
+            const a=parseFloat(item.alis||0), s=parseFloat(item.satis||0);
+            if (a&&s) silver=Math.round((a+s)/2*100)/100;
+          }
         }
       }
-      if (gold) istanbul = {gold, silver};
+      if (gold) {
+        // Market open — save to cache
+        const cached = {gold, silver, ts: new Date().toISOString()};
+        try { localStorage.setItem(IST_KEY, JSON.stringify(cached)); } catch(e){}
+        istanbul = {gold, silver, status:'live', ts: cached.ts};
+      } else {
+        // Market closed — try to load last known price
+        let last = null;
+        try { last = JSON.parse(localStorage.getItem(IST_KEY)||'null'); } catch(e){}
+        istanbul = last
+          ? {gold: last.gold, silver: last.silver, status:'closed', ts: last.ts}
+          : {gold: null, silver: null, status:'closed', ts: null};
+      }
     } catch(e) {
-      console.warn('Istanbul API failed, using calculated fallback', e);
-      istanbul = null;
+      console.warn('Istanbul API failed', e);
+      let last = null;
+      try { last = JSON.parse(localStorage.getItem(IST_KEY)||'null'); } catch(ex){}
+      istanbul = last
+        ? {gold: last.gold, silver: last.silver, status:'closed', ts: last.ts}
+        : {gold: null, silver: null, status:'error', ts: null};
     }
 
     document.getElementById('upd').textContent =
@@ -332,13 +406,13 @@ function render() {
     const diff = usdOz - spotUSD;
     const pct = (diff/spotUSD)*100;
     const eurOzLocal = fx.EUR ? usdOz*fx.EUR : null;
-    const isRealIst = m.id==='istanbul' && istanbul && istanbul.gold;
-    const isLive = isRealIst;
-    return {...m, localPrice, usdOz, diff, pct, eurOzLocal, isLive};
+    const istLive = m.id==='istanbul' && istanbul?.status==='live';
+    const istClosed = m.id==='istanbul' && istanbul?.status==='closed';
+    return {...m, localPrice, usdOz, diff, pct, eurOzLocal, istLive, istClosed};
   }).filter(Boolean).sort((a,b)=>a.usdOz-b.usdOz);
 
-  const loUSD = rows.filter(r=>r.id!=='istanbul'||r.isLive).reduce((min,r)=>r.usdOz<min?r.usdOz:min, Infinity);
-  const hiUSD = rows.filter(r=>r.id!=='istanbul'||r.isLive).reduce((max,r)=>r.usdOz>max?r.usdOz:max, -Infinity);
+  const loUSD = rows.reduce((min,r)=>r.usdOz<min?r.usdOz:min, Infinity);
+  const hiUSD = rows.reduce((max,r)=>r.usdOz>max?r.usdOz:max, -Infinity);
 
   document.getElementById('loading').style.display='none';
   document.getElementById('tbl').style.display='';
@@ -359,18 +433,40 @@ function render() {
     const sym = CS[r.currency]||r.currency;
     const lp = r.localPrice > 10000 ? fmt(r.localPrice,0) : fmt(r.localPrice,2);
     const rowCls = r.usdOz===loUSD?'lo':r.usdOz===hiUSD?'hi':'';
-    const srcBadge = r.isLive
-      ? '<span class="badge live">🟢 LIVE</span>'
-      : '<span class="badge calc">🟠 CALC</span>';
-    return `<tr class="${rowCls}">
+
+    // Source badge + last-known timestamp for Istanbul
+    let srcBadge;
+    if (r.istLive) {
+      srcBadge = '<span class="badge live">🟢 LIVE</span>';
+    } else if (r.istClosed) {
+      const ts = istanbul?.ts
+        ? ' · last: '+new Date(istanbul.ts).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})
+        : '';
+      const hasLast = istanbul?.gold != null;
+      srcBadge = hasLast
+        ? `<span class="badge calc" style="background:rgba(106,104,96,.1);color:var(--dim)">⚫ CLOSED${ts}</span>`
+        : `<span class="badge calc" style="background:rgba(106,104,96,.1);color:var(--dim)">⚫ CLOSED</span>`;
+    } else if (r.id==='istanbul') {
+      srcBadge = '<span class="badge calc">🟠 CALC</span>';
+    } else {
+      srcBadge = '<span class="badge calc">🟠 CALC</span>';
+    }
+
+    // For Istanbul closed with last price — show last known in local price cell
+    const istClosedWithData = r.istClosed && istanbul?.gold != null;
+    const priceNote = istClosedWithData
+      ? `<div class="punit" style="color:var(--dim);font-size:9px">last known price</div>`
+      : `<div class="punit">${r.unitLabel}</div>`;
+
+    return \`<tr class="${rowCls}">
       <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div></div></div></td>
-      <td><div class="plocal">${sym} ${lp}</div><div class="punit">${r.unitLabel}</div></td>
-      <td class="r"><div class="pusd">$${fmt(r.usdOz,2)}</div></td>
-      <td class="r"><div class="peur">€${fmt(r.eurOzLocal,2)}</div></td>
-      <td class="r">${diffBadge(r.diff)}</td>
-      <td class="r">${badge(r.pct)}</td>
-      <td>${srcBadge}</td>
-    </tr>`;
+      <td><div class="plocal">${sym} ${lp}</div>\${priceNote}</td>
+      <td class="r"><div class="pusd">$\${fmt(r.usdOz,2)}</div></td>
+      <td class="r"><div class="peur">€\${fmt(r.eurOzLocal,2)}</div></td>
+      <td class="r">\${diffBadge(r.diff)}</td>
+      <td class="r">\${badge(r.pct)}</td>
+      <td>\${srcBadge}</td>
+    </tr>\`;
   }).join('');
 
   document.getElementById('tbody').innerHTML = html;
