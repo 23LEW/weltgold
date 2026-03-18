@@ -23,7 +23,7 @@
   --gold:#B8973A;--gold-b:#D4AF5A;--gold-p:#F0E0A8;
   --silver:#8899AA;--silver-b:#B8CCD8;--silver-p:#D8E8F0;
   --ink:#0C0D0F;--ink2:#14161A;--ink3:#1C1F26;
-  --text:#E8E4DC;--dim:#8A8880;
+  --text:#E8E4DC;--dim:#C4C0B8;
   --green:#4E9268;--red:#A84A4A;--orange:#C07830;
   --border:rgba(184,151,58,0.14);
 }
@@ -76,7 +76,7 @@ table{width:100%;border-collapse:collapse}
 thead tr{border-bottom:2px solid rgba(184,151,58,0.3);background:var(--ink3)}
 th{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-b);font-weight:500;padding:14px 18px;text-align:left;white-space:nowrap}
 th.r{text-align:right}
-td{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:middle;font-size:14px;color:#D0CCC4}
+td{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);vertical-align:middle;font-size:14px;color:#E2DED8}
 td.r{text-align:right}
 tr:hover td{background:rgba(255,255,255,0.03)}
 tr.ref-row td{background:rgba(184,151,58,0.06)}
@@ -86,19 +86,19 @@ tr.hi td:first-child{border-left:3px solid var(--red)}
 .mkt{display:flex;align-items:center;gap:14px}
 .flag{font-size:24px}
 .mname{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#E8E4DC}
-.mcity{font-size:11px;color:var(--dim);letter-spacing:1px;margin-top:3px}
+.mcity{font-size:11px;color:#B8B4AE;letter-spacing:1px;margin-top:3px}
 .plocal{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--gold-p)}
 .plocal.sv{color:var(--silver-p)}
 .punit{font-size:11px;color:var(--dim);margin-top:3px}
 .pusd{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#E8E4DC}
-.peur{font-family:'Cormorant Garamond',serif;font-size:17px;color:#A0A098}
+.peur{font-family:'Cormorant Garamond',serif;font-size:17px;color:#D4D0CC}
 .badge{display:inline-flex;align-items:center;font-size:12px;font-weight:500;padding:4px 10px;border-radius:2px;white-space:nowrap}
 .badge.pos{background:rgba(78,146,104,.15);color:#6EBC90}
 .badge.neg{background:rgba(168,74,74,.15);color:#C87070}
-.badge.neu{background:rgba(138,136,128,.12);color:#9A9890}
+.badge.neu{background:rgba(138,136,128,.15);color:#B4B0A8}
 .badge.calc{background:rgba(192,120,48,.1);color:#D09050;font-size:10px;letter-spacing:1px}
 .badge.live{background:rgba(78,146,104,.1);color:#6EBC90;font-size:10px;letter-spacing:1px}
-.badge.closed{background:rgba(138,136,128,.1);color:#8A8880;font-size:10px;letter-spacing:1px}
+.badge.closed{background:rgba(138,136,128,.15);color:#A8A49C;font-size:10px;letter-spacing:1px}
 
 /* CHARTS */
 .chart-container{background:var(--ink2);border:1px solid var(--border);padding:28px;margin-top:3px}
@@ -113,10 +113,10 @@ tr.hi td:first-child{border-left:3px solid var(--red)}
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:3px}
 
 /* INFO */
-.info{margin-top:40px;border:1px solid var(--border);border-left:3px solid var(--gold-b);background:rgba(184,151,58,.03);padding:22px 26px;font-size:12px;color:#9A9890;line-height:2}
+.info{margin-top:40px;border:1px solid var(--border);border-left:3px solid var(--gold-b);background:rgba(184,151,58,.03);padding:22px 26px;font-size:12px;color:#B8B4B0;line-height:2}
 .info strong{color:var(--gold-p)}
 .info a{color:var(--gold-b);text-decoration:none}
-.about{margin-top:3px;padding:28px 32px;background:var(--ink2);border:1px solid var(--border);font-size:12px;color:#9A9890;line-height:2}
+.about{margin-top:3px;padding:28px 32px;background:var(--ink2);border:1px solid var(--border);font-size:12px;color:#B8B4B0;line-height:2}
 .about h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--gold-p);margin-bottom:16px}
 .about p{max-width:860px;margin-bottom:12px}
 .about strong{color:var(--text)}
@@ -348,42 +348,27 @@ async function load(){
     spot = {XAU:gr.price, XAG:sr.price};
     fx = {...fxr.rates, USD:1};
 
-    // Istanbul — 3 API sources tried in order
+    // Istanbul — truncgil.com today.json (Türk format: "7.134,90" → 7134.90)
     try{
       let gold=null, silver=null;
-
-      // Source 1: genelpara.com — Turkish gold prices, free, no key, CORS-enabled
+      // Parse Turkish number format: dots = thousands sep, comma = decimal
+      const parseTR = v => parseFloat(String(v||'0').replace(/\./g,'').replace(',','.'));
       try{
-        const gp = await fetch('https://api.genelpara.com/embed/altin.json').then(r=>r.json());
-        // GA = Gram Altın (24K), GU = Gümüş (silver)
-        if(gp['GA']){
-          const s=parseFloat(String(gp['GA'].satis||'0').replace(',','.'));
-          const a=parseFloat(String(gp['GA'].alis||'0').replace(',','.'));
+        const td=await fetch('https://finans.truncgil.com/today.json').then(r=>r.json());
+        const ga=td['Gram Altın'];
+        if(ga){
+          const a=parseTR(ga['Alış']), s=parseTR(ga['Satış']);
           if(s>100) gold=Math.round(s*100)/100;
           else if(a>100) gold=Math.round(a*100)/100;
         }
-        if(gp['GU']){
-          const s=parseFloat(String(gp['GU'].satis||'0').replace(',','.'));
+        const gu=td['Gümüş'];
+        if(gu){
+          const s=parseTR(gu['Satış']);
           if(s>0) silver=Math.round(s*100)/100;
         }
-      }catch(e1){console.warn('genelpara failed',e1);}
+      }catch(e1){console.warn('truncgil failed',e1);}
 
-      // Source 2: truncgil v4 — fallback
-      if(!gold){
-        try{
-          const td=await fetch('https://finans.truncgil.com/v4/today.json').then(r=>r.json());
-          // In v4 keys use English field names
-          const keys=Object.keys(td);
-          for(const k of keys){
-            if(k.toLowerCase().includes('gram') && k.toLowerCase().includes('alt')){
-              const a=parseFloat(td[k].Buying||0), s=parseFloat(td[k].Selling||0);
-              if(s>100) {gold=Math.round((a+s)/2*100)/100; break;}
-            }
-          }
-        }catch(e2){console.warn('truncgil failed',e2);}
-      }
-
-      // Source 3: kapali-carsi — last resort
+      // Fallback: kapali-carsi
       if(!gold){
         try{
           const ist=await fetch('https://kapali-carsi-altin-api.vercel.app/api/altin').then(r=>r.json());
@@ -394,7 +379,7 @@ async function load(){
               if(c==='GUMUS'||c==='GÜMÜŞ'){const a=parseFloat(item.alis||0),s=parseFloat(item.satis||0);if(a&&s)silver=Math.round((a+s)/2*100)/100;}
             }
           }
-        }catch(e3){console.warn('kapali-carsi failed',e3);}
+        }catch(e2){console.warn('kapali-carsi failed',e2);}
       }
       if(gold){
         istanbul={gold,silver,status:'live',ts:new Date().toISOString()};
