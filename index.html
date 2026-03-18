@@ -333,10 +333,10 @@ function calcMarket(m){
       localPrice = (spotUSD/G)*fxRate*(1+m.calcPremium);
       usdOz = spotUSD*(1+m.calcPremium);
     }
-  } else if(m.id==='india' && indiaLive?.gold_inr_10g && metal==='XAU'){
-    // IBJA price is INR/10g — convert to INR/oz for display when unit=oz
-    const inrPerGram = indiaLive.gold_inr_10g / 10;
-    localPrice = unit==='oz' ? inrPerGram * G : indiaLive.gold_inr_10g;
+  } else if(m.id==='india' && indiaLive?.gold_inr_gram && metal==='XAU'){
+    // IBJA value is INR/gram (field name misleading)
+    const inrPerGram = indiaLive.gold_inr_gram;
+    localPrice = unit==='oz' ? inrPerGram * G : inrPerGram * 10;
     usdOz = (inrPerGram / fxRate) * G;
   } else {
     localPrice = (spotUSD/G)*fxRate*(1+m.calcPremium);
@@ -399,8 +399,8 @@ async function load(){
       }
       // India IBJA
       const ind = vps?.india;
-      if(ind && ind.gold_inr_10g && !ind.is_calculated){
-        indiaLive = {gold_inr_10g: ind.gold_inr_10g, source: ind.source};
+      if(ind && ind.gold_inr_gram && !ind.is_calculated){
+        indiaLive = {gold_inr_gram: ind.gold_inr_gram, source: ind.source};
       } else {
         indiaLive = null;
       }
@@ -668,7 +668,7 @@ function render(){
     // Local price: always in local currency per gram (or per 10g for India)
     const lp = r.per10g ? fmt(r.localPrice,0) : (r.localPrice>1000?fmt(r.localPrice,0):fmt(r.localPrice,2));
     const rowCls=r.usdOz===lo?'lo':r.usdOz===hi?'hi':'';
-    const indiaIsLive = r.id==='india' && indiaLive?.gold_inr_10g && metal==='XAU';
+    const indiaIsLive = r.id==='india' && indiaLive?.gold_inr_gram && metal==='XAU';
     let srcBadge;
     if(r.istLive)srcBadge='<span class="badge live">🟢 LIVE · nadirdoviz.com</span>';
     else if(r.istClosed){
@@ -690,8 +690,8 @@ function render(){
       const spotAsk = metal==='XAU' ? spot.XAU_ask : spot.XAG_ask;
       const dBid = toDisplay(spotBid), dAsk = toDisplay(spotAsk);
       priceCell = `<div class="plocal${!isGold?' sv':''}">$${fmt(dBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">$${fmt(dAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
-    } else if(r.id==='india' && indiaLive?.gold_inr_10g && metal==='XAU'){
-      const inrPerGram = indiaLive.gold_inr_10g / 10;
+    } else if(r.id==='india' && indiaLive?.gold_inr_gram && metal==='XAU'){
+      const inrPerGram = indiaLive.gold_inr_gram;
       const inrOz = inrPerGram * G;
       const bid = unit==='oz' ? Math.round(inrOz * (1 - 0.0015)) : Math.round(inrPerGram * 10 * (1 - 0.0015));
       const ask = unit==='oz' ? Math.round(inrOz * (1 + 0.0015)) : Math.round(inrPerGram * 10 * (1 + 0.0015));

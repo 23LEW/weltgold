@@ -168,10 +168,10 @@ def fetch_india():
         import re as re2
         m = re2.search(r'GoldRatesCompare999[^>]*>([0-9,]+)<', r.text)
         if m:
-            gold_inr_10g = float(m.group(1).replace(",", ""))
-            print(f"IBJA: gold={gold_inr_10g} INR/10g")
+            gold_inr_gram = float(m.group(1).replace(",", ""))
+            print(f"IBJA: gold={gold_inr_gram} INR/gram")
             return {
-                "gold_inr_10g": gold_inr_10g,
+                "gold_inr_gram": gold_inr_gram,
                 "source": "ibjarates.com",
                 "is_calculated": False
             }
@@ -208,7 +208,7 @@ def update():
         prices["india"] = india
     elif spot and fx:
         prices["india"] = {
-            "gold_inr_10g": round((spot["XAU"] / GRAM) * fx["INR"] * 10 * 1.13, 2),
+            "gold_inr_gram": round((spot["XAU"] / GRAM) * fx["INR"] * 1.13, 2),
             "source": "calculated",
             "is_calculated": True
         }
