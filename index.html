@@ -183,11 +183,12 @@ footer a{color:var(--gold-b);text-decoration:none}
 <thead>
   <tr>
     <th>Market</th>
-    <th id="th-local">Local Price</th>
-    <th class="r" id="th-usd">USD / oz</th>
-    <th class="r" id="th-eur">EUR / oz</th>
-    <th class="r">vs. Spot USD</th>
-    <th class="r">vs. Spot %</th>
+    <th id="th-local">Local Price (Buy / Sell)</th>
+    <th class="r" id="th-usd">USD / oz (Bid / Ask)</th>
+    <th class="r">Premium USD</th>
+    <th class="r">Premium %</th>
+    <th class="r" id="th-eur">EUR / oz (Bid / Ask)</th>
+    <th class="r">Premium EUR</th>
     <th>Data</th>
   </tr>
 </thead>
@@ -240,9 +241,10 @@ footer a{color:var(--gold-b);text-decoration:none}
 
 <div class="info">
   <strong>About the data</strong><br><br>
-  <strong>🇹🇷 Istanbul Grand Bazaar:</strong> Calculated from spot × TRY/USD rate + ~2% typical premium. No public CORS-enabled API exists for live Grand Bazaar prices.<br><br>
+  <strong>🇹🇷 Istanbul Grand Bazaar:</strong> Real-time buy/sell prices from Nadir Döviz, Istanbul's leading precious metals dealer. Updated every 10 minutes.<br><br>
+  <strong>🌍 LBMA / COMEX Spot:</strong> Live Bid/Ask from Kitco. Updated every 10 minutes via our server.<br><br>
   <strong>🟠 Calculated</strong> (Shanghai SGE, Mumbai MCX, Tokyo TOCOM, Dubai, Jakarta Antam): Spot × FX + known structural premiums. India ~13% due to import duty + GST. SGE premium historically −$10 to +$50/oz.<br><br>
-  Sources: <a href="https://gold-api.com" target="_blank">gold-api.com</a> (spot) · <a href="https://frankfurter.app" target="_blank">frankfurter.app</a> (FX) · <a href="https://freegoldapi.com" target="_blank">freegoldapi.com</a> (history)
+  Sources: <a href="https://www.kitco.com" target="_blank">kitco.com</a> (spot bid/ask) · <a href="https://www.nadirdoviz.com" target="_blank">nadirdoviz.com</a> (Istanbul) · <a href="https://frankfurter.app" target="_blank">frankfurter.app</a> (FX) · <a href="https://freegoldapi.com" target="_blank">freegoldapi.com</a> (history)
 </div>
 
 <div class="about">
@@ -340,18 +342,32 @@ function calcMarket(m){
 async function load(){
   try{
     document.getElementById('err').style.display='none';
+    // Fetch spot (gold-api) + FX in parallel, then VPS for Istanbul + Kitco bid/ask
     const [gr, sr, fxr] = await Promise.all([
       fetch('https://api.gold-api.com/price/XAU').then(r=>r.json()),
       fetch('https://api.gold-api.com/price/XAG').then(r=>r.json()),
       fetch('https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,IDR,AED').then(r=>r.json())
     ]);
-    spot = {XAU:gr.price, XAG:sr.price};
+    spot = {XAU:gr.price, XAG:sr.price, XAU_bid:gr.price, XAU_ask:gr.price, XAG_bid:sr.price, XAG_ask:sr.price};
     fx = {...fxr.rates, USD:1};
 
-    // Istanbul — Hetzner VPS Proxy (finans.truncgil.com via server)
+    // VPS: Istanbul live price + Kitco spot bid/ask
     try{
       const vpsData = await fetch('https://api.goldpremium.org/api/prices').then(r=>r.json());
-      const ist = vpsData?.data?.istanbul;
+      const vps = vpsData?.data;
+
+      // Update spot bid/ask from Kitco via VPS
+      if(vps?.spot?.XAU_bid && vps?.spot?.XAU_ask){
+        spot.XAU = vps.spot.XAU || spot.XAU;
+        spot.XAU_bid = vps.spot.XAU_bid;
+        spot.XAU_ask = vps.spot.XAU_ask;
+        spot.XAG = vps.spot.XAG || spot.XAG;
+        spot.XAG_bid = vps.spot.XAG_bid || spot.XAG;
+        spot.XAG_ask = vps.spot.XAG_ask || spot.XAG;
+      }
+
+      // Istanbul
+      const ist = vps?.istanbul;
       if(ist && ist.gold_try_gram && !ist.is_calculated){
         const gold = ist.gold_try_gram;
         const goldBuy = ist.gold_try_gram_buy || gold;
@@ -556,8 +572,8 @@ function render(){
   // Update labels
   document.getElementById('lbl-usd').textContent = `International Spot Price · USD ${unitSuffix}`;
   document.getElementById('lbl-eur').textContent = `Spot Price · EUR ${unitSuffix}`;
-  document.getElementById('th-usd').textContent = `USD / ${isGram?'g':'oz'}`;
-  document.getElementById('th-eur').textContent = `EUR / ${isGram?'g':'oz'}`;
+  document.getElementById('th-usd').textContent = `USD / ${isGram?'g':'oz'} (Bid/Ask)`;
+  document.getElementById('th-eur').textContent = `EUR / ${isGram?'g':'oz'} (Bid/Ask)`;
   document.getElementById('chart-unit-note').textContent = `USD / ${isGram?'Gram':'Troy Oz'}`;
   document.getElementById('chart1-title').textContent = (isGold?'Gold':'Silver')+' Spot Price';
 
@@ -586,15 +602,29 @@ function render(){
   document.getElementById('loading').style.display='none';
   document.getElementById('tbl').style.display='';
 
-  const refEur = fx.EUR?spotUSD*fx.EUR:null;
+  const spotBid = isGold ? spot.XAU_bid : spot.XAG_bid;
+  const spotAsk = isGold ? spot.XAU_ask : spot.XAG_ask;
+  const dSpotBid = toDisplay(spotBid), dSpotAsk = toDisplay(spotAsk);
+  const dSpotEurBid = toDisplay(spotBid&&fx.EUR?spotBid*fx.EUR:null);
+  const dSpotEurAsk = toDisplay(spotAsk&&fx.EUR?spotAsk*fx.EUR:null);
   let html=`<tr class="ref-row">
     <td><div class="mkt"><span class="flag">🌍</span><div><div class="mname">LBMA / COMEX</div><div class="mcity">London / New York · Reference</div></div></div></td>
-    <td><div class="plocal${!isGold?' sv':''}">$${fmt(toDisplay(spotUSD),isGram?3:2)}</div><div class="punit">USD ${unitSuffix}</div></td>
-    <td class="r"><div class="pusd">$${fmt(toDisplay(spotUSD),isGram?3:2)}</div></td>
-    <td class="r"><div class="peur">€${fmt(toDisplay(refEur),isGram?3:2)}</div></td>
-    <td class="r"><span class="badge neu">Reference</span></td>
-    <td class="r"><span class="badge neu">0.00%</span></td>
-    <td><span class="badge live">🟢 LIVE</span></td>
+    <td>
+      <div class="plocal${!isGold?' sv':''}">$${fmt(dSpotBid,isGram?3:2)}</div><div class="punit">Bid</div>
+      <div class="plocal${!isGold?' sv':''}" style="margin-top:4px">$${fmt(dSpotAsk,isGram?3:2)}</div><div class="punit">Ask</div>
+    </td>
+    <td class="r">
+      <div class="pusd">$${fmt(dSpotBid,isGram?3:2)}</div><div class="punit">Bid</div>
+      <div class="pusd" style="margin-top:2px">$${fmt(dSpotAsk,isGram?3:2)}</div><div class="punit">Ask</div>
+    </td>
+    <td class="r"><span class="badge neu">—</span></td>
+    <td class="r"><span class="badge neu">Ref</span></td>
+    <td class="r">
+      <div class="peur">€${fmt(dSpotEurBid,isGram?3:2)}</div><div class="punit">Bid</div>
+      <div class="peur" style="margin-top:2px">€${fmt(dSpotEurAsk,isGram?3:2)}</div><div class="punit">Ask</div>
+    </td>
+    <td class="r"><span class="badge neu">—</span></td>
+    <td><span class="badge live">🟢 LIVE · kitco.com</span></td>
   </tr>`;
 
   html+=rows.map(r=>{
@@ -610,25 +640,53 @@ function render(){
       srcBadge=`<span class="badge closed">⚫ CLOSED${hasLast?ts:''}</span>`;
     } else srcBadge='<span class="badge calc">🟠 CALC</span>';
 
-    // Istanbul: show Alış/Satış separately if live
+    // Local price cell: buy / sell
     let priceCell;
     if(r.istLive && istanbul?.goldBuy && istanbul?.goldSell){
-      const buy = unit==='gram' ? fmt(istanbul.goldBuy,0) : fmt(istanbul.goldBuy/G*31.1035,0);
-      const sell = unit==='gram' ? fmt(istanbul.goldSell,0) : fmt(istanbul.goldSell/G*31.1035,0);
+      const buy = unit==='gram' ? fmt(istanbul.goldBuy,0) : fmt(istanbul.goldBuy/G*G,0);
+      const sell = unit==='gram' ? fmt(istanbul.goldSell,0) : fmt(istanbul.goldSell/G*G,0);
       priceCell = `<div class="plocal${!isGold?' sv':''}">₺ ${buy}</div><div class="punit">Alış (buy)</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">₺ ${sell}</div><div class="punit">Satış (sell)</div>`;
+    } else if(r.isSpot){
+      // Spot row: show bid/ask
+      const spotBid = metal==='XAU' ? spot.XAU_bid : spot.XAG_bid;
+      const spotAsk = metal==='XAU' ? spot.XAU_ask : spot.XAG_ask;
+      const dBid = toDisplay(spotBid), dAsk = toDisplay(spotAsk);
+      priceCell = `<div class="plocal${!isGold?' sv':''}">$${fmt(dBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">$${fmt(dAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
     } else {
       const priceNote=(r.istClosed&&istanbul?.gold)?'<div class="punit" style="font-size:10px;color:var(--dim)">last known</div>':`<div class="punit">${r.unitLabel}</div>`;
       priceCell = `<div class="plocal${!isGold?' sv':''}">${sym} ${lp}</div>${priceNote}`;
     }
+
+    // USD and EUR columns with bid/ask for spot row
     const dUSD=toDisplay(r.usdOz), dEUR=toDisplay(r.eurOz);
+    let usdCell, eurCell;
+    if(r.isSpot){
+      const spotBid = metal==='XAU' ? spot.XAU_bid : spot.XAG_bid;
+      const spotAsk = metal==='XAU' ? spot.XAU_ask : spot.XAG_ask;
+      const eurBid = spotBid * (fx.EUR||1);
+      const eurAsk = spotAsk * (fx.EUR||1);
+      const dBid=toDisplay(spotBid), dAsk=toDisplay(spotAsk);
+      const dEBid=toDisplay(eurBid), dEAsk=toDisplay(eurAsk);
+      usdCell = `<div class="pusd">$${fmt(dBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(dAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(dEBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(dEAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
+    } else {
+      usdCell = `<div class="pusd">$${fmt(dUSD,isGram?3:2)}</div>`;
+      eurCell = `<div class="peur">€${fmt(dEUR,isGram?3:2)}</div>`;
+    }
+
+    // Premium in EUR
+    const eurPrem = r.diff != null ? r.diff * (fx.EUR||1) : null;
+    const eurPremDisplay = toDisplay(eurPrem);
+    const eurPct = r.pct;
 
     return `<tr class="${rowCls}">
       <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div></div></div></td>
       <td>${priceCell}</td>
-      <td class="r"><div class="pusd">$${fmt(dUSD,isGram?3:2)}</div></td>
-      <td class="r"><div class="peur">€${fmt(dEUR,isGram?3:2)}</div></td>
-      <td class="r">${diffBadge(r.diff,unit)}</td>
-      <td class="r">${badge(r.pct)}</td>
+      <td class="r">${usdCell}</td>
+      <td class="r">${r.isSpot ? '<span class="badge neu">—</span>' : diffBadge(r.diff,unit)}</td>
+      <td class="r">${r.isSpot ? '<span class="badge neu">Ref</span>' : badge(r.pct)}</td>
+      <td class="r">${eurCell}</td>
+      <td class="r">${r.isSpot ? '<span class="badge neu">—</span>' : (eurPremDisplay!=null?`<span class="badge ${eurPremDisplay>0.1?'neg':eurPremDisplay<-0.1?'pos':'neu'}">${eurPremDisplay>0?'+':''}€${fmt(eurPremDisplay,2)}</span>`:'<span class="badge neu">—</span>')}</td>
       <td>${srcBadge}</td>
     </tr>`;
   }).join('');
