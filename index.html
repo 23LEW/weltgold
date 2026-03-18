@@ -279,7 +279,7 @@ try { istHistory = JSON.parse(localStorage.getItem('ist_history')||'[]'); } catc
 const MARKETS = [
   {id:'istanbul', name:'Grand Bazaar', city:'Istanbul · Turkey', flag:'🇹🇷', currency:'TRY', unitLabel:'TRY/g', calcPremium:0.02},
   {id:'shanghai', name:'Shanghai Gold Exch.', city:'Shanghai · China (SGE)', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/g', calcPremium:0.01},
-  {id:'india', name:'MCX / IBJA', city:'Mumbai · India', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0.13, per10g:true},
+  {id:'india', name:'MCX / IBJA', city:'Mumbai · India', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0.13, per10g:true, ibjaSpread:0.0015},
   {id:'japan', name:'TOCOM', city:'Tokyo · Japan', flag:'🇯🇵', currency:'JPY', unitLabel:'JPY/g', calcPremium:0.005},
   {id:'dubai', name:'Dubai Gold Souk', city:'Dubai · UAE', flag:'🇦🇪', currency:'AED', unitLabel:'AED/g', calcPremium:0.005},
   {id:'jakarta', name:'Antam / Logam Mulia', city:'Jakarta · Indonesia', flag:'🇮🇩', currency:'IDR', unitLabel:'IDR/g', calcPremium:0.05},
@@ -334,8 +334,10 @@ function calcMarket(m){
       usdOz = spotUSD*(1+m.calcPremium);
     }
   } else if(m.id==='india' && indiaLive?.gold_inr_10g && metal==='XAU'){
-    localPrice = indiaLive.gold_inr_10g;
-    usdOz = (localPrice/10/fxRate)*G;
+    // IBJA price is INR/10g — convert to INR/oz for display when unit=oz
+    const inrPerGram = indiaLive.gold_inr_10g / 10;
+    localPrice = unit==='oz' ? inrPerGram * G : indiaLive.gold_inr_10g;
+    usdOz = (inrPerGram / fxRate) * G;
   } else {
     localPrice = (spotUSD/G)*fxRate*(1+m.calcPremium);
     if(m.per10g) localPrice *= 10;
@@ -688,6 +690,13 @@ function render(){
       const spotAsk = metal==='XAU' ? spot.XAU_ask : spot.XAG_ask;
       const dBid = toDisplay(spotBid), dAsk = toDisplay(spotAsk);
       priceCell = `<div class="plocal${!isGold?' sv':''}">$${fmt(dBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">$${fmt(dAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
+    } else if(r.id==='india' && indiaLive?.gold_inr_10g && metal==='XAU'){
+      const inrPerGram = indiaLive.gold_inr_10g / 10;
+      const inrOz = inrPerGram * G;
+      const bid = unit==='oz' ? Math.round(inrOz * (1 - 0.0015)) : Math.round(inrPerGram * 10 * (1 - 0.0015));
+      const ask = unit==='oz' ? Math.round(inrOz * (1 + 0.0015)) : Math.round(inrPerGram * 10 * (1 + 0.0015));
+      const unitLbl = unit==='oz' ? 'INR/oz' : 'INR/10g';
+      priceCell = `<div class="plocal">₹ ${fmt(bid,0)}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">₹ ${fmt(ask,0)}</div><div class="punit">Ask (${unitLbl})</div>`;
     } else {
       const priceNote=(r.istClosed&&istanbul?.gold)?'<div class="punit" style="font-size:10px;color:var(--dim)">last known</div>':`<div class="punit">${r.unitLabel}</div>`;
       priceCell = `<div class="plocal${!isGold?' sv':''}">${sym} ${lp}</div>${priceNote}`;
