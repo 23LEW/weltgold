@@ -1,37 +1,20 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 import requests
-from bs4 import BeautifulSoup
-import re
 import time
 from datetime import datetime
 import threading
+import re
 
 app = Flask(__name__)
 CORS(app)
 
-cache = { "prices": {}, "last_updated": None }
-GRAM_PER_OZ = 31.1035
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
-    "Accept-Language": "en-US,en;q=0.9",
-}
-
-def fetch_spot():
-    try:
-        g = requests.get("https://api.gold-api.com/price/XAU", timeout=10).json()
-        s = requests.get("https://api.gold-api.com/price/XAG", timeout=10).json()
-        return { "XAU": g.get("price"), "XAG": s.get("price") }
-    except Exception as e:
-        print(f"Spot error: {e}")
-        return None
+cache = {"prices": {}, "last_updated": None}
+GRAM = 31.1035
 
 def fetch_fx():
     try:
-        r = requests.get(
-            "https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,IDR,AED",
-            timeout=10
-        ).json()
+        r = requests.get("https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,IDR,AED", timeout=10).json()
         rates = r.get("rates", {})
         rates["USD"] = 1.0
         return rates
@@ -39,33 +22,139 @@ def fetch_fx():
         print(f"FX error: {e}")
         return None
 
+def parse_num(val):
+    try:
+        return float(str(val).replace(",", ""))
+    except:
+        return None
+
+def fetch_spot():
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto("https://www.kitco.com/gold-price-today-usa/", timeout=30000)
+            page.wait_for_timeout(5000)
+            content = page.inner_text("body")
+            browser.close()
+
+        lines = [l.strip() for l in content.split("\n") if l.strip()]
+        gold_bid = None
+        gold_ask = None
+        gold_ch = None
+        gold_chp = None
+
+        for i, line in enumerate(lines):
+            if line == "Bid" and i+1 < len(lines):
+                val = parse_num(lines[i+1])
+                if val and val > 1000 and gold_bid is None:
+                    gold_bid = val
+                    # Kitco layout: bid, USD, ch_abs, ch_pct e.g. (-2.69%)
+                    if i+3 < len(lines):
+                        gold_ch = parse_num(lines[i+3])
+                    if i+4 < len(lines):
+                        m = re.search(r'[-+]?\d+\.?\d*', lines[i+4].replace(",",""))
+                        if m:
+                            gold_chp = float(m.group())
+            if line == "Ask" and i+1 < len(lines):
+                val = parse_num(lines[i+1])
+                if val and val > 1000 and gold_ask is None:
+                    gold_ask = val
+
+        if gold_bid and gold_ask:
+            print(f"Kitco Gold: bid={gold_bid} ask={gold_ask} ch={gold_ch} chp={gold_chp}")
+            try:
+                silver = requests.get("https://api.gold-api.com/price/XAG", timeout=10).json()
+                price_xag = silver.get("price")
+            except:
+                price_xag = None
+            return {
+                "XAU": round((gold_bid + gold_ask) / 2, 2),
+                "XAU_bid": gold_bid,
+                "XAU_ask": gold_ask,
+                "XAU_ch": gold_ch,
+                "XAU_chp": gold_chp,
+                "XAG": price_xag,
+                "XAG_bid": round(price_xag * 0.9999, 2) if price_xag else None,
+                "XAG_ask": round(price_xag * 1.0001, 2) if price_xag else None,
+                "XAG_ch": None,
+                "XAG_chp": None,
+            }
+        return None
+    except Exception as e:
+        print(f"Kitco error: {e}")
+        return None
+
+def fetch_spot_fallback():
+    try:
+        gold = requests.get("https://api.gold-api.com/price/XAU", timeout=10).json()
+        silver = requests.get("https://api.gold-api.com/price/XAG", timeout=10).json()
+        price_xau = gold.get("price")
+        price_xag = silver.get("price")
+        return {
+            "XAU": price_xau,
+            "XAU_bid": round(price_xau * 0.9999, 2) if price_xau else None,
+            "XAU_ask": round(price_xau * 1.0001, 2) if price_xau else None,
+            "XAU_ch": None, "XAU_chp": None,
+            "XAG": price_xag,
+            "XAG_bid": round(price_xag * 0.9999, 2) if price_xag else None,
+            "XAG_ask": round(price_xag * 1.0001, 2) if price_xag else None,
+            "XAG_ch": None, "XAG_chp": None,
+        }
+    except Exception as e:
+        print(f"Fallback spot error: {e}")
+        return None
+
 def fetch_istanbul():
     try:
-        r = requests.get(
-            "https://kapali-carsi-altin-api.vercel.app/api/altin",
-            timeout=10
-        )
-        data = r.json()
-        gold_try_gram = None
-        silver_try_gram = None
-        for item in data:
-            code = item.get("code", "").upper()
-            if code == "ALTIN":
-                alis = float(item.get("alis", 0) or 0)
-                satis = float(item.get("satis", 0) or 0)
-                if alis and satis:
-                    gold_try_gram = round((alis + satis) / 2, 2)
-            if code in ("GUMUS", "GÜMÜŞ"):
-                alis = float(item.get("alis", 0) or 0)
-                satis = float(item.get("satis", 0) or 0)
-                if alis and satis:
-                    silver_try_gram = round((alis + satis) / 2, 2)
-        if gold_try_gram:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto("https://www.nadirdoviz.com/", timeout=30000)
+            page.wait_for_timeout(4000)
+            content = page.inner_text("body")
+            browser.close()
+
+        gold_buy = None
+        gold_sell = None
+        silver_sell = None
+        lines = content.split("\n")
+        for i, line in enumerate(lines):
+            if line.strip() == "Altın/TL":
+                for j in range(i+1, min(i+6, len(lines))):
+                    val_text = lines[j].strip().replace(".", "").replace(",", ".")
+                    try:
+                        val = float(val_text)
+                        if val > 1000:
+                            if gold_buy is None:
+                                gold_buy = val
+                            elif gold_sell is None:
+                                gold_sell = val
+                                break
+                    except:
+                        pass
+            if "GümüşKG/TL" in line.strip():
+                for j in range(i+1, min(i+6, len(lines))):
+                    val_text = lines[j].strip().replace(".", "").replace(",", ".")
+                    try:
+                        val = float(val_text)
+                        if val > 10000:
+                            silver_sell = round(val / 1000, 4)
+                            break
+                    except:
+                        pass
+
+        if gold_buy and gold_sell:
+            gold = round((gold_buy + gold_sell) / 2, 2)
+            print(f"Nadir: buy={gold_buy} sell={gold_sell}")
             return {
-                "gold_try_gram": gold_try_gram,
-                "silver_try_gram": silver_try_gram,
-                "source": "Kapalıçarşı live API",
-                "unit": "TRY/gram",
+                "gold_try_gram": gold,
+                "gold_try_gram_buy": gold_buy,
+                "gold_try_gram_sell": gold_sell,
+                "silver_try_gram": silver_sell,
+                "source": "nadirdoviz.com",
                 "is_calculated": False
             }
         return None
@@ -73,226 +162,54 @@ def fetch_istanbul():
         print(f"Istanbul error: {e}")
         return None
 
-def fetch_shanghai():
-    try:
-        r = requests.get(
-            "https://goldprice.org/gold-price-china.html",
-            headers=HEADERS, timeout=15
-        )
-        soup = BeautifulSoup(r.text, "html.parser")
-        gold_usd_oz = None
-        silver_usd_oz = None
-        for tag in soup.find_all(["span", "div", "td", "p"]):
-            t = tag.get_text(strip=True).replace(",", "")
-            try:
-                val = float(t)
-                if 3000 < val < 15000 and gold_usd_oz is None:
-                    gold_usd_oz = val
-                elif 20 < val < 200 and silver_usd_oz is None:
-                    silver_usd_oz = val
-            except:
-                pass
-        if gold_usd_oz:
-            return {
-                "gold_usd_oz": gold_usd_oz,
-                "silver_usd_oz": silver_usd_oz,
-                "source": "SGE / goldprice.org",
-                "unit": "USD/oz",
-                "is_calculated": False
-            }
-        return None
-    except Exception as e:
-        print(f"Shanghai error: {e}")
-        return None
-
-def fetch_india():
-    try:
-        r = requests.get("https://ibjarates.com/", headers=HEADERS, timeout=15)
-        soup = BeautifulSoup(r.text, "html.parser")
-        gold_inr_10g = None
-        silver_inr_kg = None
-        rows = soup.find_all("tr")
-        for row in rows:
-            cells = row.find_all("td")
-            if len(cells) >= 2:
-                label = cells[0].get_text(strip=True).lower()
-                for cell in cells[1:]:
-                    val_clean = re.sub(r'[^\d.]', '', cell.get_text(strip=True))
-                    try:
-                        val = float(val_clean)
-                    except:
-                        continue
-                    if ("gold" in label or "sona" in label) and 50000 < val < 250000:
-                        gold_inr_10g = val
-                        break
-                    if "silver" in label and 50000 < val < 500000:
-                        silver_inr_kg = val
-                        break
-        if gold_inr_10g:
-            return {
-                "gold_inr_10g": gold_inr_10g,
-                "silver_inr_kg": silver_inr_kg,
-                "source": "IBJA (ibjarates.com)",
-                "unit": "INR/10g",
-                "is_calculated": False
-            }
-        return None
-    except Exception as e:
-        print(f"India error: {e}")
-        return None
-
-def fetch_japan():
-    try:
-        r = requests.get(
-            "https://goldprice.org/gold-price-japan.html",
-            headers=HEADERS, timeout=15
-        )
-        soup = BeautifulSoup(r.text, "html.parser")
-        gold_jpy_gram = None
-        for tag in soup.find_all(["span", "div", "td"]):
-            t = tag.get_text(strip=True).replace(",", "")
-            try:
-                val = float(t)
-                if 10000 < val < 50000 and gold_jpy_gram is None:
-                    gold_jpy_gram = val
-            except:
-                pass
-        if gold_jpy_gram:
-            return {
-                "gold_jpy_gram": gold_jpy_gram,
-                "source": "goldprice.org/japan",
-                "unit": "JPY/gram",
-                "is_calculated": False
-            }
-        return None
-    except Exception as e:
-        print(f"Japan error: {e}")
-        return None
-
-def fetch_indonesia():
-    try:
-        r = requests.get("https://www.logammulia.com/en", headers=HEADERS, timeout=15)
-        soup = BeautifulSoup(r.text, "html.parser")
-        gold_idr_gram = None
-        rows = soup.find_all("tr")
-        for row in rows:
-            row_text = row.get_text(strip=True).lower()
-            if "1 gr" in row_text or "1gr" in row_text:
-                for cell in row.find_all("td"):
-                    val_clean = re.sub(r'[^\d]', '', cell.get_text(strip=True))
-                    try:
-                        val = float(val_clean)
-                        if 1_000_000 < val < 6_000_000:
-                            gold_idr_gram = val
-                            break
-                    except:
-                        pass
-                if gold_idr_gram:
-                    break
-        if not gold_idr_gram:
-            r2 = requests.get(
-                "https://goldprice.org/gold-price-indonesia.html",
-                headers=HEADERS, timeout=15
-            )
-            soup2 = BeautifulSoup(r2.text, "html.parser")
-            for tag in soup2.find_all(["span", "div", "td"]):
-                t = re.sub(r'[^\d]', '', tag.get_text(strip=True))
-                try:
-                    val = float(t)
-                    if 1_000_000 < val < 6_000_000 and gold_idr_gram is None:
-                        gold_idr_gram = val
-                except:
-                    pass
-        if gold_idr_gram:
-            return {
-                "gold_idr_gram": gold_idr_gram,
-                "source": "Antam/logammulia.com",
-                "unit": "IDR/gram",
-                "is_calculated": False
-            }
-        return None
-    except Exception as e:
-        print(f"Indonesia error: {e}")
-        return None
-
-def update_prices():
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] Update gestartet...")
-    spot      = fetch_spot()
-    fx        = fetch_fx()
-    istanbul  = fetch_istanbul()
-    shanghai  = fetch_shanghai()
-    india     = fetch_india()
-    japan     = fetch_japan()
-    indonesia = fetch_indonesia()
-
-    print(f"  Istanbul:  {'LIVE' if istanbul and not istanbul.get('is_calculated') else 'FALLBACK'}")
-    print(f"  Shanghai:  {'LIVE' if shanghai and not shanghai.get('is_calculated') else 'FALLBACK'}")
-    print(f"  India:     {'LIVE' if india and not india.get('is_calculated') else 'FALLBACK'}")
-    print(f"  Japan:     {'LIVE' if japan and not japan.get('is_calculated') else 'FALLBACK'}")
-    print(f"  Indonesia: {'LIVE' if indonesia and not indonesia.get('is_calculated') else 'FALLBACK'}")
+def update():
+    print(f"[{datetime.now()}] Updating prices...")
+    fx = fetch_fx()
+    spot = fetch_spot()
+    if not spot or not spot.get("XAU"):
+        print("Kitco failed, using fallback...")
+        spot = fetch_spot_fallback()
+    ist = fetch_istanbul()
 
     prices = {}
     if spot: prices["spot"] = spot
-    if fx:   prices["fx"]   = fx
+    if fx: prices["fx"] = fx
 
-    def save(key, result, fallback):
-        prices[key] = result if result else (fallback() if spot and fx else None)
-
-    save("istanbul",  istanbul,  lambda: {
-        "gold_try_gram": round((spot["XAU"] / GRAM_PER_OZ) * fx["TRY"], 2),
-        "silver_try_gram": round((spot["XAG"] / GRAM_PER_OZ) * fx["TRY"], 2),
-        "source": "berechnet (Spot × TRY)", "unit": "TRY/gram", "is_calculated": True
-    })
-    save("shanghai",  shanghai,  lambda: {
-        "gold_usd_oz": spot["XAU"], "silver_usd_oz": spot["XAG"],
-        "source": "berechnet (Spot)", "unit": "USD/oz", "is_calculated": True
-    })
-    save("india",     india,     lambda: {
-        "gold_inr_10g": round((spot["XAU"] / GRAM_PER_OZ) * fx["INR"] * 10 * 1.13, 2),
-        "silver_inr_kg": round((spot["XAG"] / GRAM_PER_OZ) * fx["INR"] * 1000 * 1.03, 2),
-        "source": "berechnet (Spot × INR + 13% Zoll)", "unit": "INR/10g", "is_calculated": True
-    })
-    save("japan",     japan,     lambda: {
-        "gold_jpy_gram": round((spot["XAU"] / GRAM_PER_OZ) * fx["JPY"], 2),
-        "source": "berechnet (Spot × JPY)", "unit": "JPY/gram", "is_calculated": True
-    })
-    save("indonesia", indonesia, lambda: {
-        "gold_idr_gram": round((spot["XAU"] / GRAM_PER_OZ) * fx["IDR"] * 1.05, 2),
-        "source": "berechnet (Spot × IDR)", "unit": "IDR/gram", "is_calculated": True
-    })
+    if ist:
+        prices["istanbul"] = ist
+    elif spot and fx:
+        prices["istanbul"] = {
+            "gold_try_gram": round((spot["XAU"] / GRAM) * fx["TRY"], 2),
+            "silver_try_gram": round((spot["XAG"] / GRAM) * fx["TRY"], 2) if spot.get("XAG") else None,
+            "source": "calculated",
+            "is_calculated": True
+        }
 
     cache["prices"] = prices
     cache["last_updated"] = datetime.now().isoformat()
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] Fertig.")
+    print(f"[{datetime.now()}] Done: {list(prices.keys())}")
 
-def background_updater():
+def background():
     while True:
-        update_prices()
-        time.sleep(15 * 60)
-
-# ── Wird beim Import durch gunicorn ausgeführt ──
-_started = False
-def _startup():
-    global _started
-    if not _started:
-        _started = True
-        update_prices()
-        t = threading.Thread(target=background_updater, daemon=True)
-        t.start()
-
-_startup()
+        update()
+        time.sleep(10 * 60)
 
 @app.route("/api/prices")
 def get_prices():
-    return jsonify({ "data": cache["prices"], "last_updated": cache["last_updated"], "status": "ok" })
+    if not cache["prices"]:
+        update()
+    return jsonify({"data": cache["prices"], "last_updated": cache["last_updated"], "status": "ok"})
 
 @app.route("/health")
 def health():
-    return jsonify({ "status": "ok", "last_updated": cache["last_updated"] })
+    return jsonify({"status": "ok", "last_updated": cache["last_updated"]})
 
 @app.route("/")
 def index():
-    return jsonify({ "name": "Weltgold API", "endpoints": ["/api/prices", "/health"], "last_updated": cache["last_updated"] })
+    return jsonify({"name": "goldpremium API", "last_updated": cache["last_updated"]})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    update()
+    t = threading.Thread(target=background, daemon=True)
+    t.start()
+    app.run(host="0.0.0.0", port=5000)
