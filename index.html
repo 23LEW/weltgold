@@ -16,130 +16,133 @@
 <meta name="twitter:title" content="Gold Premium — Worldwide Gold & Silver Price Comparison">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"GoldPremium.org","url":"https://goldpremium.org","description":"Real-time comparison of physical gold and silver prices across global markets.","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥇</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
-  --gold:#B8973A;--gold-b:#D4AF5A;--gold-p:#F0E0A8;
-  --silver:#8899AA;--silver-b:#B8CCD8;--silver-p:#D8E8F0;
-  --ink:#0C0D0F;--ink2:#14161A;--ink3:#1C1F26;
-  --text:#E8E4DC;--dim:#C4C0B8;
-  --green:#4E9268;--red:#A84A4A;--orange:#C07830;
-  --border:rgba(184,151,58,0.14);
+  --gold:#C9963A;--gold-b:#E8B24A;--gold-p:#F5C842;
+  --silver:#8AAABB;--silver-b:#AAC8D8;--silver-p:#C8DDE8;
+  --bg:#0E1015;--bg2:#161920;--bg3:#1E2128;--bg4:#252830;
+  --text:#F0F0F0;--text2:#A8ADB8;--text3:#666C78;
+  --green:#22C55E;--green-bg:rgba(34,197,94,0.12);
+  --red:#EF4444;--red-bg:rgba(239,68,68,0.12);
+  --orange:#F59E0B;--orange-bg:rgba(245,158,11,0.1);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
+  --radius:8px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--ink);color:var(--text);font-family:'DM Mono',monospace;font-size:14px;min-height:100vh}
-body::before{content:'';position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:900px;height:500px;background:radial-gradient(ellipse,rgba(184,151,58,0.06) 0%,transparent 70%);pointer-events:none;z-index:0}
-.wrap{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 32px 80px}
+body{background:var(--bg);color:var(--text);font-family:'Open Sans',sans-serif;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1320px;margin:0 auto;padding:0 24px 80px}
 
 /* HEADER */
-header{padding:52px 0 40px;border-bottom:1px solid var(--border);text-align:center}
-.site-title{font-family:'Cormorant Garamond',serif;font-size:58px;font-weight:300;color:var(--gold-p);letter-spacing:.04em;line-height:1.1}
-.site-title strong{font-weight:700;color:var(--gold-b)}
-.site-subtitle{margin-top:10px;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--dim)}
-.header-meta{margin-top:18px;display:flex;justify-content:center;align-items:center;gap:24px;flex-wrap:wrap;font-size:12px;color:var(--dim)}
-.live-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border:1px solid rgba(78,146,104,0.35);color:var(--green);font-size:10px;letter-spacing:2px;text-transform:uppercase}
-.dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.2}}
+header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.site-title{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.site-title strong{color:var(--gold-p)}
+.site-subtitle{font-size:12px;color:var(--text3);margin-top:2px}
+.header-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2)}
+.live-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--green-bg);border-radius:20px;color:var(--green);font-size:11px;font-weight:600}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* CONTROLS ROW */
-.controls{display:flex;justify-content:center;align-items:center;gap:4px;margin:32px 0 28px;flex-wrap:wrap}
-.ctrl-group{display:flex;border:1px solid var(--border);overflow:hidden}
-.ctrl-btn{padding:10px 24px;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;background:var(--ink2);border:none;color:var(--dim);cursor:pointer;transition:all .2s;white-space:nowrap}
-.ctrl-btn:hover{color:var(--text);background:var(--ink3)}
-.ctrl-btn.on{background:var(--gold);color:var(--ink);font-weight:600}
-.ctrl-btn.on.silver{background:var(--silver);color:var(--ink)}
-.ctrl-sep{width:1px;background:var(--border)}
+/* CONTROLS */
+.controls{display:flex;align-items:center;gap:8px;margin:20px 0;flex-wrap:wrap}
+.ctrl-group{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;padding:3px;gap:2px}
+.ctrl-btn{padding:7px 18px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;border:none;color:var(--text2);cursor:pointer;transition:all .15s;border-radius:6px;white-space:nowrap}
+.ctrl-btn:hover{color:var(--text);background:var(--bg3)}
+.ctrl-btn.on{background:var(--gold);color:#0E1015;font-weight:600}
+.ctrl-btn.on.silver{background:var(--silver-b);color:#0E1015}
+.ctrl-sep{display:none}
 
 /* SPOT CARDS */
-.spots{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:3px}
-.spot{background:var(--ink2);padding:32px 36px;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s}
+.spots{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.spot{background:var(--bg2);padding:24px 28px;border-radius:var(--radius);border:1px solid var(--border);opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
 .spot.show{opacity:1;transform:none}
-.spot::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transition:background .3s}
-.spot.silver-mode::before{background:linear-gradient(90deg,transparent,var(--silver-b),transparent)}
-.spot-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:14px}
-.spot-price{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--gold-p);line-height:1;letter-spacing:-1px;transition:color .3s}
-.spot-price sup{font-size:22px;vertical-align:super;color:var(--gold);margin-right:3px;transition:color .3s}
+.spot::before{display:none}
+.spot-label{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.spot-price{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;color:var(--gold-p);line-height:1;letter-spacing:-1px;transition:color .3s}
+.spot-price sup{font-size:18px;vertical-align:super;color:var(--gold);margin-right:2px;transition:color .3s;font-weight:400}
 .spot.silver-mode .spot-price{color:var(--silver-p)}
 .spot.silver-mode .spot-price sup{color:var(--silver-b)}
-.spot-sub{margin-top:8px;font-size:11px;color:var(--dim);letter-spacing:1px}
+.spot-sub{margin-top:8px;font-size:12px;color:var(--text3)}
 
 /* SECTION */
-.sec{display:flex;justify-content:space-between;align-items:center;margin:40px 0 18px;padding-bottom:12px;border-bottom:1px solid var(--border)}
-.sec-title{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--dim)}
-.sec-note{font-size:11px;color:var(--dim)}
+.sec{display:flex;justify-content:space-between;align-items:center;margin:32px 0 12px}
+.sec-title{font-size:13px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--text2)}
+.sec-note{font-size:12px;color:var(--text3)}
 
 /* TABLE */
-.tscroll{overflow-x:auto;border:1px solid var(--border)}
+.tscroll{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse}
-thead tr{border-bottom:2px solid rgba(184,151,58,0.3);background:var(--ink3)}
-th{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-b);font-weight:500;padding:14px 18px;text-align:left;white-space:nowrap}
+thead tr{border-bottom:1px solid var(--border);background:var(--bg3)}
+th{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);font-weight:600;padding:12px 16px;text-align:left;white-space:nowrap}
 th.r{text-align:right}
-td{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,0.06);vertical-align:middle;font-size:14px;color:#E2DED8}
+td{padding:16px 16px;border-bottom:1px solid var(--border2);vertical-align:middle;font-size:13px;color:var(--text)}
 td.r{text-align:right}
-tr:hover td{background:rgba(255,255,255,0.03)}
-tr.ref-row td{background:rgba(184,151,58,0.06)}
-tr.ref-row td:first-child{border-left:3px solid var(--gold)}
-tr.lo td:first-child{border-left:3px solid var(--green)}
-tr.hi td:first-child{border-left:3px solid var(--red)}
-.mkt{display:flex;align-items:center;gap:14px}
-.flag{font-size:24px}
-.mname{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#E8E4DC}
-.mcity{font-size:11px;color:#B8B4AE;letter-spacing:1px;margin-top:3px}
-.plocal{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--gold-p)}
+tr:hover td{background:rgba(255,255,255,0.02)}
+tr.ref-row td{background:rgba(201,150,58,0.04)}
+tr.ref-row td:first-child{border-left:2px solid var(--gold)}
+tr.lo td:first-child{border-left:2px solid var(--green)}
+tr.hi td:first-child{border-left:2px solid var(--red)}
+.mkt{display:flex;align-items:center;gap:12px}
+.flag{font-size:22px}
+.mname{font-size:15px;font-weight:600;color:var(--text)}
+.mcity{font-size:11px;color:var(--text3);margin-top:2px}
+.plocal{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--gold-p)}
 .plocal.sv{color:var(--silver-p)}
-.punit{font-size:11px;color:var(--dim);margin-top:3px}
-.pusd{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#E8E4DC}
-.peur{font-family:'Cormorant Garamond',serif;font-size:17px;color:#D4D0CC}
-.badge{display:inline-flex;align-items:center;font-size:12px;font-weight:500;padding:4px 10px;border-radius:2px;white-space:nowrap}
-.badge.pos{background:rgba(78,146,104,.15);color:#6EBC90}
-.badge.neg{background:rgba(168,74,74,.15);color:#C87070}
-.badge.neu{background:rgba(138,136,128,.15);color:#B4B0A8}
-.badge.calc{background:rgba(192,120,48,.1);color:#D09050;font-size:10px;letter-spacing:1px}
-.badge.live{background:rgba(78,146,104,.1);color:#6EBC90;font-size:10px;letter-spacing:1px}
-.badge.closed{background:rgba(138,136,128,.15);color:#A8A49C;font-size:10px;letter-spacing:1px}
+.punit{font-size:11px;color:var(--text3);margin-top:2px}
+.pusd{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--text)}
+.peur{font-family:'DM Mono',monospace;font-size:14px;color:var(--text2)}
+.badge{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.badge.pos{background:var(--green-bg);color:var(--green)}
+.badge.neg{background:var(--red-bg);color:var(--red)}
+.badge.neu{background:rgba(255,255,255,0.06);color:var(--text3)}
+.badge.calc{background:var(--orange-bg);color:var(--orange);font-size:10px;letter-spacing:.5px}
+.badge.live{background:var(--green-bg);color:var(--green);font-size:10px;letter-spacing:.5px}
+.badge.closed{background:rgba(255,255,255,0.06);color:var(--text3);font-size:10px;letter-spacing:.5px}
 
 /* CHARTS */
-.chart-container{background:var(--ink2);border:1px solid var(--border);padding:28px;margin-top:3px}
-.chart-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px}
-.chart-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold-p)}
-.chart-sub{font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
-.range-btns{display:flex;gap:0;border:1px solid var(--border);overflow:hidden}
-.rbtn{padding:6px 16px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;background:var(--ink3);border:none;color:var(--dim);cursor:pointer;transition:all .15s}
+.chart-container{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-top:12px}
+.chart-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.chart-title{font-size:14px;font-weight:600;color:var(--text)}
+.chart-sub{font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-top:3px}
+.range-btns{display:flex;gap:4px;background:var(--bg3);border-radius:6px;padding:3px}
+.rbtn{padding:5px 12px;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:500;background:transparent;border:none;border-radius:4px;color:var(--text3);cursor:pointer;transition:all .15s}
 .rbtn:hover{color:var(--text)}
-.rbtn.on{background:var(--gold);color:var(--ink);font-weight:600}
-.chart-wrap{position:relative;height:240px}
-.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-top:3px}
+.rbtn.on{background:var(--bg4);color:var(--text);font-weight:600}
+.chart-wrap{position:relative;height:220px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
 
 /* INFO */
-.info{margin-top:40px;border:1px solid var(--border);border-left:3px solid var(--gold-b);background:rgba(184,151,58,.03);padding:22px 26px;font-size:12px;color:#B8B4B0;line-height:2}
-.info strong{color:var(--gold-p)}
+.info{margin-top:32px;border:1px solid var(--border);border-left:2px solid var(--gold);background:rgba(201,150,58,.03);border-radius:var(--radius);padding:20px 24px;font-size:12px;color:var(--text2);line-height:1.9}
+.info strong{color:var(--text);font-weight:600}
 .info a{color:var(--gold-b);text-decoration:none}
-.about{margin-top:3px;padding:28px 32px;background:var(--ink2);border:1px solid var(--border);font-size:12px;color:#B8B4B0;line-height:2}
-.about h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:var(--gold-p);margin-bottom:16px}
-.about p{max-width:860px;margin-bottom:12px}
+.about{margin-top:12px;padding:24px 28px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);line-height:1.9}
+.about h2{font-size:18px;font-weight:700;color:var(--text);margin-bottom:12px}
+.about p{max-width:860px;margin-bottom:10px}
 .about strong{color:var(--text)}
 
-.err{background:rgba(168,74,74,.07);border:1px solid rgba(168,74,74,.2);padding:14px 18px;font-size:13px;color:var(--red);margin:14px 0;display:none}
-.loading{color:var(--dim);text-align:center;padding:48px 0;font-size:13px}
-footer{margin-top:70px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--dim)}
+.err{background:var(--red-bg);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--red);margin:12px 0;display:none}
+.loading{color:var(--text3);text-align:center;padding:48px 0;font-size:13px}
+footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--text3)}
 footer a{color:var(--gold-b);text-decoration:none}
 
-@media(max-width:900px){.spots{grid-template-columns:1fr}.chart-grid{grid-template-columns:1fr}.site-title{font-size:38px}.wrap{padding:0 16px 60px}}
-@media(max-width:600px){.site-title{font-size:28px}.spot-price{font-size:36px}th,td{padding:12px 10px}.controls{gap:6px}}
+@media(max-width:900px){.spots{grid-template-columns:1fr}.chart-grid{grid-template-columns:1fr}.wrap{padding:0 16px 60px}}
+@media(max-width:600px){.spot-price{font-size:32px}th,td{padding:10px 10px}.controls{gap:6px}}
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <header>
-  <h1 class="site-title">Worldwide <strong>Gold</strong> &amp; Silver Premiums</h1>
-  <p class="site-subtitle">Physical Market Price Comparison · Global</p>
+  <div>
+    <h1 class="site-title"><strong>GoldPremium</strong>.org</h1>
+    <p class="site-subtitle">Worldwide Physical Gold & Silver Price Comparison</p>
+  </div>
   <div class="header-meta">
-    <div class="live-badge"><div class="dot"></div>Live Data</div>
+    <div class="live-badge"><div class="dot"></div>Live</div>
     <span id="upd">Loading…</span>
-    <span>Auto-refresh every 15 min</span>
+    <span>Refresh every 15 min</span>
   </div>
 </header>
 
