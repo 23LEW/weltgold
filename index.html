@@ -354,8 +354,10 @@ async function load(){
       const ist = vpsData?.data?.istanbul;
       if(ist && ist.gold_try_gram && !ist.is_calculated){
         const gold = ist.gold_try_gram;
+        const goldBuy = ist.gold_try_gram_buy || gold;
+        const goldSell = ist.gold_try_gram_sell || gold;
         const silver = ist.silver_try_gram;
-        istanbul={gold,silver,status:'live',ts:new Date().toISOString()};
+        istanbul={gold,goldBuy,goldSell,silver,status:'live',ts:new Date().toISOString()};
         try{localStorage.setItem('ist_last',JSON.stringify(istanbul));}catch(e){}
         const istUSD=(gold/(fx.TRY||1))*G;
         const prem=Math.round((istUSD-spot.XAU)*100)/100;
@@ -608,12 +610,21 @@ function render(){
       srcBadge=`<span class="badge closed">⚫ CLOSED${hasLast?ts:''}</span>`;
     } else srcBadge='<span class="badge calc">🟠 CALC</span>';
 
-    const priceNote=(r.istClosed&&istanbul?.gold)?'<div class="punit" style="font-size:10px;color:var(--dim)">last known</div>':`<div class="punit">${r.unitLabel}</div>`;
+    // Istanbul: show Alış/Satış separately if live
+    let priceCell;
+    if(r.istLive && istanbul?.goldBuy && istanbul?.goldSell){
+      const buy = unit==='gram' ? fmt(istanbul.goldBuy,0) : fmt(istanbul.goldBuy/G*31.1035,0);
+      const sell = unit==='gram' ? fmt(istanbul.goldSell,0) : fmt(istanbul.goldSell/G*31.1035,0);
+      priceCell = `<div class="plocal${!isGold?' sv':''}">₺ ${buy}</div><div class="punit">Alış (buy)</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">₺ ${sell}</div><div class="punit">Satış (sell)</div>`;
+    } else {
+      const priceNote=(r.istClosed&&istanbul?.gold)?'<div class="punit" style="font-size:10px;color:var(--dim)">last known</div>':`<div class="punit">${r.unitLabel}</div>`;
+      priceCell = `<div class="plocal${!isGold?' sv':''}">${sym} ${lp}</div>${priceNote}`;
+    }
     const dUSD=toDisplay(r.usdOz), dEUR=toDisplay(r.eurOz);
 
     return `<tr class="${rowCls}">
       <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div></div></div></td>
-      <td><div class="plocal${!isGold?' sv':''}">${sym} ${lp}</div>${priceNote}</td>
+      <td>${priceCell}</td>
       <td class="r"><div class="pusd">$${fmt(dUSD,isGram?3:2)}</div></td>
       <td class="r"><div class="peur">€${fmt(dEUR,isGram?3:2)}</div></td>
       <td class="r">${diffBadge(r.diff,unit)}</td>
