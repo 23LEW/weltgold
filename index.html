@@ -350,7 +350,7 @@ async function load(){
 
     // Istanbul — Hetzner VPS Proxy (finans.truncgil.com via server)
     try{
-      const vpsData = await fetch('http://178.104.59.147:5000/api/prices').then(r=>r.json());
+      const vpsData = await fetch('https://api.goldpremium.org/api/prices').then(r=>r.json());
       const ist = vpsData?.data?.istanbul;
       if(ist && ist.gold_try_gram && !ist.is_calculated){
         const gold = ist.gold_try_gram;
