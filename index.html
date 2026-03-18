@@ -162,12 +162,12 @@ footer a{color:var(--gold-b);text-decoration:none}
 <div class="spots">
   <div class="spot" id="s-usd">
     <div class="spot-label" id="lbl-usd">International Spot Price · USD / Troy Oz</div>
-    <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">—</span></div>
+    <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">—</span> <span id="v-usd-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
     <div class="spot-sub">LBMA London / COMEX New York · Global Benchmark</div>
   </div>
   <div class="spot" id="s-eur">
     <div class="spot-label" id="lbl-eur">Spot Price · EUR / Troy Oz</div>
-    <div class="spot-price" id="p-eur"><sup>€</sup><span id="v-eur">—</span></div>
+    <div class="spot-price" id="p-eur"><sup>€</sup><span id="v-eur">—</span> <span id="v-eur-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
     <div class="spot-sub">Converted via ECB exchange rate</div>
   </div>
 </div>
@@ -186,7 +186,6 @@ footer a{color:var(--gold-b);text-decoration:none}
     <th id="th-local">Local Price (Buy / Sell)</th>
     <th class="r" id="th-usd">USD / oz (Bid / Ask)</th>
     <th class="r">Premium USD</th>
-    <th class="r">Premium %</th>
     <th class="r" id="th-eur">EUR / oz (Bid / Ask)</th>
     <th class="r">Premium EUR</th>
     <th>Data</th>
@@ -348,7 +347,7 @@ async function load(){
       fetch('https://api.gold-api.com/price/XAG').then(r=>r.json()),
       fetch('https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,IDR,AED').then(r=>r.json())
     ]);
-    spot = {XAU:gr.price, XAG:sr.price, XAU_bid:gr.price, XAU_ask:gr.price, XAG_bid:sr.price, XAG_ask:sr.price};
+    spot = {XAU:gr.price, XAG:sr.price, XAU_bid:gr.price, XAU_ask:gr.price, XAG_bid:sr.price, XAG_ask:sr.price, XAU_chp:gr.chp, XAU_ch:gr.ch, XAG_chp:sr.chp, XAG_ch:sr.ch};
     fx = {...fxr.rates, USD:1};
 
     // VPS: Istanbul live price + Kitco spot bid/ask
@@ -583,6 +582,23 @@ function render(){
   document.getElementById('v-usd').textContent = fmt(displaySpot,isGram?3:2);
   document.getElementById('v-eur').textContent = fmt(displayEur,isGram?3:2);
 
+  // Daily change %
+  const chp = isGold ? spot.XAU_chp : spot.XAG_chp;
+  const chpEl = document.getElementById('v-usd-chp');
+  const chpEurEl = document.getElementById('v-eur-chp');
+  if(chp != null){
+    const sign = chp >= 0 ? '+' : '';
+    const color = chp >= 0 ? 'var(--green)' : 'var(--red)';
+    const txt = `${sign}${chp.toFixed(2)}%`;
+    chpEl.textContent = txt;
+    chpEl.style.color = color;
+    chpEurEl.textContent = txt;
+    chpEurEl.style.color = color;
+  } else {
+    chpEl.textContent = '';
+    chpEurEl.textContent = '';
+  }
+
   // Rows
   const rows = MARKETS.map(m=>{
     const calc = calcMarket(m);
@@ -617,13 +633,12 @@ function render(){
       <div class="pusd">$${fmt(dSpotBid,isGram?3:2)}</div><div class="punit">Bid</div>
       <div class="pusd" style="margin-top:2px">$${fmt(dSpotAsk,isGram?3:2)}</div><div class="punit">Ask</div>
     </td>
-    <td class="r"><span class="badge neu">—</span></td>
-    <td class="r"><span class="badge neu">Ref</span></td>
+    <td class="r"><span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">Ref</span></td>
     <td class="r">
       <div class="peur">€${fmt(dSpotEurBid,isGram?3:2)}</div><div class="punit">Bid</div>
       <div class="peur" style="margin-top:2px">€${fmt(dSpotEurAsk,isGram?3:2)}</div><div class="punit">Ask</div>
     </td>
-    <td class="r"><span class="badge neu">—</span></td>
+    <td class="r"><span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">Ref</span></td>
     <td><span class="badge live">🟢 LIVE · kitco.com</span></td>
   </tr>`;
 
@@ -679,14 +694,27 @@ function render(){
     const eurPremDisplay = toDisplay(eurPrem);
     const eurPct = r.pct;
 
+    // Premium color: red = more expensive than COMEX, green = cheaper
+    const usdPremCls = r.diff > 0.5 ? 'neg' : r.diff < -0.5 ? 'pos' : 'neu';
+    const eurPremCls = eurPremDisplay > 0.5 ? 'neg' : eurPremDisplay < -0.5 ? 'pos' : 'neu';
+
+    const usdPremCell = r.isSpot
+      ? `<span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">Ref</span>`
+      : `<span class="badge ${usdPremCls}" style="display:block;margin-bottom:3px">${r.diff>0?'+':''}$${fmt(toDisplay(r.diff),2)}</span><span class="badge ${usdPremCls}">${r.pct>0?'+':''}${r.pct.toFixed(2)}%</span>`;
+
+    const eurPremCell = r.isSpot
+      ? `<span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">Ref</span>`
+      : eurPremDisplay!=null
+        ? `<span class="badge ${eurPremCls}" style="display:block;margin-bottom:3px">${eurPremDisplay>0?'+':''}€${fmt(eurPremDisplay,2)}</span><span class="badge ${eurPremCls}">${eurPct>0?'+':''}${eurPct.toFixed(2)}%</span>`
+        : `<span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">—</span>`;
+
     return `<tr class="${rowCls}">
       <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div></div></div></td>
       <td>${priceCell}</td>
       <td class="r">${usdCell}</td>
-      <td class="r">${r.isSpot ? '<span class="badge neu">—</span>' : diffBadge(r.diff,unit)}</td>
-      <td class="r">${r.isSpot ? '<span class="badge neu">Ref</span>' : badge(r.pct)}</td>
+      <td class="r">${usdPremCell}</td>
       <td class="r">${eurCell}</td>
-      <td class="r">${r.isSpot ? '<span class="badge neu">—</span>' : (eurPremDisplay!=null?`<span class="badge ${eurPremDisplay>0.1?'neg':eurPremDisplay<-0.1?'pos':'neu'}">${eurPremDisplay>0?'+':''}€${fmt(eurPremDisplay,2)}</span>`:'<span class="badge neu">—</span>')}</td>
+      <td class="r">${eurPremCell}</td>
       <td>${srcBadge}</td>
     </tr>`;
   }).join('');
