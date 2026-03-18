@@ -277,7 +277,7 @@ let istHistory = [];
 try { istHistory = JSON.parse(localStorage.getItem('ist_history')||'[]'); } catch(e){}
 
 const MARKETS = [
-  {id:'istanbul', name:'Grand Bazaar', city:'Istanbul · Turkey', flag:'🇹🇷', currency:'TRY', unitLabel:'TRY/g', calcPremium:0.02},
+  {id:'istanbul', name:'Istanbul · Turkey', city:'Grand Bazaar / Kapalı Çarşı', flag:'🇹🇷', currency:'TRY', unitLabel:'TRY/g', calcPremium:0.02},
   {id:'shanghai', name:'Shanghai Gold Exch.', city:'Shanghai · China (SGE)', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/g', calcPremium:0.01},
   {id:'india', name:'MCX / IBJA', city:'Mumbai · India', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0.13, per10g:true, ibjaSpread:0.0015},
   {id:'japan', name:'TOCOM', city:'Tokyo · Japan', flag:'🇯🇵', currency:'JPY', unitLabel:'JPY/g', calcPremium:0.005},
@@ -702,7 +702,7 @@ function render(){
       priceCell = `<div class="plocal${!isGold?' sv':''}">${sym} ${lp}</div>${priceNote}`;
     }
 
-    // USD and EUR columns with bid/ask for spot row
+    // USD and EUR columns with bid/ask for spot + Istanbul rows
     const dUSD=toDisplay(r.usdOz), dEUR=toDisplay(r.eurOz);
     let usdCell, eurCell;
     if(r.isSpot){
@@ -714,6 +714,15 @@ function render(){
       const dEBid=toDisplay(eurBid), dEAsk=toDisplay(eurAsk);
       usdCell = `<div class="pusd">$${fmt(dBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(dAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
       eurCell = `<div class="peur">€${fmt(dEBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(dEAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
+    } else if(r.istLive && istanbul?.goldBuy && istanbul?.goldSell){
+      // Istanbul: convert TRY buy/sell to USD/oz and EUR/oz
+      const usdBid = toDisplay((istanbul.goldBuy / (fx.TRY||1)) * G);
+      const usdAsk = toDisplay((istanbul.goldSell / (fx.TRY||1)) * G);
+      const eurBid = toDisplay(usdBid * (fx.EUR||1));
+      const eurAsk = toDisplay(usdAsk * (fx.EUR||1));
+      const dec = isGram ? 3 : 2;
+      usdCell = `<div class="pusd">$${fmt(isGram?usdBid/G:usdBid,dec)}</div><div class="punit">Alış</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAsk/G:usdAsk,dec)}</div><div class="punit">Satış</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?eurBid/G:eurBid,dec)}</div><div class="punit">Alış</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk/G:eurAsk,dec)}</div><div class="punit">Satış</div>`;
     } else {
       usdCell = `<div class="pusd">$${fmt(dUSD,isGram?3:2)}</div>`;
       eurCell = `<div class="peur">€${fmt(dEUR,isGram?3:2)}</div>`;
