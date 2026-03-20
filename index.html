@@ -891,28 +891,35 @@ setInterval(load,15*60*1000);
 // Sticky table header
 function syncStickyHeader(){
   const wrap = document.getElementById('sticky-thead-wrap');
-  const tscroll = wrap?.nextElementSibling;
+  const tscroll = document.getElementById('tbl');
   if(!wrap || !tscroll) return;
+
+  // Sync column widths
   const ths = tscroll.querySelectorAll('thead th');
   const sths = wrap.querySelectorAll('th');
   ths.forEach((th,i)=>{
     if(sths[i]) sths[i].style.width = th.offsetWidth+'px';
   });
-  wrap.style.display = 'block';
+
   // Sync horizontal scroll
   tscroll.addEventListener('scroll', ()=>{ wrap.scrollLeft = tscroll.scrollLeft; });
-  
-  // Sticky show/hide based on scroll position
+
+  // Show sticky header only when real thead scrolls out of view
   const spotsBar = document.querySelector('.spots-sticky');
   function onScroll(){
-    const spotsBottom = spotsBar ? spotsBar.getBoundingClientRect().bottom : 0;
-    const tableTop = tscroll.getBoundingClientRect().top;
-    if(tableTop < spotsBottom + 50){
+    const spotsH = spotsBar ? spotsBar.offsetHeight : 0;
+    const realThead = tscroll.querySelector('thead');
+    const realTheadBottom = realThead ? realThead.getBoundingClientRect().bottom : 0;
+    if(realTheadBottom < spotsH){
+      wrap.style.display = 'block';
       wrap.style.position = 'sticky';
-      wrap.style.top = (spotsBar ? spotsBar.offsetHeight : 0) + 'px';
+      wrap.style.top = spotsH + 'px';
+    } else {
+      wrap.style.display = 'none';
     }
   }
   window.addEventListener('scroll', onScroll);
+  onScroll();
 }
 setTimeout(syncStickyHeader, 800);
 
