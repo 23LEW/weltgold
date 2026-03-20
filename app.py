@@ -267,6 +267,8 @@ def fetch_germany():
     except Exception as e:
         print(f"Germany error: {e}")
         return None
+
+def fetch_hongkong():
     try:
         from html.parser import HTMLParser
         class TDParser(HTMLParser):
