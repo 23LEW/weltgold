@@ -389,8 +389,9 @@ function calcMarket(m){
     usdOz = (inrPerGram / fxRate) * G;
   } else if(m.id==='japan' && japanLive?.bid && metal==='XAU'){
     const mid = (japanLive.bid + japanLive.ask) / 2;
+    const jpyRate = fx.JPY || 150;
     localPrice = unit==='oz' ? mid * G : mid;
-    usdOz = (mid / fxRate) * G;
+    usdOz = (mid / jpyRate) * G;
   } else if(m.id==='hongkong' && metal==='XAU'){
     // HK: spot × HKD rate (CGSE data not reliably live)
     // HKD is pegged to USD ~7.78, so premium is minimal
