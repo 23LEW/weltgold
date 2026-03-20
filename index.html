@@ -55,8 +55,9 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 .ctrl-sep{display:none}
 
 /* SPOT CARDS */
-.spots{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.spot{background:var(--bg2);padding:24px 28px;border-radius:var(--radius);border:1px solid var(--border);opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
+.spots-sticky{position:sticky;top:0;z-index:100;background:var(--bg);padding:12px 0 8px;margin:0 -24px;padding-left:24px;padding-right:24px;border-bottom:1px solid var(--border)}
+.spots{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0}
+.spot{background:var(--bg2);padding:16px 20px;border-radius:var(--radius);border:1px solid var(--border);opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
 .spot.show{opacity:1;transform:none}
 .spot::before{display:none}
 .spot-label{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
@@ -170,7 +171,7 @@ footer a{color:var(--gold-b);text-decoration:none}
 
 <div class="err" id="err">Failed to load price data. Please check your internet connection and reload.</div>
 
-<div class="spots">
+<div class="spots-sticky"><div class="spots">
   <div class="spot" id="s-usd">
     <div class="spot-label" id="lbl-usd">International Spot Price · USD / Troy Oz</div>
     <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">—</span> <span id="v-usd-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
@@ -181,7 +182,7 @@ footer a{color:var(--gold-b);text-decoration:none}
     <div class="spot-price" id="p-eur"><sup>€</sup><span id="v-eur">—</span> <span id="v-eur-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
     <div class="spot-sub">Converted via ECB exchange rate</div>
   </div>
-</div>
+</div></div>
 
 <div class="sec">
   <div class="sec-title">Market Comparison</div>
@@ -668,27 +669,7 @@ function render(){
 
   const spotBid = isGold ? spot.XAU_bid : spot.XAG_bid;
   const spotAsk = isGold ? spot.XAU_ask : spot.XAG_ask;
-  const dSpotBid = toDisplay(spotBid), dSpotAsk = toDisplay(spotAsk);
-  const dSpotEurBid = toDisplay(spotBid&&fx.EUR?spotBid*fx.EUR:null);
-  const dSpotEurAsk = toDisplay(spotAsk&&fx.EUR?spotAsk*fx.EUR:null);
-  let html=`<tr class="ref-row">
-    <td><div class="mkt"><span class="flag">🌍</span><div><div class="mname">LBMA / COMEX</div><div class="mcity">London / New York · Reference</div></div></div></td>
-    <td>
-      <div class="plocal${!isGold?' sv':''}">$${fmt(dSpotBid,isGram?3:2)}</div><div class="punit">Bid</div>
-      <div class="plocal${!isGold?' sv':''}" style="margin-top:4px">$${fmt(dSpotAsk,isGram?3:2)}</div><div class="punit">Ask</div>
-    </td>
-    <td class="r">
-      <div class="pusd">$${fmt(dSpotBid,isGram?3:2)}</div><div class="punit">Bid</div>
-      <div class="pusd" style="margin-top:2px">$${fmt(dSpotAsk,isGram?3:2)}</div><div class="punit">Ask</div>
-    </td>
-    <td class="r"><span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">Ref</span></td>
-    <td class="r">
-      <div class="peur">€${fmt(dSpotEurBid,isGram?3:2)}</div><div class="punit">Bid</div>
-      <div class="peur" style="margin-top:2px">€${fmt(dSpotEurAsk,isGram?3:2)}</div><div class="punit">Ask</div>
-    </td>
-    <td class="r"><span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">Ref</span></td>
-    <td><span class="badge live">🟢 LIVE · kitco.com</span></td>
-  </tr>`;
+  let html = '';
 
   html+=rows.map(r=>{
     const sym=CS[r.currency]||r.currency;
