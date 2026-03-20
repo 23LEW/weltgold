@@ -9,7 +9,7 @@ import re
 app = Flask(__name__)
 CORS(app)
 
-cache = {"prices": {}, "last_updated": None}
+cache = {"prices": {}, "last_updated": None, "yesterday": {}}
 GRAM = 31.1035
 
 def fetch_fx():
@@ -293,6 +293,33 @@ def update():
 
     cache["prices"] = prices
     cache["last_updated"] = datetime.now().isoformat()
+
+    # Store yesterday's closing price at end of day (UTC 22:00 = approx NY close)
+    now = datetime.now()
+    if now.hour == 22 and now.minute < 10:
+        cache["yesterday"] = {
+            "XAU": prices.get("spot", {}).get("XAU"),
+            "XAG": prices.get("spot", {}).get("XAG"),
+            "EUR": prices.get("fx", {}).get("EUR"),
+        }
+        print(f"Saved yesterday's close: {cache['yesterday']}")
+
+    # Calculate EUR chp if we have yesterday's data
+    if cache["yesterday"].get("XAU") and prices.get("spot") and prices.get("fx"):
+        spot = prices["spot"]
+        fx = prices["fx"]
+        yest = cache["yesterday"]
+        if yest.get("EUR") and fx.get("EUR"):
+            xau_eur_today = spot["XAU"] * fx["EUR"]
+            xau_eur_yest = yest["XAU"] * yest["EUR"]
+            if xau_eur_yest:
+                prices["spot"]["XAU_chp_eur"] = round((xau_eur_today - xau_eur_yest) / xau_eur_yest * 100, 2)
+            if yest.get("XAG") and spot.get("XAG"):
+                xag_eur_today = spot["XAG"] * fx["EUR"]
+                xag_eur_yest = yest["XAG"] * yest["EUR"]
+                if xag_eur_yest:
+                    prices["spot"]["XAG_chp_eur"] = round((xag_eur_today - xag_eur_yest) / xag_eur_yest * 100, 2)
+
     print(f"[{datetime.now()}] Done: {list(prices.keys())}")
 
 def background():

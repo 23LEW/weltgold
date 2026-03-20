@@ -387,6 +387,8 @@ async function load(){
         spot.XAG_ask = vps.spot.XAG_ask || spot.XAG;
         spot.XAG_ch = vps.spot.XAG_ch;
         spot.XAG_chp = vps.spot.XAG_chp;
+        spot.XAU_chp_eur = vps.spot.XAU_chp_eur;
+        spot.XAG_chp_eur = vps.spot.XAG_chp_eur;
       }
 
       // Istanbul
@@ -633,17 +635,12 @@ function render(){
     chpEl.textContent = `${sign}${chp.toFixed(2)}%`;
     chpEl.style.color = color;
 
-    // EUR chp: gold price in EUR = gold_USD * EUR/USD
-    // EUR chp ≈ gold_USD_chp + EUR/USD_chp (approximation)
-    // We use yesterday's EUR rate stored in spot or estimate from current
-    // For now: EUR price change = (spotUSD_today * eurRate) vs (spotUSD_yesterday * eurRate_yesterday)
-    // Since we don't have yesterday's EUR rate, use USD chp as base
-    // and note EUR/USD is essentially fixed day-to-day for HKD pegged but not EUR
-    // Best we can do without historical: show USD chp for EUR too but label clearly
-    const chpEur = chp; // same base — would need yesterday's EUR rate to differ
-    const signEur = chpEur >= 0 ? '+' : '';
-    const colorEur = chpEur >= 0 ? 'var(--green)' : 'var(--red)';
-    chpEurEl.textContent = `${signEur}${chpEur.toFixed(2)}%`;
+    // EUR chp: calculated from yesterday's closing price on VPS
+    const chpEur = isGold ? spot.XAU_chp_eur : spot.XAG_chp_eur;
+    const chpEurVal = chpEur != null ? chpEur : chp; // fallback to USD chp
+    const signEur = chpEurVal >= 0 ? '+' : '';
+    const colorEur = chpEurVal >= 0 ? 'var(--green)' : 'var(--red)';
+    chpEurEl.textContent = `${signEur}${chpEurVal.toFixed(2)}%`;
     chpEurEl.style.color = colorEur;
   } else {
     chpEl.textContent = '';
