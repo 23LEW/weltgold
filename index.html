@@ -804,14 +804,14 @@ function render(){
       const askDisplay = unit==='oz' ? fmt(japanLive.ask*G,0) : fmt(japanLive.ask,0);
       const unitLbl = unit==='oz' ? 'JPY/oz' : 'JPY/g';
       priceCell = `<div class="plocal">¥ ${bidDisplay}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">¥ ${askDisplay}</div><div class="punit">Ask (${unitLbl})</div>`;
-    } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
-      const usdBid = toDisplay((japanLive.bid / (fx.JPY||150)) * G);
-      const usdAsk = toDisplay((japanLive.ask / (fx.JPY||150)) * G);
-      const eurBid = toDisplay(usdBid * (fx.EUR||1));
-      const eurAsk = toDisplay(usdAsk * (fx.EUR||1));
-      const dec = isGram ? 3 : 2;
-      usdCell = `<div class="pusd">$${fmt(isGram?usdBid/G:usdBid,dec)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAsk/G:usdAsk,dec)}</div><div class="punit">Ask</div>`;
-      eurCell = `<div class="peur">€${fmt(isGram?eurBid/G:eurBid,dec)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk/G:eurAsk,dec)}</div><div class="punit">Ask</div>`;
+      // Japan USD/EUR cells inline
+      const usdBidJ = toDisplay((japanLive.bid / (fx.JPY||150)) * G);
+      const usdAskJ = toDisplay((japanLive.ask / (fx.JPY||150)) * G);
+      const eurBidJ = toDisplay(usdBidJ * (fx.EUR||1));
+      const eurAskJ = toDisplay(usdAskJ * (fx.EUR||1));
+      const decJ = isGram ? 3 : 2;
+      usdCell = `<div class="pusd">$${fmt(isGram?usdBidJ/G:usdBidJ,decJ)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAskJ/G:usdAskJ,decJ)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?eurBidJ/G:eurBidJ,decJ)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAskJ/G:eurAskJ,decJ)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU'){
       const TAEL = 37.429;
       const usdBid = toDisplay((hkLive.bid / TAEL / (fx.HKD||7.78)) * G);
