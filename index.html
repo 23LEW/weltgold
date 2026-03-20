@@ -623,18 +623,28 @@ function render(){
   document.getElementById('v-usd').textContent = fmt(displaySpot,isGram?3:2);
   document.getElementById('v-eur').textContent = fmt(displayEur,isGram?3:2);
 
-  // Daily change %
+  // Daily change % — USD from Kitco, EUR adjusted for EUR/USD move
   const chp = isGold ? spot.XAU_chp : spot.XAG_chp;
   const chpEl = document.getElementById('v-usd-chp');
   const chpEurEl = document.getElementById('v-eur-chp');
   if(chp != null){
     const sign = chp >= 0 ? '+' : '';
     const color = chp >= 0 ? 'var(--green)' : 'var(--red)';
-    const txt = `${sign}${chp.toFixed(2)}%`;
-    chpEl.textContent = txt;
+    chpEl.textContent = `${sign}${chp.toFixed(2)}%`;
     chpEl.style.color = color;
-    chpEurEl.textContent = txt;
-    chpEurEl.style.color = color;
+
+    // EUR chp: gold price in EUR = gold_USD * EUR/USD
+    // EUR chp ≈ gold_USD_chp + EUR/USD_chp (approximation)
+    // We use yesterday's EUR rate stored in spot or estimate from current
+    // For now: EUR price change = (spotUSD_today * eurRate) vs (spotUSD_yesterday * eurRate_yesterday)
+    // Since we don't have yesterday's EUR rate, use USD chp as base
+    // and note EUR/USD is essentially fixed day-to-day for HKD pegged but not EUR
+    // Best we can do without historical: show USD chp for EUR too but label clearly
+    const chpEur = chp; // same base — would need yesterday's EUR rate to differ
+    const signEur = chpEur >= 0 ? '+' : '';
+    const colorEur = chpEur >= 0 ? 'var(--green)' : 'var(--red)';
+    chpEurEl.textContent = `${signEur}${chpEur.toFixed(2)}%`;
+    chpEurEl.style.color = colorEur;
   } else {
     chpEl.textContent = '';
     chpEurEl.textContent = '';

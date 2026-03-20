@@ -14,7 +14,7 @@ GRAM = 31.1035
 
 def fetch_fx():
     try:
-        r = requests.get("https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,IDR,AED", timeout=10).json()
+        r = requests.get("https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,HKD,AED", timeout=10).json()
         rates = r.get("rates", {})
         rates["USD"] = 1.0
         return rates
@@ -64,22 +64,50 @@ def fetch_spot():
 
         if gold_bid and gold_ask:
             print(f"Kitco Gold: bid={gold_bid} ask={gold_ask} ch={gold_ch} chp={gold_chp}")
-            try:
-                silver = requests.get("https://api.gold-api.com/price/XAG", timeout=10).json()
-                price_xag = silver.get("price")
-            except:
-                price_xag = None
+
+        # Silver from Kitco
+        silver_bid = None
+        silver_ask = None
+        silver_ch = None
+        silver_chp = None
+        try:
+            with sync_playwright() as p2:
+                browser2 = p2.chromium.launch(headless=True)
+                page2 = browser2.new_page()
+                page2.goto("https://www.kitco.com/silver-price-today-usa/", timeout=30000)
+                page2.wait_for_timeout(5000)
+                content2 = page2.inner_text("body")
+                browser2.close()
+            lines2 = [l.strip() for l in content2.split("\n") if l.strip()]
+            for i, line in enumerate(lines2):
+                if line == "Bid" and i+1 < len(lines2):
+                    val = parse_num(lines2[i+1])
+                    if val and 0 < val < 500 and silver_bid is None:
+                        silver_bid = val
+                        if i+3 < len(lines2): silver_ch = parse_num(lines2[i+3])
+                        if i+4 < len(lines2):
+                            m2 = re.search(r'[-+]?\d+\.?\d*', lines2[i+4].replace(",",""))
+                            if m2: silver_chp = float(m2.group())
+                if line == "Ask" and i+1 < len(lines2):
+                    val = parse_num(lines2[i+1])
+                    if val and 0 < val < 500 and silver_ask is None:
+                        silver_ask = val
+            print(f"Kitco Silver: bid={silver_bid} ask={silver_ask} chp={silver_chp}")
+        except Exception as e:
+            print(f"Kitco silver error: {e}")
+
+        if gold_bid and gold_ask:
             return {
                 "XAU": round((gold_bid + gold_ask) / 2, 2),
                 "XAU_bid": gold_bid,
                 "XAU_ask": gold_ask,
                 "XAU_ch": gold_ch,
                 "XAU_chp": gold_chp,
-                "XAG": price_xag,
-                "XAG_bid": round(price_xag * 0.9999, 2) if price_xag else None,
-                "XAG_ask": round(price_xag * 1.0001, 2) if price_xag else None,
-                "XAG_ch": None,
-                "XAG_chp": None,
+                "XAG": round((silver_bid + silver_ask) / 2, 2) if silver_bid and silver_ask else None,
+                "XAG_bid": silver_bid,
+                "XAG_ask": silver_ask,
+                "XAG_ch": silver_ch,
+                "XAG_chp": silver_chp,
             }
         return None
     except Exception as e:
@@ -180,6 +208,44 @@ def fetch_india():
         print(f"IBJA error: {e}")
         return None
 
+def fetch_hongkong():
+    try:
+        from html.parser import HTMLParser
+        class TDParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.in_td = False
+                self.data = []
+            def handle_starttag(self, tag, attrs):
+                if tag == 'td': self.in_td = True
+            def handle_endtag(self, tag):
+                if tag == 'td': self.in_td = False
+            def handle_data(self, data):
+                if self.in_td and data.strip() and data.strip() != '\xa0':
+                    self.data.append(data.strip())
+
+        r = requests.get("https://cgse.com.hk/chines/en/latest-quotes",
+                         headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
+        p = TDParser()
+        p.feed(r.text)
+        cells = p.data
+
+        if cells and cells[0] == '99 Tael Gold':
+            ask = float(cells[1].replace(",", ""))
+            bid = float(cells[2].replace(",", ""))
+            if bid > 1000 and ask > 1000:
+                print(f"CGSE: bid={bid} ask={ask} HKD/tael")
+                return {
+                    "gold_hkd_tael_bid": bid,
+                    "gold_hkd_tael_ask": ask,
+                    "source": "cgse.com.hk",
+                    "is_calculated": False
+                }
+        return None
+    except Exception as e:
+        print(f"HK error: {e}")
+        return None
+
 def update():
     print(f"[{datetime.now()}] Updating prices...")
     fx = fetch_fx()
@@ -189,6 +255,7 @@ def update():
         spot = fetch_spot_fallback()
     ist = fetch_istanbul()
     india = fetch_india()
+    hk = fetch_hongkong()
 
     prices = {}
     if spot: prices["spot"] = spot
@@ -209,6 +276,17 @@ def update():
     elif spot and fx:
         prices["india"] = {
             "gold_inr_gram": round((spot["XAU"] / GRAM) * fx["INR"] * 1.13, 2),
+            "source": "calculated",
+            "is_calculated": True
+        }
+
+    if hk:
+        prices["hongkong"] = hk
+    elif spot and fx:
+        TAEL = 37.429
+        prices["hongkong"] = {
+            "gold_hkd_tael_bid": round((spot["XAU"] / GRAM) * TAEL * fx["HKD"], 2) if fx.get("HKD") else None,
+            "gold_hkd_tael_ask": round((spot["XAU"] / GRAM) * TAEL * fx["HKD"], 2) if fx.get("HKD") else None,
             "source": "calculated",
             "is_calculated": True
         }
