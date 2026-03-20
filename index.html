@@ -129,16 +129,34 @@ footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border);displ
 footer a{color:var(--gold-b);text-decoration:none}
 footer a:hover{text-decoration:underline}
 
+/* COOKIE BANNER */
+#cookie-banner{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;z-index:999;font-size:13px;color:var(--text2)}
+#cookie-banner a{color:var(--gold-b);text-decoration:none}
+.cookie-btns{display:flex;gap:8px}
+.cookie-btn{padding:8px 18px;border:none;border-radius:6px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.cookie-accept{background:var(--gold);color:#0E1015}
+.cookie-decline{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+
 @media(max-width:900px){.spots{grid-template-columns:1fr}.chart-grid{grid-template-columns:1fr}.wrap{padding:0 16px 60px}}
 @media(max-width:600px){.spot-price{font-size:32px}th,td{padding:10px 10px}.controls{gap:6px}}
 </style>
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-X137B76JHQ"></script>
+<!-- Google Analytics (consent-gated) -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-X137B76JHQ');
+  gtag('consent', 'default', {
+    analytics_storage: 'denied'
+  });
+  function loadGA(){
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-X137B76JHQ';
+    document.head.appendChild(s);
+    gtag('js', new Date());
+    gtag('config', 'G-X137B76JHQ');
+    gtag('consent', 'update', {analytics_storage: 'granted'});
+  }
+  if(localStorage.getItem('ga_consent') === 'granted') loadGA();
 </script>
 </head>
 <body>
@@ -267,11 +285,19 @@ footer a:hover{text-decoration:underline}
 
 <footer>
   <div>GoldPremium.org © 2026 · Informational purposes only · Not financial advice</div>
-  <div><a href="/impressum.html">Impressum & Datenschutz</a> · <a href="mailto:contact@goldpremium.org">contact@goldpremium.org</a></div>
+  <div><a href="/impressum.html">Impressum & Datenschutz</a> · <a href="/cdn-cgi/l/email-protection#9af9f5f4eefbf9eedafdf5f6feeae8fff7f3eff7b4f5e8fd"><span class="__cf_email__" data-cfemail="b1d2dedfc5d0d2c5f1d6deddd5c1c3d4dcd8c4dc9fdec3d6">[email&#160;protected]</span></a></div>
 </footer>
+
+<div id="cookie-banner" style="display:none">
+  <div>We use Google Analytics to understand how visitors use this site. <a href="/impressum.html">Privacy Policy</a></div>
+  <div class="cookie-btns">
+    <button class="cookie-btn cookie-decline" onclick="cookieDecline()">Decline</button>
+    <button class="cookie-btn cookie-accept" onclick="cookieAccept()">Accept</button>
+  </div>
+</div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const G = 31.1035; // grams per troy oz
 let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
@@ -800,19 +826,27 @@ function setMetal(m){
 function setUnit(u){
   unit=u;
   document.getElementById('btn-oz').className='ctrl-btn'+(u==='oz'?' on':'');
-  document.getElementById('btn-gram').className='ctrl-btn'+(u==='gram'?' on':'');
+  document.getElementById('btn-gram').className='ctrl-btn'+(u==='gram'?' on':'')
   render();
-}
-
-function setRange(r,btn){
-  currentRange=r;
-  document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  renderSpotChart();
 }
 
 load();
 setInterval(load,15*60*1000);
+
+// Cookie consent
+(function(){
+  const consent = localStorage.getItem('ga_consent');
+  if(!consent) document.getElementById('cookie-banner').style.display='flex';
+})();
+function cookieAccept(){
+  localStorage.setItem('ga_consent','granted');
+  document.getElementById('cookie-banner').style.display='none';
+  loadGA();
+}
+function cookieDecline(){
+  localStorage.setItem('ga_consent','denied');
+  document.getElementById('cookie-banner').style.display='none';
+}
 </script>
 </body>
 </html>
