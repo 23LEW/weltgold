@@ -75,7 +75,7 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 /* TABLE */
 .tscroll{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse}
-thead tr{border-bottom:1px solid var(--border);background:var(--bg3)}
+thead tr{border-bottom:1px solid var(--border);background:var(--bg3)}thead{position:sticky;top:var(--sticky-top,0);z-index:90}
 th{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);font-weight:600;padding:12px 16px;text-align:left;white-space:nowrap}
 th.r{text-align:right}
 td{padding:16px 16px;border-bottom:1px solid var(--border2);vertical-align:middle;font-size:13px;color:var(--text)}
@@ -873,6 +873,17 @@ function setUnit(u){
 
 load();
 setInterval(load,15*60*1000);
+
+// Set sticky top for thead based on spots-sticky height
+function updateStickyTop(){
+  const bar = document.querySelector('.spots-sticky');
+  if(bar){
+    const h = bar.offsetHeight;
+    document.documentElement.style.setProperty('--sticky-top', h+'px');
+  }
+}
+updateStickyTop();
+window.addEventListener('resize', updateStickyTop);
 
 // Cookie consent
 (function(){
