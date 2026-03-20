@@ -236,7 +236,37 @@ def fetch_japan():
         print(f"Japan error: {e}")
         return None
 
-def fetch_hongkong():
+def fetch_germany():
+    try:
+        r = requests.get(
+            "https://degussa.com/de/header_navigation/preise/referenzpreise/",
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=15
+        )
+        import re as re2
+        # Find 1oz Degussa Goldbarren (geprägt) - standard bar
+        idx = r.text.find('1 oz Degussa Goldbarren (geprägt)</div>')
+        if idx < 0:
+            idx = r.text.find('1 oz Degussa Goldbarren')
+        if idx < 0:
+            return None
+        snippet = r.text[idx:idx+400]
+        buy_m = re2.search(r'referenceListBuy">([\d\.]+,\d{2})\s*€', snippet)
+        sell_m = re2.search(r'referenceListSell">([\d\.]+,\d{2})\s*€', snippet)
+        if buy_m and sell_m:
+            bid = float(buy_m.group(1).replace('.','').replace(',','.'))
+            ask = float(sell_m.group(1).replace('.','').replace(',','.'))
+            print(f"Degussa: bid={bid} ask={ask} EUR/oz")
+            return {
+                "gold_eur_oz_bid": bid,
+                "gold_eur_oz_ask": ask,
+                "source": "degussa.com",
+                "is_calculated": False
+            }
+        return None
+    except Exception as e:
+        print(f"Germany error: {e}")
+        return None
     try:
         from html.parser import HTMLParser
         class TDParser(HTMLParser):
@@ -285,6 +315,7 @@ def update():
     india = fetch_india()
     hk = fetch_hongkong()
     japan = fetch_japan()
+    germany = fetch_germany()
 
     prices = {}
     if spot: prices["spot"] = spot
@@ -326,6 +357,16 @@ def update():
         prices["japan"] = {
             "gold_jpy_gram_bid": round((spot["XAU"] / GRAM) * fx["JPY"] * 1.005, 2) if fx.get("JPY") else None,
             "gold_jpy_gram_ask": round((spot["XAU"] / GRAM) * fx["JPY"] * 1.005, 2) if fx.get("JPY") else None,
+            "source": "calculated",
+            "is_calculated": True
+        }
+
+    if germany:
+        prices["germany"] = germany
+    elif spot and fx:
+        prices["germany"] = {
+            "gold_eur_oz_bid": round(spot["XAU"] * fx.get("EUR", 0.92) * 1.005, 2),
+            "gold_eur_oz_ask": round(spot["XAU"] * fx.get("EUR", 0.92) * 1.02, 2),
             "source": "calculated",
             "is_calculated": True
         }
