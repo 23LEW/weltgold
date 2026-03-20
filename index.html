@@ -57,10 +57,10 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 /* SPOT CARDS */
 .spots-sticky{position:sticky;top:0;z-index:100;background:var(--bg);padding:12px 0 8px;margin:0 -24px;padding-left:24px;padding-right:24px;border-bottom:1px solid var(--border)}
 .spots{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0}
-.spot{background:var(--bg2);padding:16px 20px;border-radius:var(--radius);border:1px solid var(--border);opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
+.spot{background:#1C2028;padding:16px 20px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.12);opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
 .spot.show{opacity:1;transform:none}
 .spot::before{display:none}
-.spot-label{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:12px}
+.spot-label{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gold-b);margin-bottom:12px}
 .spot-price{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;color:var(--gold-p);line-height:1;letter-spacing:-1px;transition:color .3s}
 .spot-price sup{font-size:18px;vertical-align:super;color:var(--gold);margin-right:2px;transition:color .3s;font-weight:400}
 .spot.silver-mode .spot-price{color:var(--silver-p)}
@@ -301,7 +301,7 @@ footer a:hover{text-decoration:underline}
 const G = 31.1035; // grams per troy oz
 let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
-let spot = null, fx = null, istanbul = null, indiaLive = null, hkLive = null;
+let spot = null, fx = null, istanbul = null, indiaLive = null, hkLive = null, japanLive = null;
 let histData = []; // historical spot prices
 let currentRange = '1D';
 let chartSpot = null, chartIst = null, chartAll = null;
@@ -316,7 +316,7 @@ const MARKETS = [
   {id:'istanbul', name:'Istanbul · Turkey', city:'Grand Bazaar / Kapalı Çarşı', flag:'🇹🇷', currency:'TRY', unitLabel:'TRY/g', calcPremium:0.02},
   {id:'shanghai', name:'Shanghai Gold Exch.', city:'Shanghai · China (SGE)', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/g', calcPremium:0.01},
   {id:'india', name:'MCX / IBJA', city:'Mumbai · India', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0.13, per10g:true, ibjaSpread:0.0015},
-  {id:'japan', name:'TOCOM', city:'Tokyo · Japan', flag:'🇯🇵', currency:'JPY', unitLabel:'JPY/g', calcPremium:0.005},
+  {id:'japan', name:'Tokyo · Japan', city:'Tanaka Precious Metals', flag:'🇯🇵', currency:'JPY', unitLabel:'JPY/g', calcPremium:0.005},
   {id:'dubai', name:'Dubai Gold Souk', city:'Dubai · UAE', flag:'🇦🇪', currency:'AED', unitLabel:'AED/g', calcPremium:0.005},
   {id:'hongkong', name:'Hong Kong · CGSE', city:'Chinese Gold & Silver Exchange', flag:'🇭🇰', currency:'HKD', unitLabel:'HKD/tael', calcPremium:0.002, tael:true},
 ];
@@ -373,11 +373,25 @@ function calcMarket(m){
     const inrPerGram = indiaLive.gold_inr_gram;
     localPrice = unit==='oz' ? inrPerGram * G : inrPerGram * 10;
     usdOz = (inrPerGram / fxRate) * G;
-  } else if(m.id==='hongkong' && hkLive?.bid && metal==='XAU'){
+  } else if(m.id==='japan' && japanLive?.bid && metal==='XAU'){
+    const mid = (japanLive.bid + japanLive.ask) / 2;
+    localPrice = unit==='oz' ? mid * G : mid;
+    usdOz = (mid / fxRate) * G;
+  } else if(m.id==='hongkong' && metal==='XAU'){
+    // HK: spot × HKD rate (CGSE data not reliably live)
+    // HKD is pegged to USD ~7.78, so premium is minimal
     const TAEL = 37.429;
-    const midTael = (hkLive.bid + hkLive.ask) / 2;
-    localPrice = unit==='oz' ? (midTael / TAEL) * G : midTael / TAEL;
-    usdOz = (midTael / TAEL / fxRate) * G;
+    if(hkLive?.bid){
+      // Convert CGSE tael price to USD/oz correctly
+      // CGSE quotes in HKD per tael (37.429g)
+      const midTael = (hkLive.bid + hkLive.ask) / 2;
+      const hkdPerGram = midTael / TAEL;
+      usdOz = (hkdPerGram / fxRate) * G;
+      localPrice = unit==='oz' ? hkdPerGram * G : hkdPerGram * TAEL;
+    } else {
+      localPrice = unit==='oz' ? spotUSD * fxRate : (spotUSD/G) * fxRate * TAEL;
+      usdOz = spotUSD * (1 + m.calcPremium);
+    }
   } else {
     localPrice = (spotUSD/G)*fxRate*(1+m.calcPremium);
     if(m.per10g) localPrice *= 10;
@@ -453,6 +467,14 @@ async function load(){
         hkLive = {bid: hk.gold_hkd_tael_bid, ask: hk.gold_hkd_tael_ask, source: hk.source};
       } else {
         hkLive = null;
+      }
+
+      // Japan Tanaka
+      const jp = vps?.japan;
+      if(jp && jp.gold_jpy_gram_bid && !jp.is_calculated){
+        japanLive = {bid: jp.gold_jpy_gram_bid, ask: jp.gold_jpy_gram_ask, source: jp.source};
+      } else {
+        japanLive = null;
       }
 
     }catch(e){
@@ -711,6 +733,7 @@ function render(){
       const hasLast=istanbul?.gold!=null;
       srcBadge=`<span class="badge closed">⚫ CLOSED${hasLast?ts:''}</span>`;
     } else if(indiaIsLive) srcBadge='<span class="badge live">🟢 LIVE · ibjarates.com</span>';
+    else if(r.id==='japan' && japanLive?.bid && metal==='XAU') srcBadge='<span class="badge live">🟢 LIVE · tanaka.co.jp</span>';
     else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU') srcBadge='<span class="badge live">🟢 LIVE · cgse.com.hk</span>';
     else srcBadge='<span class="badge calc">🟠 CALC</span>';
 
@@ -726,6 +749,11 @@ function render(){
       const spotAsk = metal==='XAU' ? spot.XAU_ask : spot.XAG_ask;
       const dBid = toDisplay(spotBid), dAsk = toDisplay(spotAsk);
       priceCell = `<div class="plocal${!isGold?' sv':''}">$${fmt(dBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">$${fmt(dAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
+    } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
+      const bidDisplay = unit==='oz' ? fmt(japanLive.bid*G,0) : fmt(japanLive.bid,0);
+      const askDisplay = unit==='oz' ? fmt(japanLive.ask*G,0) : fmt(japanLive.ask,0);
+      const unitLbl = unit==='oz' ? 'JPY/oz' : 'JPY/g';
+      priceCell = `<div class="plocal">¥ ${bidDisplay}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">¥ ${askDisplay}</div><div class="punit">Ask (${unitLbl})</div>`;
     } else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU'){
       const TAEL = 37.429;
       const bidDisplay = unit==='oz' ? fmt((hkLive.bid/TAEL)*G,0) : fmt(hkLive.bid/TAEL,2);
@@ -756,10 +784,23 @@ function render(){
       const dEBid=toDisplay(eurBid), dEAsk=toDisplay(eurAsk);
       usdCell = `<div class="pusd">$${fmt(dBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(dAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
       eurCell = `<div class="peur">€${fmt(dEBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(dEAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
+    } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
+      const bidDisplay = unit==='oz' ? fmt(japanLive.bid*G,0) : fmt(japanLive.bid,0);
+      const askDisplay = unit==='oz' ? fmt(japanLive.ask*G,0) : fmt(japanLive.ask,0);
+      const unitLbl = unit==='oz' ? 'JPY/oz' : 'JPY/g';
+      priceCell = `<div class="plocal">¥ ${bidDisplay}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">¥ ${askDisplay}</div><div class="punit">Ask (${unitLbl})</div>`;
+    } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
+      const usdBid = toDisplay((japanLive.bid / (fx.JPY||150)) * G);
+      const usdAsk = toDisplay((japanLive.ask / (fx.JPY||150)) * G);
+      const eurBid = toDisplay(usdBid * (fx.EUR||1));
+      const eurAsk = toDisplay(usdAsk * (fx.EUR||1));
+      const dec = isGram ? 3 : 2;
+      usdCell = `<div class="pusd">$${fmt(isGram?usdBid/G:usdBid,dec)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAsk/G:usdAsk,dec)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?eurBid/G:eurBid,dec)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk/G:eurAsk,dec)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU'){
       const TAEL = 37.429;
-      const usdBid = toDisplay((hkLive.bid / TAEL / (fx.HKD||7.8)) * G);
-      const usdAsk = toDisplay((hkLive.ask / TAEL / (fx.HKD||7.8)) * G);
+      const usdBid = toDisplay((hkLive.bid / TAEL / (fx.HKD||7.78)) * G);
+      const usdAsk = toDisplay((hkLive.ask / TAEL / (fx.HKD||7.78)) * G);
       const eurBid = toDisplay(usdBid * (fx.EUR||1));
       const eurAsk = toDisplay(usdAsk * (fx.EUR||1));
       const dec = isGram ? 3 : 2;

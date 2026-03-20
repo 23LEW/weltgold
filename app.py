@@ -208,6 +208,34 @@ def fetch_india():
         print(f"IBJA error: {e}")
         return None
 
+def fetch_japan():
+    try:
+        PROXY = "http://emvapyle:j29crz2fwh2i@142.111.67.146:5611"
+        r = requests.get(
+            "https://gold.tanaka.co.jp/commodity/souba/english/index.php",
+            headers={"User-Agent": "Mozilla/5.0"},
+            proxies={"http": PROXY, "https": PROXY},
+            timeout=15
+        )
+        import re as re2
+        # Extract selling price (ask) and buying price (bid) for gold
+        ask_m = re2.search(r'class="retail_tax">([\d,]+) yen</td>', r.text)
+        bid_m = re2.search(r'class="purchase_tax">([\d,]+) yen</td>', r.text)
+        if ask_m and bid_m:
+            ask = float(ask_m.group(1).replace(",", ""))
+            bid = float(bid_m.group(1).replace(",", ""))
+            print(f"Tanaka: bid={bid} ask={ask} JPY/gram")
+            return {
+                "gold_jpy_gram_bid": bid,
+                "gold_jpy_gram_ask": ask,
+                "source": "gold.tanaka.co.jp",
+                "is_calculated": False
+            }
+        return None
+    except Exception as e:
+        print(f"Japan error: {e}")
+        return None
+
 def fetch_hongkong():
     try:
         from html.parser import HTMLParser
@@ -256,6 +284,7 @@ def update():
     ist = fetch_istanbul()
     india = fetch_india()
     hk = fetch_hongkong()
+    japan = fetch_japan()
 
     prices = {}
     if spot: prices["spot"] = spot
@@ -287,6 +316,16 @@ def update():
         prices["hongkong"] = {
             "gold_hkd_tael_bid": round((spot["XAU"] / GRAM) * TAEL * fx["HKD"], 2) if fx.get("HKD") else None,
             "gold_hkd_tael_ask": round((spot["XAU"] / GRAM) * TAEL * fx["HKD"], 2) if fx.get("HKD") else None,
+            "source": "calculated",
+            "is_calculated": True
+        }
+
+    if japan:
+        prices["japan"] = japan
+    elif spot and fx:
+        prices["japan"] = {
+            "gold_jpy_gram_bid": round((spot["XAU"] / GRAM) * fx["JPY"] * 1.005, 2) if fx.get("JPY") else None,
+            "gold_jpy_gram_ask": round((spot["XAU"] / GRAM) * fx["JPY"] * 1.005, 2) if fx.get("JPY") else None,
             "source": "calculated",
             "is_calculated": True
         }
