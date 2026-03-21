@@ -189,6 +189,23 @@ footer a:hover{text-decoration:underline}
     <div class="ctrl-sep"></div>
     <button class="ctrl-btn" id="btn-gram" onclick="setUnit('gram')">Gram</button>
   </div>
+  <div class="ctrl-group">
+    <button class="ctrl-btn on" id="btn-usd" onclick="setCurrency('USD')">USD</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="btn-eur" onclick="setCurrency('EUR')">EUR</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="btn-gbp" onclick="setCurrency('GBP')">GBP</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="btn-jpy" onclick="setCurrency('JPY')">JPY</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="btn-cny" onclick="setCurrency('CNY')">CNY</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="btn-try" onclick="setCurrency('TRY')">TRY</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="btn-aed" onclick="setCurrency('AED')">AED</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="btn-inr" onclick="setCurrency('INR')">INR</button>
+  </div>
 </div>
 
 <div class="err" id="err">Failed to load price data. Please check your internet connection and reload.</div>
@@ -233,7 +250,7 @@ footer a:hover{text-decoration:underline}
   <tr>
     <th>Market</th>
     <th id="th-local">Local Price</th>
-    <th class="r" id="th-usd">USD / oz</th>
+    <th class="r" id="th-usd">— / oz</th>
     <th class="r">Premium USD</th>
     <th class="r" id="th-eur">EUR / oz</th>
     <th class="r">Premium EUR</th>
@@ -320,6 +337,8 @@ const G = 31.1035; // grams per troy oz
 let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
 let spot = null, fx = null, istanbul = null, indiaLive = null, hkLive = null, japanLive = null, germanyLive = null;
+let displayCurrency = 'USD';
+const CURRENCIES = {USD:{sym:'$',name:'USD'},EUR:{sym:'€',name:'EUR'},GBP:{sym:'£',name:'GBP'},JPY:{sym:'¥',name:'JPY'},CNY:{sym:'¥',name:'CNY'},TRY:{sym:'₺',name:'TRY'},AED:{sym:'د.إ',name:'AED'},INR:{sym:'₹',name:'INR'}};
 let histData = []; // historical spot prices
 let currentRange = '1D';
 let chartSpot = null, chartIst = null, chartAll = null;
@@ -677,6 +696,14 @@ function renderAllChart(rows, spotUSD){
   });
 }
 
+function getCurrencyRate(){
+  if(displayCurrency==='USD') return 1;
+  return fx[displayCurrency] || 1;
+}
+function getCurrencySym(){
+  return CURRENCIES[displayCurrency]?.sym || '$';
+}
+
 function render(){
   if(!spot||!fx)return;
   const isGold = metal==='XAU';
@@ -694,16 +721,27 @@ function render(){
   // Update labels
   document.getElementById('lbl-usd').textContent = `International Spot Price · USD ${unitSuffix}`;
   document.getElementById('lbl-eur').textContent = `Spot Price · EUR ${unitSuffix}`;
-  document.getElementById('th-usd').textContent = `USD / ${isGram?'Gramm':'oz'}`;
-  document.getElementById('th-eur').textContent = `EUR / ${isGram?'Gramm':'oz'}`;
+  document.getElementById('th-usd').textContent = `${displayCurrency} / ${isGram?'g':'oz'}`;
+  document.getElementById('th-eur').textContent = `EUR / ${isGram?'g':'oz'}`;
+  // Update sticky thead too
+  const sth2 = document.getElementById('sth-2');
+  const sth4 = document.getElementById('sth-4');
+  if(sth2) sth2.textContent = `${displayCurrency} / ${isGram?'g':'oz'}`;
+  if(sth4) sth4.textContent = `EUR / ${isGram?'g':'oz'}`;
   document.getElementById('chart-unit-note').textContent = `USD / ${isGram?'Gram':'Troy Oz'}`;
   document.getElementById('chart1-title').textContent = (isGold?'Gold':'Silver')+' Spot Price';
 
   const displaySpot = toDisplay(spotUSD);
   const displayEur = toDisplay(spotUSD&&fx.EUR?spotUSD*fx.EUR:null);
 
-  document.getElementById('v-usd').textContent = fmt(displaySpot,isGram?3:2);
-  document.getElementById('v-eur').textContent = fmt(displayEur,isGram?3:2);
+  const dispRate = getCurrencyRate();
+  const dispSym = getCurrencySym();
+  const displayMain = toDisplay(spotUSD && dispRate ? spotUSD * dispRate : null);
+  const displayMain2 = toDisplay(spotUSD && fx.EUR ? spotUSD * fx.EUR : null);
+  document.getElementById('v-usd').textContent = fmt(isGram ? displayMain/G : displayMain, isGram?3:2);
+  document.getElementById('v-eur').textContent = fmt(isGram ? displayMain2/G : displayMain2, isGram?3:2);
+  document.getElementById('lbl-usd').textContent = `Spot Price · ${displayCurrency} / ${unit==='oz'?'Troy Oz':'Gram'}`;
+  document.getElementById('p-usd').querySelector('sup').textContent = getCurrencySym();
 
   // Bid/Ask + source for spot cards
   const spotBidV = isGold ? spot.XAU_bid : spot.XAG_bid;
@@ -747,9 +785,13 @@ function render(){
     const calc = calcMarket(m);
     if(!calc)return null;
     const {localPrice,usdOz} = calc;
-    const diff = usdOz - spotUSD;
-    const pct = (diff/spotUSD)*100;
+    const dispRate2 = getCurrencyRate();
+    const usdOzConverted = usdOz * dispRate2;
+    const spotConverted = spotUSD * dispRate2;
+    const diff = usdOzConverted - spotConverted;
+    const pct = (diff/spotConverted)*100;
     const eurOz = fx.EUR?usdOz*fx.EUR:null;
+    const dispOz = usdOzConverted;
     const istLive = m.id==='istanbul'&&istanbul?.status==='live';
     const istClosed = m.id==='istanbul'&&istanbul?.status==='closed';
     return {...m, localPrice, usdOz, diff, pct, eurOz, istLive, istClosed};
@@ -827,7 +869,7 @@ function render(){
     }
 
     // USD and EUR columns with bid/ask for spot + Istanbul rows
-    const dUSD=toDisplay(r.usdOz), dEUR=toDisplay(r.eurOz);
+    const dUSD=toDisplay(r.dispOz||r.usdOz), dEUR=toDisplay(r.eurOz);
     let usdCell, eurCell;
     if(r.isSpot){
       const spotBid = metal==='XAU' ? spot.XAU_bid : spot.XAG_bid;
@@ -878,7 +920,7 @@ function render(){
       usdCell = `<div class="pusd">$${fmt(isGram?usdBid/G:usdBid,dec)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAsk/G:usdAsk,dec)}</div><div class="punit">Ask</div>`;
       eurCell = `<div class="peur">€${fmt(isGram?eurBid/G:eurBid,dec)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk/G:eurAsk,dec)}</div><div class="punit">Ask</div>`;
     } else {
-      usdCell = `<div class="pusd">$${fmt(dUSD,isGram?3:2)}</div>`;
+      usdCell = `<div class="pusd">${getCurrencySym()}${fmt(dUSD,isGram?3:2)}</div>`;
       eurCell = `<div class="peur">€${fmt(dEUR,isGram?3:2)}</div>`;
     }
 
@@ -923,6 +965,15 @@ function setMetal(m){
   const isG=m==='XAU';
   document.getElementById('btn-gold').className='ctrl-btn'+(isG?' on':'');
   document.getElementById('btn-silver').className='ctrl-btn silver'+(!isG?' on':'');
+  render();
+}
+
+function setCurrency(c){
+  displayCurrency=c;
+  ['USD','EUR','GBP','JPY','CNY','TRY','AED','INR'].forEach(x=>{
+    const el = document.getElementById('btn-'+x.toLowerCase());
+    if(el) el.className='ctrl-btn'+(x===c?' on':'');
+  });
   render();
 }
 
