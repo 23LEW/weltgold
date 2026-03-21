@@ -92,11 +92,11 @@ tr.hi td:first-child{border-left:2px solid var(--red)}
 .flag{font-size:22px}
 .mname{font-size:15px;font-weight:600;color:var(--text)}
 .mcity{font-size:11px;color:var(--text3);margin-top:2px}
-.plocal{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--gold-p)}
+.plocal{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:#C8CDD8}
 .plocal.sv{color:var(--silver-p)}
 .punit{font-size:11px;color:var(--text3);margin-top:2px}
-.pusd{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--text)}
-.peur{font-family:'DM Mono',monospace;font-size:14px;color:var(--text2)}
+.pusd{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--gold-b)}
+.peur{font-family:'DM Mono',monospace;font-size:14px;color:var(--gold)}
 .badge{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:3px 8px;border-radius:4px;white-space:nowrap}
 .badge.pos{background:var(--green-bg);color:var(--green)}
 .badge.neg{background:var(--red-bg);color:var(--red)}
@@ -769,7 +769,7 @@ function render(){
     if(r.istLive && istanbul?.goldBuy && istanbul?.goldSell){
       const buy = unit==='gram' ? fmt(istanbul.goldBuy,0) : fmt(istanbul.goldBuy/G*G,0);
       const sell = unit==='gram' ? fmt(istanbul.goldSell,0) : fmt(istanbul.goldSell/G*G,0);
-      priceCell = `<div class="plocal${!isGold?' sv':''}">₺ ${buy}</div><div class="punit">Alış (buy)</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">₺ ${sell}</div><div class="punit">Satış (sell)</div>`;
+      priceCell = `<div class="plocal${!isGold?' sv':''}">₺ ${buy}</div><div class="punit">Bid</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">₺ ${sell}</div><div class="punit">Ask</div>`;
     } else if(r.isSpot){
       // Spot row: show bid/ask
       const spotBid = metal==='XAU' ? spot.XAU_bid : spot.XAG_bid;
@@ -780,7 +780,7 @@ function render(){
       const bidDisplay = unit==='oz' ? fmt(germanyLive.bid,2) : fmt(germanyLive.bid/G,3);
       const askDisplay = unit==='oz' ? fmt(germanyLive.ask,2) : fmt(germanyLive.ask/G,3);
       const unitLbl = unit==='oz' ? 'EUR/oz' : 'EUR/g';
-      priceCell = `<div class="plocal">€ ${bidDisplay}</div><div class="punit">Ankauf (${unitLbl})</div><div class="plocal" style="margin-top:4px">€ ${askDisplay}</div><div class="punit">Verkauf (${unitLbl})</div>`;
+      priceCell = `<div class="plocal">€ ${bidDisplay}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">€ ${askDisplay}</div><div class="punit">Ask (${unitLbl})</div>`;
     } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
       const bidDisplay = unit==='oz' ? fmt(japanLive.bid*G,0) : fmt(japanLive.bid,0);
       const askDisplay = unit==='oz' ? fmt(japanLive.ask*G,0) : fmt(japanLive.ask,0);
@@ -820,8 +820,8 @@ function render(){
       const usdBidD = toDisplay(germanyLive.bid / (fx.EUR||1));
       const usdAskD = toDisplay(germanyLive.ask / (fx.EUR||1));
       const decD = isGram ? 3 : 2;
-      usdCell = `<div class="pusd">$${fmt(isGram?usdBidD/G:usdBidD,decD)}</div><div class="punit">Ankauf</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAskD/G:usdAskD,decD)}</div><div class="punit">Verkauf</div>`;
-      eurCell = `<div class="peur">€${fmt(isGram?germanyLive.bid/G:germanyLive.bid,decD)}</div><div class="punit">Ankauf</div><div class="peur" style="margin-top:2px">€${fmt(isGram?germanyLive.ask/G:germanyLive.ask,decD)}</div><div class="punit">Verkauf</div>`;
+      usdCell = `<div class="pusd">$${fmt(isGram?usdBidD/G:usdBidD,decD)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAskD/G:usdAskD,decD)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?germanyLive.bid/G:germanyLive.bid,decD)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?germanyLive.ask/G:germanyLive.ask,decD)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
       const bidDisplay = unit==='oz' ? fmt(japanLive.bid*G,0) : fmt(japanLive.bid,0);
       const askDisplay = unit==='oz' ? fmt(japanLive.ask*G,0) : fmt(japanLive.ask,0);
@@ -851,8 +851,8 @@ function render(){
       const eurBid = toDisplay(usdBid * (fx.EUR||1));
       const eurAsk = toDisplay(usdAsk * (fx.EUR||1));
       const dec = isGram ? 3 : 2;
-      usdCell = `<div class="pusd">$${fmt(isGram?usdBid/G:usdBid,dec)}</div><div class="punit">Alış</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAsk/G:usdAsk,dec)}</div><div class="punit">Satış</div>`;
-      eurCell = `<div class="peur">€${fmt(isGram?eurBid/G:eurBid,dec)}</div><div class="punit">Alış</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk/G:eurAsk,dec)}</div><div class="punit">Satış</div>`;
+      usdCell = `<div class="pusd">$${fmt(isGram?usdBid/G:usdBid,dec)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAsk/G:usdAsk,dec)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?eurBid/G:eurBid,dec)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk/G:eurAsk,dec)}</div><div class="punit">Ask</div>`;
     } else {
       usdCell = `<div class="pusd">$${fmt(dUSD,isGram?3:2)}</div>`;
       eurCell = `<div class="peur">€${fmt(dEUR,isGram?3:2)}</div>`;
