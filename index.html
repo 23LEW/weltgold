@@ -209,6 +209,8 @@ footer a:hover{text-decoration:underline}
       <button class="ctrl-btn" id="btn-aed" onclick="setCurrency('AED')">AED</button>
       <div class="ctrl-sep"></div>
       <button class="ctrl-btn" id="btn-inr" onclick="setCurrency('INR')">INR</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-rub" onclick="setCurrency('RUB')">RUB</button>
     </div>
   </div>
 </div>
@@ -339,7 +341,7 @@ let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
 let spot = null, fx = null, istanbul = null, indiaLive = null, hkLive = null, japanLive = null, germanyLive = null;
 let displayCurrency = 'USD';
-const CURRENCIES = {USD:{sym:'$',name:'USD'},EUR:{sym:'€',name:'EUR'},GBP:{sym:'£',name:'GBP'},JPY:{sym:'¥',name:'JPY'},CNY:{sym:'¥',name:'CNY'},TRY:{sym:'₺',name:'TRY'},AED:{sym:'د.إ',name:'AED'},INR:{sym:'₹',name:'INR'}};
+const CURRENCIES = {USD:{sym:'$',name:'USD'},EUR:{sym:'€',name:'EUR'},GBP:{sym:'£',name:'GBP'},JPY:{sym:'¥',name:'JPY'},CNY:{sym:'¥',name:'CNY'},TRY:{sym:'₺',name:'TRY'},AED:{sym:'د.إ',name:'AED'},INR:{sym:'₹',name:'INR'},RUB:{sym:'₽',name:'RUB'}};
 let histData = []; // historical spot prices
 let currentRange = '1D';
 let chartSpot = null, chartIst = null, chartAll = null;
@@ -451,7 +453,7 @@ async function load(){
     const [gr, sr, fxr] = await Promise.all([
       fetch('https://api.gold-api.com/price/XAU').then(r=>r.json()),
       fetch('https://api.gold-api.com/price/XAG').then(r=>r.json()),
-      fetch('https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,HKD,AED').then(r=>r.json())
+      fetch('https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,HKD,AED,RUB').then(r=>r.json())
     ]);
     spot = {XAU:gr.price, XAG:sr.price, XAU_bid:gr.price, XAU_ask:gr.price, XAG_bid:sr.price, XAG_ask:sr.price, XAU_chp:gr.chp, XAU_ch:gr.ch, XAG_chp:sr.chp, XAG_ch:sr.ch};
     fx = {...fxr.rates, USD:1};
@@ -977,7 +979,7 @@ function setMetal(m){
 
 function setCurrency(c){
   displayCurrency=c;
-  ['USD','EUR','GBP','JPY','CNY','TRY','AED','INR'].forEach(x=>{
+  ['USD','EUR','GBP','JPY','CNY','TRY','AED','INR','RUB'].forEach(x=>{
     const el = document.getElementById('btn-'+x.toLowerCase());
     if(el) el.className='ctrl-btn'+(x===c?' on':'');
   });

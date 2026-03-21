@@ -14,7 +14,7 @@ GRAM = 31.1035
 
 def fetch_fx():
     try:
-        r = requests.get("https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,HKD,AED", timeout=10).json()
+        r = requests.get("https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,HKD,AED,RUB", timeout=10).json()
         rates = r.get("rates", {})
         rates["USD"] = 1.0
         return rates
