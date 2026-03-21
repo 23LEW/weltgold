@@ -198,11 +198,15 @@ footer a:hover{text-decoration:underline}
     <div class="spot-label" id="lbl-usd">International Spot Price · USD / Troy Oz</div>
     <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">—</span> <span id="v-usd-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
     <div class="spot-sub">LBMA London / COMEX New York · Global Benchmark</div>
+    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-usd-bidask"></div>
+    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-usd-source"></div>
   </div>
   <div class="spot" id="s-eur">
     <div class="spot-label" id="lbl-eur">Spot Price · EUR / Troy Oz</div>
     <div class="spot-price" id="p-eur"><sup>€</sup><span id="v-eur">—</span> <span id="v-eur-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
     <div class="spot-sub">Converted via ECB exchange rate</div>
+    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-eur-bidask"></div>
+    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-eur-source"></div>
   </div>
 </div></div>
 
@@ -700,6 +704,21 @@ function render(){
 
   document.getElementById('v-usd').textContent = fmt(displaySpot,isGram?3:2);
   document.getElementById('v-eur').textContent = fmt(displayEur,isGram?3:2);
+
+  // Bid/Ask + source for spot cards
+  const spotBidV = isGold ? spot.XAU_bid : spot.XAG_bid;
+  const spotAskV = isGold ? spot.XAU_ask : spot.XAG_ask;
+  if(spotBidV && spotAskV){
+    const dec = isGram ? 3 : 2;
+    const dBid = toDisplay(isGram ? spotBidV/G : spotBidV);
+    const dAsk = toDisplay(isGram ? spotAskV/G : spotAskV);
+    const dBidEur = toDisplay(dBid * (fx.EUR||1));
+    const dAskEur = toDisplay(dAsk * (fx.EUR||1));
+    document.getElementById('v-usd-bidask').textContent = `Bid $${fmt(dBid,dec)}  ·  Ask $${fmt(dAsk,dec)}`;
+    document.getElementById('v-eur-bidask').textContent = `Bid €${fmt(dBidEur,dec)}  ·  Ask €${fmt(dAskEur,dec)}`;
+  }
+  document.getElementById('v-usd-source').textContent = 'Source: kitco.com';
+  document.getElementById('v-eur-source').textContent = 'Source: kitco.com';
 
   // Daily change % — USD from Kitco, EUR adjusted for EUR/USD move
   const chp = isGold ? spot.XAU_chp : spot.XAG_chp;
