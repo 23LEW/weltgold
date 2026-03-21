@@ -737,12 +737,18 @@ function render(){
 
   const dispRate = getCurrencyRate();
   const dispSym = getCurrencySym();
-  const displayMain = toDisplay(spotUSD && dispRate ? spotUSD * dispRate : null);
-  const displayMain2 = toDisplay(spotUSD && fx.EUR ? spotUSD * fx.EUR : null);
-  document.getElementById('v-usd').textContent = fmt(isGram ? displayMain/G : displayMain, isGram?3:2);
-  document.getElementById('v-eur').textContent = fmt(isGram ? displayMain2/G : displayMain2, isGram?3:2);
-  document.getElementById('lbl-usd').textContent = `Spot Price · ${displayCurrency} / ${unit==='oz'?'Troy Oz':'Gram'}`;
-  document.getElementById('p-usd').querySelector('sup').textContent = getCurrencySym();
+
+  // First card: always USD
+  const displayUSD = toDisplay(spotUSD);
+  document.getElementById('v-usd').textContent = fmt(isGram ? displayUSD/G : displayUSD, isGram?3:2);
+  document.getElementById('lbl-usd').textContent = `Spot Price · USD / ${unit==='oz'?'Troy Oz':'Gram'}`;
+  document.getElementById('p-usd').querySelector('sup').textContent = '$';
+
+  // Second card: selected currency
+  const displaySel = toDisplay(spotUSD && dispRate ? spotUSD * dispRate : null);
+  document.getElementById('v-eur').textContent = fmt(isGram ? displaySel/G : displaySel, isGram?3:2);
+  document.getElementById('lbl-eur').textContent = `Spot Price · ${displayCurrency} / ${unit==='oz'?'Troy Oz':'Gram'}`;
+  document.getElementById('p-eur').querySelector('sup').textContent = getCurrencySym();
 
   // Bid/Ask + source for spot cards
   const spotBidV = isGold ? spot.XAU_bid : spot.XAG_bid;
@@ -751,10 +757,12 @@ function render(){
     const dec = isGram ? 3 : 2;
     const dBid = toDisplay(isGram ? spotBidV/G : spotBidV);
     const dAsk = toDisplay(isGram ? spotAskV/G : spotAskV);
-    const dBidEur = toDisplay(dBid * (fx.EUR||1));
-    const dAskEur = toDisplay(dAsk * (fx.EUR||1));
+    const dBidEur = toDisplay(dBid * dispRate);
+    const dAskEur = toDisplay(dAsk * dispRate);
     document.getElementById('v-usd-bidask').textContent = `Bid $${fmt(dBid,dec)}  ·  Ask $${fmt(dAsk,dec)}`;
-    document.getElementById('v-eur-bidask').textContent = `Bid €${fmt(dBidEur,dec)}  ·  Ask €${fmt(dAskEur,dec)}`;
+    const dBidDisp = toDisplay(dBid * dispRate);
+    const dAskDisp = toDisplay(dAsk * dispRate);
+    document.getElementById('v-eur-bidask').textContent = `Bid ${getCurrencySym()}${fmt(dBidDisp,dec)}  ·  Ask ${getCurrencySym()}${fmt(dAskDisp,dec)}`;
   }
   document.getElementById('v-usd-source').textContent = 'Source: kitco.com';
   document.getElementById('v-eur-source').textContent = 'Source: kitco.com';
