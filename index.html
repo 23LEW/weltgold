@@ -46,7 +46,8 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
 /* CONTROLS */
-.controls{display:flex;align-items:center;gap:8px;margin:20px 0;flex-wrap:wrap}
+.controls{display:flex;flex-direction:column;gap:10px;margin:20px 0}
+.controls-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .ctrl-group{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;padding:3px;gap:2px}
 .ctrl-btn{padding:7px 18px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;border:none;color:var(--text2);cursor:pointer;transition:all .15s;border-radius:6px;white-space:nowrap}
 .ctrl-btn:hover{color:var(--text);background:var(--bg3)}
@@ -179,32 +180,36 @@ footer a:hover{text-decoration:underline}
 
 <!-- CONTROLS: Metal + Unit -->
 <div class="controls">
-  <div class="ctrl-group">
-    <button class="ctrl-btn on" id="btn-gold" onclick="setMetal('XAU')">Gold</button>
-    <div class="ctrl-sep"></div>
-    <button class="ctrl-btn silver" id="btn-silver" onclick="setMetal('XAG')">Silver</button>
+  <div class="controls-row">
+    <div class="ctrl-group">
+      <button class="ctrl-btn on" id="btn-gold" onclick="setMetal('XAU')">Gold</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn silver" id="btn-silver" onclick="setMetal('XAG')">Silver</button>
+    </div>
+    <div class="ctrl-group" style="margin-left:16px">
+      <button class="ctrl-btn on" id="btn-oz" onclick="setUnit('oz')">Troy Oz</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-gram" onclick="setUnit('gram')">Gram</button>
+    </div>
   </div>
-  <div class="ctrl-group">
-    <button class="ctrl-btn on" id="btn-oz" onclick="setUnit('oz')">Troy Oz</button>
-    <div class="ctrl-sep"></div>
-    <button class="ctrl-btn" id="btn-gram" onclick="setUnit('gram')">Gram</button>
-  </div>
-  <div class="ctrl-group">
-    <button class="ctrl-btn on" id="btn-usd" onclick="setCurrency('USD')">USD</button>
-    <div class="ctrl-sep"></div>
-    <button class="ctrl-btn" id="btn-eur" onclick="setCurrency('EUR')">EUR</button>
-    <div class="ctrl-sep"></div>
-    <button class="ctrl-btn" id="btn-gbp" onclick="setCurrency('GBP')">GBP</button>
-    <div class="ctrl-sep"></div>
-    <button class="ctrl-btn" id="btn-jpy" onclick="setCurrency('JPY')">JPY</button>
-    <div class="ctrl-sep"></div>
-    <button class="ctrl-btn" id="btn-cny" onclick="setCurrency('CNY')">CNY</button>
-    <div class="ctrl-sep"></div>
-    <button class="ctrl-btn" id="btn-try" onclick="setCurrency('TRY')">TRY</button>
-    <div class="ctrl-sep"></div>
-    <button class="ctrl-btn" id="btn-aed" onclick="setCurrency('AED')">AED</button>
-    <div class="ctrl-sep"></div>
-    <button class="ctrl-btn" id="btn-inr" onclick="setCurrency('INR')">INR</button>
+  <div class="controls-row">
+    <div class="ctrl-group">
+      <button class="ctrl-btn on" id="btn-usd" onclick="setCurrency('USD')">USD</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-eur" onclick="setCurrency('EUR')">EUR</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-gbp" onclick="setCurrency('GBP')">GBP</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-jpy" onclick="setCurrency('JPY')">JPY</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-cny" onclick="setCurrency('CNY')">CNY</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-try" onclick="setCurrency('TRY')">TRY</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-aed" onclick="setCurrency('AED')">AED</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-inr" onclick="setCurrency('INR')">INR</button>
+    </div>
   </div>
 </div>
 
@@ -239,8 +244,6 @@ footer a:hover{text-decoration:underline}
     <th id="sth-1">Local Price</th>
     <th id="sth-2" style="text-align:right">USD / oz</th>
     <th id="sth-3" style="text-align:right">Premium USD</th>
-    <th id="sth-4" style="text-align:right">EUR / oz</th>
-    <th id="sth-5" style="text-align:right">Premium EUR</th>
     <th id="sth-6">Data</th>
   </tr></thead></table>
 </div>
@@ -252,8 +255,6 @@ footer a:hover{text-decoration:underline}
     <th id="th-local">Local Price</th>
     <th class="r" id="th-usd">— / oz</th>
     <th class="r">Premium USD</th>
-    <th class="r" id="th-eur">EUR / oz</th>
-    <th class="r">Premium EUR</th>
     <th>Data</th>
   </tr>
 </thead>
@@ -722,12 +723,12 @@ function render(){
   document.getElementById('lbl-usd').textContent = `International Spot Price · USD ${unitSuffix}`;
   document.getElementById('lbl-eur').textContent = `Spot Price · EUR ${unitSuffix}`;
   document.getElementById('th-usd').textContent = `${displayCurrency} / ${isGram?'g':'oz'}`;
-  document.getElementById('th-eur').textContent = `EUR / ${isGram?'g':'oz'}`;
+
   // Update sticky thead too
   const sth2 = document.getElementById('sth-2');
   const sth4 = document.getElementById('sth-4');
   if(sth2) sth2.textContent = `${displayCurrency} / ${isGram?'g':'oz'}`;
-  if(sth4) sth4.textContent = `EUR / ${isGram?'g':'oz'}`;
+
   document.getElementById('chart-unit-note').textContent = `USD / ${isGram?'Gram':'Troy Oz'}`;
   document.getElementById('chart1-title').textContent = (isGold?'Gold':'Silver')+' Spot Price';
 
@@ -948,8 +949,6 @@ function render(){
       <td>${priceCell}</td>
       <td class="r">${usdCell}</td>
       <td class="r">${usdPremCell}</td>
-      <td class="r">${eurCell}</td>
-      <td class="r">${eurPremCell}</td>
       <td>${srcBadge}</td>
     </tr>`;
   }).join('');
