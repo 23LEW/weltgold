@@ -236,6 +236,34 @@ def fetch_japan():
         print(f"Japan error: {e}")
         return None
 
+def fetch_russia():
+    try:
+        r = requests.get(
+            "https://www.cbr.ru/eng/hd_base/metall/metall_base_new/",
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=15
+        )
+        import re as re2
+        # Extract last value from Gold data array
+        gold_m = re2.search(r'"name":"Gold".*?"data":\[([^\]]+)\]', r.text)
+        silver_m = re2.search(r'"name":"Silver".*?"data":\[([^\]]+)\]', r.text)
+        if gold_m:
+            gold_vals = [float(x) for x in gold_m.group(1).split(',') if x.strip()]
+            silver_vals = [float(x) for x in silver_m.group(1).split(',') if x.strip()] if silver_m else []
+            gold_rub_gram = gold_vals[-1] if gold_vals else None
+            silver_rub_gram = silver_vals[-1] if silver_vals else None
+            print(f"CBR Russia: gold={gold_rub_gram} silver={silver_rub_gram} RUB/gram")
+            return {
+                "gold_rub_gram": gold_rub_gram,
+                "silver_rub_gram": silver_rub_gram,
+                "source": "cbr.ru",
+                "is_calculated": False
+            }
+        return None
+    except Exception as e:
+        print(f"Russia error: {e}")
+        return None
+
 def fetch_germany():
     try:
         r = requests.get(
@@ -318,6 +346,7 @@ def update():
     hk = fetch_hongkong()
     japan = fetch_japan()
     germany = fetch_germany()
+    russia = fetch_russia()
 
     prices = {}
     if spot: prices["spot"] = spot
@@ -369,6 +398,16 @@ def update():
         prices["germany"] = {
             "gold_eur_oz_bid": round(spot["XAU"] * fx.get("EUR", 0.92) * 1.005, 2),
             "gold_eur_oz_ask": round(spot["XAU"] * fx.get("EUR", 0.92) * 1.02, 2),
+            "source": "calculated",
+            "is_calculated": True
+        }
+
+    if russia:
+        prices["russia"] = russia
+    elif spot and fx:
+        prices["russia"] = {
+            "gold_rub_gram": round((spot["XAU"] / GRAM) * fx.get("RUB", 90), 2) if fx.get("RUB") else None,
+            "silver_rub_gram": round((spot["XAG"] / GRAM) * fx.get("RUB", 90), 2) if fx.get("RUB") and spot.get("XAG") else None,
             "source": "calculated",
             "is_calculated": True
         }
