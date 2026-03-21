@@ -781,11 +781,6 @@ function render(){
       const askDisplay = unit==='oz' ? fmt(germanyLive.ask,2) : fmt(germanyLive.ask/G,3);
       const unitLbl = unit==='oz' ? 'EUR/oz' : 'EUR/g';
       priceCell = `<div class="plocal">€ ${bidDisplay}</div><div class="punit">Ankauf (${unitLbl})</div><div class="plocal" style="margin-top:4px">€ ${askDisplay}</div><div class="punit">Verkauf (${unitLbl})</div>`;
-      const usdBidD = toDisplay(germanyLive.bid / (fx.EUR||1));
-      const usdAskD = toDisplay(germanyLive.ask / (fx.EUR||1));
-      const decD = isGram ? 3 : 2;
-      usdCell = `<div class="pusd">$${fmt(isGram?usdBidD/G:usdBidD,decD)}</div><div class="punit">Ankauf</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAskD/G:usdAskD,decD)}</div><div class="punit">Verkauf</div>`;
-      eurCell = `<div class="peur">€${fmt(isGram?germanyLive.bid/G:germanyLive.bid,decD)}</div><div class="punit">Ankauf</div><div class="peur" style="margin-top:2px">€${fmt(isGram?germanyLive.ask/G:germanyLive.ask,decD)}</div><div class="punit">Verkauf</div>`;
     } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
       const bidDisplay = unit==='oz' ? fmt(japanLive.bid*G,0) : fmt(japanLive.bid,0);
       const askDisplay = unit==='oz' ? fmt(japanLive.ask*G,0) : fmt(japanLive.ask,0);
@@ -822,10 +817,6 @@ function render(){
       usdCell = `<div class="pusd">$${fmt(dBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(dAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
       eurCell = `<div class="peur">€${fmt(dEBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(dEAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='germany' && germanyLive?.bid && metal==='XAU'){
-      const bidDisplay = unit==='oz' ? fmt(germanyLive.bid,2) : fmt(germanyLive.bid/G,3);
-      const askDisplay = unit==='oz' ? fmt(germanyLive.ask,2) : fmt(germanyLive.ask/G,3);
-      const unitLbl = unit==='oz' ? 'EUR/oz' : 'EUR/g';
-      priceCell = `<div class="plocal">€ ${bidDisplay}</div><div class="punit">Ankauf (${unitLbl})</div><div class="plocal" style="margin-top:4px">€ ${askDisplay}</div><div class="punit">Verkauf (${unitLbl})</div>`;
       const usdBidD = toDisplay(germanyLive.bid / (fx.EUR||1));
       const usdAskD = toDisplay(germanyLive.ask / (fx.EUR||1));
       const decD = isGram ? 3 : 2;
