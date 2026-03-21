@@ -767,9 +767,12 @@ function render(){
     // Local price cell: buy / sell
     let priceCell;
     if(r.istLive && istanbul?.goldBuy && istanbul?.goldSell){
-      const buy = unit==='gram' ? fmt(istanbul.goldBuy,0) : fmt(istanbul.goldBuy/G*G,0);
-      const sell = unit==='gram' ? fmt(istanbul.goldSell,0) : fmt(istanbul.goldSell/G*G,0);
-      priceCell = `<div class="plocal${!isGold?' sv':''}">₺ ${buy}</div><div class="punit">Bid</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">₺ ${sell}</div><div class="punit">Ask</div>`;
+      const istBuy = isGold ? istanbul.goldBuy : (istanbul.silver || istanbul.goldBuy);
+      const istSell = isGold ? istanbul.goldSell : (istanbul.silver || istanbul.goldSell);
+      const buy = unit==='oz' ? fmt(istBuy*G,2) : fmt(istBuy,2);
+      const sell = unit==='oz' ? fmt(istSell*G,2) : fmt(istSell,2);
+      const istUnit = unit==='oz' ? 'TRY/oz' : 'TRY/g';
+      priceCell = `<div class="plocal${!isGold?' sv':''}">₺ ${buy}</div><div class="punit">Bid (${istUnit})</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">₺ ${sell}</div><div class="punit">Ask (${istUnit})</div>`;
     } else if(r.isSpot){
       // Spot row: show bid/ask
       const spotBid = metal==='XAU' ? spot.XAU_bid : spot.XAG_bid;
@@ -846,8 +849,10 @@ function render(){
       eurCell = `<div class="peur">€${fmt(isGram?eurBid/G:eurBid,dec)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk/G:eurAsk,dec)}</div><div class="punit">Ask</div>`;
     } else if(r.istLive && istanbul?.goldBuy && istanbul?.goldSell){
       // Istanbul: convert TRY buy/sell to USD/oz and EUR/oz
-      const usdBid = toDisplay((istanbul.goldBuy / (fx.TRY||1)) * G);
-      const usdAsk = toDisplay((istanbul.goldSell / (fx.TRY||1)) * G);
+      const istBuyUSD = isGold ? istanbul.goldBuy : (istanbul.silver || istanbul.goldBuy);
+      const istSellUSD = isGold ? istanbul.goldSell : (istanbul.silver || istanbul.goldSell);
+      const usdBid = toDisplay((istBuyUSD / (fx.TRY||1)) * G);
+      const usdAsk = toDisplay((istSellUSD / (fx.TRY||1)) * G);
       const eurBid = toDisplay(usdBid * (fx.EUR||1));
       const eurAsk = toDisplay(usdAsk * (fx.EUR||1));
       const dec = isGram ? 3 : 2;
