@@ -177,7 +177,7 @@ footer a:hover{text-decoration:underline}
   }
   if(localStorage.getItem('ga_consent') === 'granted') loadGA();
 </script>
-<script async="" src="index-Dateien/js"></script></head>
+</head>
 <body>
 <div class="wrap">
 
@@ -188,7 +188,7 @@ footer a:hover{text-decoration:underline}
   </div>
   <div class="header-meta">
     <div class="live-badge"><div class="dot"></div>Live</div>
-    <span id="upd">Loading…</span>
+    <span id="upd">Updated: 23:35 UTC</span>
     <span>Refresh every 15 min</span>
   </div>
 </header>
@@ -234,22 +234,22 @@ footer a:hover{text-decoration:underline}
   </div>
 </div>
 
-<div class="err" id="err" style="display: none;">Failed to load price data. Please check your internet connection and reload.</div>
+<div class="err" id="err" style="display: block;">Failed to load price data. Please check your internet connection and reload.</div>
 
 <div class="spots-sticky"><div class="spots">
-  <div class="spot" id="s-usd">
-    <div class="spot-label" id="lbl-usd">International Spot Price · USD / Troy Oz</div>
-    <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">—</span> <span id="v-usd-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
+  <div class="spot show" id="s-usd">
+    <div class="spot-label" id="lbl-usd">Spot Price · USD / Troy Oz</div>
+    <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">4,414.50</span> <span id="v-usd-chp" style="font-size: 18px; font-weight: 500; margin-left: 8px; color: var(--green);">+0.17%</span></div>
     <div class="spot-sub">LBMA London / COMEX New York · Global Benchmark</div>
-    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-usd-bidask"></div>
-    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-usd-source"></div>
+    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-usd-bidask">Bid $4,413.50  ·  Ask $4,415.50</div>
+    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-usd-source">Source: kitco.com</div>
   </div>
-  <div class="spot" id="s-eur">
-    <div class="spot-label" id="lbl-eur">Spot Price · EUR / Troy Oz</div>
-    <div class="spot-price" id="p-eur"><sup id="sym-eur">€</sup><span id="v-eur">—</span> <span id="v-eur-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
+  <div class="spot show" id="s-eur">
+    <div class="spot-label" id="lbl-eur">Spot Price · USD / Troy Oz</div>
+    <div class="spot-price" id="p-eur"><sup id="sym-eur">$</sup><span id="v-eur">4,414.50</span> <span id="v-eur-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
     <div class="spot-sub">Converted via ECB exchange rate</div>
-    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-eur-bidask"></div>
-    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-eur-source"></div>
+    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-eur-bidask">Bid $4,413.50  ·  Ask $4,415.50</div>
+    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-eur-source">Source: kitco.com</div>
   </div>
 </div></div>
 
@@ -258,23 +258,23 @@ footer a:hover{text-decoration:underline}
   <div class="sec-note">🟢 Live &nbsp;|&nbsp; 🟠 Calculated (Spot × FX + known premium)</div>
 </div>
 
-<div id="loading" class="loading">Loading market data…</div>
-<div id="sticky-thead-wrap" class="sticky-thead" style="display: block; overflow: hidden; margin: 0px; position: sticky; top: 156px;">
+<div id="loading" class="loading" style="display: none;">Loading market data…</div>
+<div id="sticky-thead-wrap" class="sticky-thead" style="display: none; overflow: hidden; margin: 0px; position: sticky; top: 186px;">
   <table id="sticky-thead-table"><thead><tr>
-    <th id="sth-0" style="width: 0px;">Market</th>
-    <th id="sth-1" style="white-space: nowrap; width: 0px; padding-right: 12px;">Local Price</th>
-    <th id="sth-2" style="text-align: right; width: 0px;">USD / oz</th>
-    <th id="sth-3" style="text-align: right; width: 0px;">Premium USD</th>
-    <th id="sth-6" style="width: 0px;">24h Chart</th>
+    <th id="sth-0" style="width: 288px;">Market</th>
+    <th id="sth-1" style="white-space: nowrap; width: 101px; padding-right: 12px;">Local Price</th>
+    <th id="sth-2" style="text-align: right; width: 304px;">USD / oz</th>
+    <th id="sth-3" style="text-align: right; width: 417px;">Premium USD</th>
+    <th id="sth-6" style="width: 160px;">24h Chart</th>
   </tr></thead></table>
 </div>
-<div class="tscroll" id="tbl" style="display:none">
+<div class="tscroll" id="tbl" style="">
 <table>
 <thead>
   <tr>
     <th>Market</th>
     <th id="th-local" style="white-space:nowrap;width:1%;padding-right:12px">Local Price</th>
-    <th class="r" id="th-usd">— / oz</th>
+    <th class="r" id="th-usd">USD / oz</th>
     <th class="r">Premium USD</th>
     <th class="chart-th">24h Chart</th>
   </tr>
@@ -375,7 +375,7 @@ price. The <strong>gold premium</strong> measures how much more buyers pay for p
   <div><a href="file:///impressum.html">Impressum &amp; Datenschutz</a> · <a href="file:///cdn-cgi/l/email-protection#9af9f5f4eefbf9eedafdf5f6feeae8fff7f3eff7b4f5e8fd"><span class="__cf_email__" data-cfemail="b1d2dedfc5d0d2c5f1d6deddd5c1c3d4dcd8c4dc9fdec3d6">[email&nbsp;protected]</span></a></div>
 </footer>
 
-<div id="cookie-banner" style="display: none;">
+<div id="cookie-banner" style="display: flex;">
   <div>We use Google Analytics to understand how visitors use this site. <a href="file:///impressum.html">Privacy Policy</a></div>
   <div class="cookie-btns">
     <button class="cookie-btn cookie-decline" onclick="cookieDecline()">Decline</button>
@@ -1097,9 +1097,17 @@ function render(){
     } else if(r.id==='germany' && germanyLive?.bid && metal==='XAU'){
       const usdBidD = toDisplay(germanyLive.bid / (fx.EUR||1));
       const usdAskD = toDisplay(germanyLive.ask / (fx.EUR||1));
-      const decD = 2;
       const deSym=getCurrencySym(), deRate=getCurrencyRate();
-      usdCell = `<div class="pusd">${deSym}${fmt(isGram?usdBidD*KGFACTOR*deRate:usdBidD*deRate,decD)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${deSym}${fmt(isGram?usdAskD*KGFACTOR*deRate:usdAskD*deRate,decD)}</div><div class="punit">Ask</div>`;
+      // For EUR: show EUR/1000g directly. For other currencies: convert via USD
+      let bidVal, askVal;
+      if(displayCurrency==='EUR'){
+        bidVal = isGram ? germanyLive.bid/G*1000 : germanyLive.bid;
+        askVal = isGram ? germanyLive.ask/G*1000 : germanyLive.ask;
+      } else {
+        bidVal = isGram ? usdBidD*KGFACTOR*deRate : usdBidD*deRate;
+        askVal = isGram ? usdAskD*KGFACTOR*deRate : usdAskD*deRate;
+      }
+      usdCell = `<div class="pusd">${deSym}${fmt(bidVal,2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${deSym}${fmt(askVal,2)}</div><div class="punit">Ask</div>`;
       eurCell = `<div class="peur">€${fmt(isGram?germanyLive.bid/G*1000:germanyLive.bid,decD)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?germanyLive.ask/G*1000:germanyLive.ask,decD)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
       const bidDisplay = unit==='oz' ? fmt(japanLive.bid*G,0) : fmt(japanLive.bid*1000,0);
