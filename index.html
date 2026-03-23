@@ -1111,10 +1111,6 @@ function render(){
       usdCell = `<div class="pusd">${deSym}${fmt(bidVal,2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${deSym}${fmt(askVal,2)}</div><div class="punit">Ask</div>`;
       eurCell = `<div class="peur">€${fmt(isGram?germanyLive.bid/G*1000:germanyLive.bid,2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?germanyLive.ask/G*1000:germanyLive.ask,2)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
-      const bidDisplay = unit==='oz' ? fmt(japanLive.bid*G,0) : fmt(japanLive.bid*1000,0);
-      const askDisplay = unit==='oz' ? fmt(japanLive.ask*G,0) : fmt(japanLive.ask*1000,0);
-      const unitLbl = unit==='oz' ? 'JPY/oz' : 'JPY/1000g';
-      priceCell = `<div class="plocal">¥ ${bidDisplay}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">¥ ${askDisplay}</div><div class="punit">Ask (${unitLbl})</div>`;
       // Japan USD/EUR cells inline
       const usdBidJ = toDisplay((japanLive.bid / (fx.JPY||150)) * G);
       const usdAskJ = toDisplay((japanLive.ask / (fx.JPY||150)) * G);
@@ -1123,7 +1119,7 @@ function render(){
       const decJ = isGram ? 3 : 2;
       const jSym=getCurrencySym(),jRate=getCurrencyRate();
       usdCell = `<div class="pusd">${jSym}${fmt(isGram?usdBidJ*KGFACTOR*jRate:usdBidJ*jRate,2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${jSym}${fmt(isGram?usdAskJ*KGFACTOR*jRate:usdAskJ*jRate,2)}</div><div class="punit">Ask</div>`;
-      eurCell = `<div class="peur">€${fmt(isGram?eurBidJ/G:eurBidJ,decJ)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAskJ/G:eurAskJ,decJ)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?eurBidJ*KGFACTOR:eurBidJ,2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAskJ*KGFACTOR:eurAskJ,2)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU'){
       const TAEL2 = 37.429;
       const midTael2 = (hkLive.bid + hkLive.ask) / 2;
