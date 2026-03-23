@@ -454,10 +454,10 @@ function calcMarket(m){
   if(m.id==='istanbul'){
     const istPrice = metal==='XAU' ? istanbul?.gold : istanbul?.silver;
     if(istPrice){
-      localPrice = istPrice;
+      localPrice = unit==='oz' ? istPrice * G : istPrice * 1000;
       usdOz = (istPrice/fxRate)*G;
     } else {
-      localPrice = (spotUSD/G)*fxRate*(1+m.calcPremium);
+      localPrice = unit==='oz' ? (spotUSD/G)*fxRate*(1+m.calcPremium) : spotUSD*(1000/G)*fxRate*(1+m.calcPremium);
       usdOz = spotUSD*(1+m.calcPremium);
     }
   } else if(m.id==='dubai' && dubaiLive?.gold_aed_gram){
@@ -466,7 +466,7 @@ function calcMarket(m){
     usdOz = (aedPerGram / (fx.AED||3.67)) * G;
   } else if(m.id==='russia' && russiaLive?.gold_rub_gram){
     const rubPerGram = metal==='XAU' ? russiaLive.gold_rub_gram : (russiaLive.silver_rub_gram || (spotUSD/G)*fxRate);
-    localPrice = unit==='oz' ? rubPerGram * G : rubPerGram;
+    localPrice = unit==='oz' ? rubPerGram * G : rubPerGram * 1000;
     usdOz = (rubPerGram / (fx.RUB||90)) * G;
   } else if(m.id==='germany' && germanyLive?.bid && metal==='XAU'){
     const mid = (germanyLive.bid + germanyLive.ask) / 2;
@@ -474,12 +474,12 @@ function calcMarket(m){
     usdOz = (mid / (fx.EUR||1));
   } else if(m.id==='india' && indiaLive?.gold_inr_gram && metal==='XAU'){
     const inrPerGram = indiaLive.gold_inr_gram;
-    localPrice = unit==='oz' ? inrPerGram * G : inrPerGram * 10;
+    localPrice = unit==='oz' ? inrPerGram * G : inrPerGram * 1000;
     usdOz = (inrPerGram / fxRate) * G;
   } else if(m.id==='japan' && japanLive?.bid && metal==='XAU'){
     const mid = (japanLive.bid + japanLive.ask) / 2;
     const jpyRate = fx.JPY || 150;
-    localPrice = unit==='oz' ? mid * G : mid;
+    localPrice = unit==='oz' ? mid * G : mid * 1000;
     usdOz = (mid / jpyRate) * G;
   } else if(m.id==='hongkong' && metal==='XAU'){
     const TAEL = 37.429;
@@ -1150,10 +1150,10 @@ function render(){
       const usdAsk = toDisplay((istSellUSD / (fx.TRY||1)) * G);
       const eurBid = toDisplay(usdBid * (fx.EUR||1));
       const eurAsk = toDisplay(usdAsk * (fx.EUR||1));
-      const dec = isGram ? 3 : 2;
+      const dec = isGram ? 2 : 2;
       const gSym=getCurrencySym(),gRate=getCurrencyRate();
       usdCell = `<div class="pusd">${gSym}${fmt(isGram?usdBid*KGFACTOR*gRate:usdBid*gRate,2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${gSym}${fmt(isGram?usdAsk*KGFACTOR*gRate:usdAsk*gRate,2)}</div><div class="punit">Ask</div>`;
-      eurCell = `<div class="peur">€${fmt(isGram?eurBid/G:eurBid,dec)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk/G:eurAsk,dec)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?eurBid*KGFACTOR:eurBid,dec)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk*KGFACTOR:eurAsk,dec)}</div><div class="punit">Ask</div>`;
     } else {
       usdCell = `<div class="pusd">${getCurrencySym()}${fmt(dUSD,2)}</div>`;
       eurCell = `<div class="peur">€${fmt(dEUR,2)}</div>`;
