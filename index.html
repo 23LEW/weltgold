@@ -1056,7 +1056,7 @@ function render(){
       const eurAsk = spotAsk * (fx.EUR||1);
       const dBid=toDisplay(spotBid), dAsk=toDisplay(spotAsk);
       const dEBid=toDisplay(eurBid), dEAsk=toDisplay(eurAsk);
-      usdCell = `<div class="pusd">$${fmt(dBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(dAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
+      usdCell = `<div class="pusd">${getCurrencySym()}${fmt(isGram?dBid*KGFACTOR*getCurrencyRate():dBid*getCurrencyRate(),2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${getCurrencySym()}${fmt(isGram?dAsk*KGFACTOR*getCurrencyRate():dAsk*getCurrencyRate(),2)}</div><div class="punit">Ask</div>`;
       eurCell = `<div class="peur">€${fmt(dEBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(dEAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='dubai' && dubaiLive?.gold_aed_gram){
       const bidUSD3 = metal==='XAU' ? dubaiLive.gold_usd_bid : dubaiLive.silver_usd_bid;
@@ -1067,7 +1067,11 @@ function render(){
         const unitLbl3 = unit==='oz' ? 'USD/oz' : 'USD/1000g';
         const bD = unit==='gram' ? fmt(bidUSD3/G*1000,2) : fmt(bidUSD3,2);
         const aD = unit==='gram' ? fmt(askUSD3/G*1000,2) : fmt(askUSD3,2);
-        usdCell = `<div class="pusd">$${bD}</div><div class="punit">Bid (${unitLbl3})</div><div class="pusd" style="margin-top:4px">$${aD}</div><div class="punit">Ask (${unitLbl3})</div>`;
+        const duSym = getCurrencySym(); const duRate = getCurrencyRate();
+        const bDC = isGram ? fmt(bidUSD3/G*1000*duRate,2) : fmt(bidUSD3*duRate,2);
+        const aDC = isGram ? fmt(askUSD3/G*1000*duRate,2) : fmt(askUSD3*duRate,2);
+        const unitLbl3b = `${displayCurrency}/${isGram?'1000g':'oz'}`;
+        usdCell = `<div class="pusd">${duSym}${bDC}</div><div class="punit">Bid (${unitLbl3b})</div><div class="pusd" style="margin-top:4px">${duSym}${aDC}</div><div class="punit">Ask (${unitLbl3b})</div>`;
       } else {
         usdCell = `<div class="pusd">${getCurrencySym()}${fmt(isGram?usdMid3*KGFACTOR*getCurrencyRate():usdMid3*getCurrencyRate(),2)}</div>`;
       }
@@ -1092,9 +1096,10 @@ function render(){
     } else if(r.id==='germany' && germanyLive?.bid && metal==='XAU'){
       const usdBidD = toDisplay(germanyLive.bid / (fx.EUR||1));
       const usdAskD = toDisplay(germanyLive.ask / (fx.EUR||1));
-      const decD = isGram ? 3 : 2;
-      usdCell = `<div class="pusd">$${fmt(isGram?usdBidD/G:usdBidD,decD)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAskD/G:usdAskD,decD)}</div><div class="punit">Ask</div>`;
-      eurCell = `<div class="peur">€${fmt(isGram?germanyLive.bid/G:germanyLive.bid,decD)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?germanyLive.ask/G:germanyLive.ask,decD)}</div><div class="punit">Ask</div>`;
+      const decD = 2;
+      const deSym=getCurrencySym(), deRate=getCurrencyRate();
+      usdCell = `<div class="pusd">${deSym}${fmt(isGram?usdBidD*KGFACTOR*deRate:usdBidD*deRate,decD)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${deSym}${fmt(isGram?usdAskD*KGFACTOR*deRate:usdAskD*deRate,decD)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?germanyLive.bid/G*1000:germanyLive.bid,decD)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?germanyLive.ask/G*1000:germanyLive.ask,decD)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
       const bidDisplay = unit==='oz' ? fmt(japanLive.bid*G,0) : fmt(japanLive.bid*1000,0);
       const askDisplay = unit==='oz' ? fmt(japanLive.ask*G,0) : fmt(japanLive.ask*1000,0);
@@ -1106,7 +1111,8 @@ function render(){
       const eurBidJ = toDisplay(usdBidJ * (fx.EUR||1));
       const eurAskJ = toDisplay(usdAskJ * (fx.EUR||1));
       const decJ = isGram ? 3 : 2;
-      usdCell = `<div class="pusd">$${fmt(isGram?usdBidJ/G:usdBidJ,decJ)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAskJ/G:usdAskJ,decJ)}</div><div class="punit">Ask</div>`;
+      const jSym=getCurrencySym(),jRate=getCurrencyRate();
+      usdCell = `<div class="pusd">${jSym}${fmt(isGram?usdBidJ*KGFACTOR*jRate:usdBidJ*jRate,2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${jSym}${fmt(isGram?usdAskJ*KGFACTOR*jRate:usdAskJ*jRate,2)}</div><div class="punit">Ask</div>`;
       eurCell = `<div class="peur">€${fmt(isGram?eurBidJ/G:eurBidJ,decJ)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAskJ/G:eurAskJ,decJ)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU'){
       const TAEL2 = 37.429;
@@ -1116,7 +1122,11 @@ function render(){
         const locoBid = unit==='gram' ? hkLive.loco_bid/G*1000 : hkLive.loco_bid;
         const locoAsk = unit==='gram' ? hkLive.loco_ask/G*1000 : hkLive.loco_ask;
         const unitLbl = unit==='oz' ? 'USD/oz' : 'USD/1000g';
-        usdCell = `<div class="pusd">$${fmt(locoBid,2)}</div><div class="punit">Bid (${unitLbl})</div><div class="pusd" style="margin-top:4px">$${fmt(locoAsk,2)}</div><div class="punit">Ask (${unitLbl})</div>`;
+        const locoRate = getCurrencyRate(); const locoSym = getCurrencySym();
+        const locoBidConv = isGram ? locoBid/G*1000*locoRate : locoBid*locoRate;
+        const locoAskConv = isGram ? locoAsk/G*1000*locoRate : locoAsk*locoRate;
+        const unitLbl2 = `${displayCurrency}/${isGram?'1000g':'oz'}`;
+        usdCell = `<div class="pusd">${locoSym}${fmt(locoBidConv,2)}</div><div class="punit">Bid (${unitLbl2})</div><div class="pusd" style="margin-top:4px">${locoSym}${fmt(locoAskConv,2)}</div><div class="punit">Ask (${unitLbl2})</div>`;
       } else {
         const usdHK = (midTael2 / TAEL2 / hkdRate2) * G;
         usdCell = `<div class="pusd">${getCurrencySym()}${fmt(isGram?usdHK*KGFACTOR*getCurrencyRate():usdHK*getCurrencyRate(),2)}</div>`;
@@ -1131,7 +1141,8 @@ function render(){
       const eurBid = toDisplay(usdBid * (fx.EUR||1));
       const eurAsk = toDisplay(usdAsk * (fx.EUR||1));
       const dec = isGram ? 3 : 2;
-      usdCell = `<div class="pusd">$${fmt(isGram?usdBid/G:usdBid,dec)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAsk/G:usdAsk,dec)}</div><div class="punit">Ask</div>`;
+      const gSym=getCurrencySym(),gRate=getCurrencyRate();
+      usdCell = `<div class="pusd">${gSym}${fmt(isGram?usdBid*KGFACTOR*gRate:usdBid*gRate,2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${gSym}${fmt(isGram?usdAsk*KGFACTOR*gRate:usdAsk*gRate,2)}</div><div class="punit">Ask</div>`;
       eurCell = `<div class="peur">€${fmt(isGram?eurBid/G:eurBid,dec)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk/G:eurAsk,dec)}</div><div class="punit">Ask</div>`;
     } else {
       usdCell = `<div class="pusd">${getCurrencySym()}${fmt(dUSD,2)}</div>`;
