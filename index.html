@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gold Premium — Worldwide Gold & Silver Price Comparison</title>
+<title>Gold Premium — Worldwide Gold &amp; Silver Price Comparison</title>
 <meta name="description" content="Compare physical gold and silver prices across global markets in real time: Istanbul Grand Bazaar, Shanghai Gold Exchange (SGE), Mumbai MCX, Tokyo TOCOM, Dubai Gold Souk. Track the gold premium vs. international spot price in USD, EUR and local currency.">
 <meta name="keywords" content="physical gold price comparison, gold premium, SGE gold price, Istanbul gold price, Kapalıçarşı gold, MCX gold price India, TOCOM gold Japan, Dubai gold souk, gold spot vs physical, worldwide gold prices, silver premium">
 <link rel="canonical" href="https://goldpremium.org/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://goldpremium.org/">
-<meta property="og:title" content="Gold Premium — Worldwide Gold & Silver Price Comparison">
+<meta property="og:title" content="Gold Premium — Worldwide Gold &amp; Silver Price Comparison">
 <meta property="og:description" content="Track physical gold and silver prices and premiums across global markets: Istanbul, Shanghai, Mumbai, Tokyo, Dubai vs. LBMA/COMEX spot price.">
 <meta property="og:site_name" content="GoldPremium.org">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Gold Premium — Worldwide Gold & Silver Price Comparison">
+<meta name="twitter:title" content="Gold Premium — Worldwide Gold &amp; Silver Price Comparison">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"GoldPremium.org","url":"https://goldpremium.org","description":"Real-time comparison of physical gold and silver prices across global markets.","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥇</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;%F0%9F%A5%87&lt;/text&gt;&lt;/svg&gt;">
+<link href="index-Dateien/css2.css" rel="stylesheet">
+<script src="index-Dateien/chart.umd.min.js"></script>
 <style>
 :root{
   --gold:#C9963A;--gold-b:#E8B24A;--gold-p:#F5C842;
@@ -48,6 +48,9 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 /* CONTROLS */
 .controls{display:flex;flex-direction:column;gap:10px;margin:20px 0}
 .controls-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.controls-row.scrollable{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+.controls-row.scrollable::-webkit-scrollbar{display:none}
+.controls-row.scrollable .ctrl-group{flex-shrink:0}
 .ctrl-group{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;padding:3px;gap:2px}
 .ctrl-btn{padding:7px 18px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;border:none;color:var(--text2);cursor:pointer;transition:all .15s;border-radius:6px;white-space:nowrap}
 .ctrl-btn:hover{color:var(--text);background:var(--bg3)}
@@ -169,11 +172,11 @@ footer a:hover{text-decoration:underline}
 <header>
   <div>
     <h1 class="site-title"><strong>GoldPremium</strong>.org</h1>
-    <p class="site-subtitle">Worldwide Physical Gold & Silver Price Comparison</p>
+    <p class="site-subtitle">Worldwide Physical Gold &amp; Silver Price Comparison</p>
   </div>
   <div class="header-meta">
     <div class="live-badge"><div class="dot"></div>Live</div>
-    <span id="upd">Loading…</span>
+    <span id="upd">Updated: 12:44 UTC</span>
     <span>Refresh every 15 min</span>
   </div>
 </header>
@@ -192,7 +195,7 @@ footer a:hover{text-decoration:underline}
       <button class="ctrl-btn" id="btn-gram" onclick="setUnit('gram')">Gram</button>
     </div>
   </div>
-  <div class="controls-row">
+  <div class="controls-row scrollable">
     <div class="ctrl-group">
       <button class="ctrl-btn on" id="btn-usd" onclick="setCurrency('USD')">USD</button>
       <div class="ctrl-sep"></div>
@@ -215,22 +218,22 @@ footer a:hover{text-decoration:underline}
   </div>
 </div>
 
-<div class="err" id="err">Failed to load price data. Please check your internet connection and reload.</div>
+<div class="err" id="err" style="display: none;">Failed to load price data. Please check your internet connection and reload.</div>
 
 <div class="spots-sticky"><div class="spots">
-  <div class="spot" id="s-usd">
-    <div class="spot-label" id="lbl-usd">International Spot Price · USD / Troy Oz</div>
-    <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">—</span> <span id="v-usd-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
+  <div class="spot show" id="s-usd">
+    <div class="spot-label" id="lbl-usd">Spot Price · USD / Troy Oz</div>
+    <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">4,406.80</span> <span id="v-usd-chp" style="font-size: 18px; font-weight: 500; margin-left: 8px; color: var(--red);">-1.88%</span></div>
     <div class="spot-sub">LBMA London / COMEX New York · Global Benchmark</div>
-    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-usd-bidask"></div>
-    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-usd-source"></div>
+    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-usd-bidask">Bid $4,405.80  ·  Ask $4,407.80</div>
+    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-usd-source">Source: kitco.com</div>
   </div>
-  <div class="spot" id="s-eur">
-    <div class="spot-label" id="lbl-eur">Spot Price · EUR / Troy Oz</div>
-    <div class="spot-price" id="p-eur"><sup>€</sup><span id="v-eur">—</span> <span id="v-eur-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
+  <div class="spot show" id="s-eur">
+    <div class="spot-label" id="lbl-eur">Spot Price · USD / Troy Oz</div>
+    <div class="spot-price" id="p-eur"><sup>$</sup><span id="v-eur">4,406.80</span> <span id="v-eur-chp" style="font-size: 18px; font-weight: 500; margin-left: 8px; color: var(--red);">-1.88%</span></div>
     <div class="spot-sub">Converted via ECB exchange rate</div>
-    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-eur-bidask"></div>
-    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-eur-source"></div>
+    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-eur-bidask">Bid $4,405.80  ·  Ask $4,407.80</div>
+    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-eur-source">Source: kitco.com</div>
   </div>
 </div></div>
 
@@ -239,28 +242,76 @@ footer a:hover{text-decoration:underline}
   <div class="sec-note">🟢 Live &nbsp;|&nbsp; 🟠 Calculated (Spot × FX + known premium)</div>
 </div>
 
-<div id="loading" class="loading">Loading market data…</div>
+<div id="loading" class="loading" style="display: none;">Loading market data…</div>
 <div id="sticky-thead-wrap" class="sticky-thead" style="display:none;overflow:hidden;margin:0">
   <table id="sticky-thead-table"><thead><tr>
-    <th id="sth-0">Market</th>
-    <th id="sth-1">Local Price</th>
-    <th id="sth-2" style="text-align:right">USD / oz</th>
-    <th id="sth-3" style="text-align:right">Premium USD</th>
-    <th id="sth-6">Data</th>
+    <th id="sth-0" style="width: 377px;">Market</th>
+    <th id="sth-1" style="width: 234px;">Local Price</th>
+    <th id="sth-2" style="text-align: right; width: 178px;">USD / oz</th>
+    <th id="sth-3" style="text-align: right; width: 189px;">Premium USD</th>
+    <th id="sth-6" style="width: 291px;">Data</th>
   </tr></thead></table>
 </div>
-<div class="tscroll" id="tbl" style="display:none">
+<div class="tscroll" id="tbl" style="">
 <table>
 <thead>
   <tr>
     <th>Market</th>
     <th id="th-local">Local Price</th>
-    <th class="r" id="th-usd">— / oz</th>
+    <th class="r" id="th-usd">USD / oz</th>
     <th class="r">Premium USD</th>
     <th>Data</th>
   </tr>
 </thead>
-<tbody id="tbody"></tbody>
+<tbody id="tbody"><tr class="lo">
+      <td><div class="mkt"><span class="flag">🇭🇰</span><div><div class="mname">Hong Kong · CGSE</div><div class="mcity">Chinese Gold &amp; Silver Exchange</div></div></div></td>
+      <td><div class="plocal">HK$ 28,088</div><div class="punit">Bid (HKD/oz)</div><div class="plocal" style="margin-top:4px">HK$ 28,217</div><div class="punit">Ask (HKD/oz)</div></td>
+      <td class="r"><div class="pusd">$3,584.46</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$3,600.89</div><div class="punit">Ask</div></td>
+      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">$-814.12</span><span class="badge pos">-18.47%</span></td>
+      <td><span class="badge live">🟢 LIVE · cgse.com.hk</span></td>
+    </tr><tr class="">
+      <td><div class="mkt"><span class="flag">🇦🇪</span><div><div class="mname">Dubai · Tora Gold</div><div class="mcity">Dubai Gold Souk</div></div></div></td>
+      <td><div class="plocal">د.إ 142.39</div><div class="punit">AED/g</div></td>
+      <td class="r"><div class="pusd">$4,428.83</div></td>
+      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$22.03</span><span class="badge neg">+0.50%</span></td>
+      <td><span class="badge calc">🟠 CALC</span></td>
+    </tr><tr class="">
+      <td><div class="mkt"><span class="flag">🇨🇳</span><div><div class="mname">Shanghai Gold Exch.</div><div class="mcity">Shanghai · China (SGE)</div></div></div></td>
+      <td><div class="plocal">¥ 986.56</div><div class="punit">CNY/g</div></td>
+      <td class="r"><div class="pusd">$4,450.87</div></td>
+      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$44.07</span><span class="badge neg">+1.00%</span></td>
+      <td><span class="badge calc">🟠 CALC</span></td>
+    </tr><tr class="">
+      <td><div class="mkt"><span class="flag">🇷🇺</span><div><div class="mname">Russia · CBR</div><div class="mcity">Central Bank of Russia</div></div></div></td>
+      <td><div class="plocal">RUB 143.10</div><div class="punit">RUB/g</div></td>
+      <td class="r"><div class="pusd">$4,450.87</div></td>
+      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$44.07</span><span class="badge neg">+1.00%</span></td>
+      <td><span class="badge calc">🟠 CALC</span></td>
+    </tr><tr class="">
+      <td><div class="mkt"><span class="flag">🇩🇪</span><div><div class="mname">Germany · Degussa</div><div class="mcity">Frankfurt / München</div></div></div></td>
+      <td><div class="plocal">€ 3,727.00</div><div class="punit">Bid (EUR/oz)</div><div class="plocal" style="margin-top:4px">€ 4,041.80</div><div class="punit">Ask (EUR/oz)</div></td>
+      <td class="r"><div class="pusd">$4,306.53</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$4,670.28</div><div class="punit">Ask</div></td>
+      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$81.60</span><span class="badge neg">+1.85%</span></td>
+      <td><span class="badge live">🟢 LIVE · degussa.com</span></td>
+    </tr><tr class="">
+      <td><div class="mkt"><span class="flag">🇮🇳</span><div><div class="mname">MCX / IBJA</div><div class="mcity">Mumbai · India</div></div></div></td>
+      <td><div class="plocal">₹ 433,460</div><div class="punit">Bid (INR/oz)</div><div class="plocal" style="margin-top:4px">₹ 434,763</div><div class="punit">Ask (INR/oz)</div></td>
+      <td class="r"><div class="pusd">$4,636.95</div></td>
+      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$230.15</span><span class="badge neg">+5.22%</span></td>
+      <td><span class="badge live">🟢 LIVE · ibjarates.com</span></td>
+    </tr><tr class="">
+      <td><div class="mkt"><span class="flag">🇹🇷</span><div><div class="mname">Istanbul · Turkey</div><div class="mcity">Grand Bazaar / Kapalı Çarşı</div></div></div></td>
+      <td><div class="plocal">₺ 206,695.20</div><div class="punit">Bid (TRY/oz)</div><div class="plocal" style="margin-top:4px">₺ 209,497.62</div><div class="punit">Ask (TRY/oz)</div></td>
+      <td class="r"><div class="pusd">$4,665.07</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$4,728.32</div><div class="punit">Ask</div></td>
+      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$289.89</span><span class="badge neg">+6.58%</span></td>
+      <td><span class="badge live">🟢 LIVE · nadirdoviz.com</span></td>
+    </tr><tr class="hi">
+      <td><div class="mkt"><span class="flag">🇯🇵</span><div><div class="mname">Tokyo · Japan</div><div class="mcity">Tanaka Precious Metals</div></div></div></td>
+      <td><div class="plocal">¥ 736,189</div><div class="punit">Bid (JPY/oz)</div><div class="plocal" style="margin-top:4px">¥ 756,686</div><div class="punit">Ask (JPY/oz)</div></td>
+      <td class="r"><div class="pusd">$4,636.83</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$4,765.93</div><div class="punit">Ask</div></td>
+      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$294.58</span><span class="badge neg">+6.68%</span></td>
+      <td><span class="badge live">🟢 LIVE · tanaka.co.jp</span></td>
+    </tr></tbody>
 </table>
 </div>
 
@@ -283,7 +334,7 @@ footer a:hover{text-decoration:underline}
       <button class="rbtn" onclick="setRange('1Y',this)">1Y</button>
     </div>
   </div>
-  <div class="chart-wrap"><canvas id="chart-spot"></canvas></div>
+  <div class="chart-wrap"><canvas id="chart-spot" style="box-sizing: border-box; display: block; height: 220px; width: 1222px;" width="2444" height="440"></canvas></div>
 </div>
 
 <div class="chart-grid">
@@ -294,7 +345,7 @@ footer a:hover{text-decoration:underline}
         <div class="chart-sub">VS. COMEX SPOT · USD/OZ · LIVE SESSION</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-istanbul"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-istanbul" style="display: block; box-sizing: border-box; height: 220px; width: 580px;" width="1160" height="440"></canvas></div>
   </div>
   <div class="chart-container">
     <div class="chart-header">
@@ -303,7 +354,7 @@ footer a:hover{text-decoration:underline}
         <div class="chart-sub">CURRENT PREMIUM VS. SPOT · USD/OZ</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-all"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-all" style="display: block; box-sizing: border-box; height: 220px; width: 580px;" width="1160" height="440"></canvas></div>
   </div>
 </div>
 
@@ -311,23 +362,27 @@ footer a:hover{text-decoration:underline}
   <strong>About the data</strong><br><br>
   <strong>🇹🇷 Istanbul Grand Bazaar:</strong> Real-time buy/sell prices from Nadir Döviz, Istanbul's leading precious metals dealer. Updated every 10 minutes.<br><br>
   <strong>🌍 LBMA / COMEX Spot:</strong> Live Bid/Ask from Kitco. Updated every 10 minutes via our server.<br><br>
-  <strong>🟠 Calculated</strong> (Shanghai SGE, Tokyo TOCOM, Dubai, Jakarta Antam): Spot × FX + known structural premiums.</p><p><strong>🟢 Live India</strong> (MCX / IBJA): Real daily rates from ibjarates.com — India's official bullion association. SGE premium historically −$10 to +$50/oz.<br><br>
-  Sources: <a href="https://www.kitco.com" target="_blank">kitco.com</a> (spot bid/ask) · <a href="https://www.nadirdoviz.com" target="_blank">nadirdoviz.com</a> (Istanbul) · <a href="https://frankfurter.app" target="_blank">frankfurter.app</a> (FX) · <a href="https://freegoldapi.com" target="_blank">freegoldapi.com</a> (history)
-</div>
+  <strong>🟠 Calculated</strong> (Shanghai SGE, Tokyo TOCOM, Dubai, Jakarta Antam): Spot × FX + known structural premiums.<p></p><p><strong>🟢 Live India</strong>
+ (MCX / IBJA): Real daily rates from ibjarates.com — India's official 
+bullion association. SGE premium historically −$10 to +$50/oz.<br><br>
+  Sources: <a href="https://www.kitco.com/" target="_blank">kitco.com</a> (spot bid/ask) · <a href="https://www.nadirdoviz.com/" target="_blank">nadirdoviz.com</a> (Istanbul) · <a href="https://frankfurter.app/" target="_blank">frankfurter.app</a> (FX) · <a href="https://freegoldapi.com/" target="_blank">freegoldapi.com</a> (history)
+</p></div>
 
 <div class="about">
   <h2>About GoldPremium.org</h2>
-  <p>GoldPremium.org tracks physical gold and silver prices across major global markets and compares them to the international LBMA/COMEX spot price. The <strong>gold premium</strong> measures how much more buyers pay for physical metal vs. the global benchmark.</p>
+  <p>GoldPremium.org tracks physical gold and silver prices across major
+ global markets and compares them to the international LBMA/COMEX spot 
+price. The <strong>gold premium</strong> measures how much more buyers pay for physical metal vs. the global benchmark.</p>
   <p>A rising <strong>Shanghai premium</strong> signals strong Chinese physical demand. <strong>Istanbul premiums</strong> reflect Turkish lira dynamics and import conditions. <strong>India's premium</strong> is structural due to government import duties. All data for informational purposes only — not financial advice.</p>
 </div>
 
 <footer>
   <div>GoldPremium.org © 2026 · Informational purposes only · Not financial advice</div>
-  <div><a href="/impressum.html">Impressum & Datenschutz</a> · <a href="/cdn-cgi/l/email-protection#9af9f5f4eefbf9eedafdf5f6feeae8fff7f3eff7b4f5e8fd"><span class="__cf_email__" data-cfemail="b1d2dedfc5d0d2c5f1d6deddd5c1c3d4dcd8c4dc9fdec3d6">[email&#160;protected]</span></a></div>
+  <div><a href="file:///impressum.html">Impressum &amp; Datenschutz</a> · <a href="file:///cdn-cgi/l/email-protection#9af9f5f4eefbf9eedafdf5f6feeae8fff7f3eff7b4f5e8fd"><span class="__cf_email__" data-cfemail="b1d2dedfc5d0d2c5f1d6deddd5c1c3d4dcd8c4dc9fdec3d6">[email&nbsp;protected]</span></a></div>
 </footer>
 
-<div id="cookie-banner" style="display:none">
-  <div>We use Google Analytics to understand how visitors use this site. <a href="/impressum.html">Privacy Policy</a></div>
+<div id="cookie-banner" style="display: flex;">
+  <div>We use Google Analytics to understand how visitors use this site. <a href="file:///impressum.html">Privacy Policy</a></div>
   <div class="cookie-btns">
     <button class="cookie-btn cookie-decline" onclick="cookieDecline()">Decline</button>
     <button class="cookie-btn cookie-accept" onclick="cookieAccept()">Accept</button>
@@ -335,7 +390,7 @@ footer a:hover{text-decoration:underline}
 </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="index-Dateien/email-decode.min.js"></script><script>
 const G = 31.1035; // grams per troy oz
 let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
@@ -1107,5 +1162,5 @@ function cookieDecline(){
   document.getElementById('cookie-banner').style.display='none';
 }
 </script>
-</body>
-</html>
+
+</body></html>
