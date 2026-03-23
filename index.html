@@ -177,7 +177,7 @@ footer a:hover{text-decoration:underline}
   }
   if(localStorage.getItem('ga_consent') === 'granted') loadGA();
 </script>
-</head>
+<script async="" src="index-Dateien/js"></script></head>
 <body>
 <div class="wrap">
 
@@ -375,7 +375,7 @@ price. The <strong>gold premium</strong> measures how much more buyers pay for p
   <div><a href="file:///impressum.html">Impressum &amp; Datenschutz</a> · <a href="file:///cdn-cgi/l/email-protection#9af9f5f4eefbf9eedafdf5f6feeae8fff7f3eff7b4f5e8fd"><span class="__cf_email__" data-cfemail="b1d2dedfc5d0d2c5f1d6deddd5c1c3d4dcd8c4dc9fdec3d6">[email&nbsp;protected]</span></a></div>
 </footer>
 
-<div id="cookie-banner" style="display: flex;">
+<div id="cookie-banner" style="display: none;">
   <div>We use Google Analytics to understand how visitors use this site. <a href="file:///impressum.html">Privacy Policy</a></div>
   <div class="cookie-btns">
     <button class="cookie-btn cookie-decline" onclick="cookieDecline()">Decline</button>
@@ -1047,7 +1047,8 @@ function render(){
     }
 
     // USD and EUR columns with bid/ask for spot + Istanbul rows
-    const dUSD=toDisplay(isGram?(r.dispOz||r.usdOz)*KGFACTOR:(r.dispOz||r.usdOz)), dEUR=toDisplay(isGram?r.eurOz*KGFACTOR:r.eurOz);
+    const _usdOz = r.dispOz||r.usdOz;
+    const dUSD=toDisplay(isGram?_usdOz*KGFACTOR*getCurrencyRate():_usdOz*getCurrencyRate()), dEUR=toDisplay(isGram?r.eurOz*KGFACTOR:r.eurOz);
     let usdCell, eurCell;
     if(r.isSpot){
       const spotBid = metal==='XAU' ? spot.XAU_bid : spot.XAG_bid;
