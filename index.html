@@ -183,7 +183,7 @@ footer a:hover{text-decoration:underline}
   </div>
   <div class="header-meta">
     <div class="live-badge"><div class="dot"></div>Live</div>
-    <span id="upd">Updated: 19:29 UTC</span>
+    <span id="upd">Updated: 19:36 UTC</span>
     <span>Refresh every 15 min</span>
   </div>
 </header>
@@ -254,10 +254,10 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <div id="loading" class="loading" style="display: none;">Loading market data…</div>
-<div id="sticky-thead-wrap" class="sticky-thead" style="display:none;overflow:hidden;margin:0">
+<div id="sticky-thead-wrap" class="sticky-thead" style="display: none; overflow: hidden; margin: 0px; position: sticky; top: 186px;">
   <table id="sticky-thead-table"><thead><tr>
     <th id="sth-0" style="width: 421px;">Market</th>
-    <th id="sth-1" style="width: 122px; min-width: 100px;">Local Price</th>
+    <th id="sth-1" style="width: 122px; min-width: 70px;">Local Price</th>
     <th id="sth-2" style="text-align: right; width: 199px;">USD / oz</th>
     <th id="sth-3" style="text-align: right; width: 211px;">Premium USD</th>
     <th id="sth-6" style="width: 316px;">24h Chart</th>
@@ -268,7 +268,7 @@ footer a:hover{text-decoration:underline}
 <thead>
   <tr>
     <th>Market</th>
-    <th id="th-local" style="width:120px;min-width:100px">Local Price</th>
+    <th id="th-local" style="width:80px;min-width:70px">Local Price</th>
     <th class="r" id="th-usd">USD / oz</th>
     <th class="r">Premium USD</th>
     <th class="chart-th">24h Chart</th>
@@ -1352,7 +1352,13 @@ function setUnit(u){
   render();
 }
 
-load();
+// Wait for Chart.js to be available before starting
+function waitForChart(cb, attempts=0){
+  if(typeof Chart !== 'undefined'){ cb(); return; }
+  if(attempts > 20){ console.warn('Chart.js failed to load'); cb(); return; }
+  setTimeout(()=>waitForChart(cb, attempts+1), 200);
+}
+waitForChart(()=>load());
 setInterval(load,15*60*1000);
 
 // Sticky table header
