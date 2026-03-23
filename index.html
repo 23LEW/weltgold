@@ -441,7 +441,7 @@ function diffBadge(d,u){
 // Convert price to display unit
 function toDisplay(pricePerOz){
   if(pricePerOz==null)return null;
-  return unit==='gram' ? pricePerOz/G : pricePerOz;
+  return pricePerOz;
 }
 
 function calcMarket(m){
