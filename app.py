@@ -1,16 +1,114 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
 import time
 from datetime import datetime
 import threading
 import re
+import sqlite3
+import os
 
 app = Flask(__name__)
 CORS(app)
 
 cache = {"prices": {}, "last_updated": None, "yesterday": {}}
 GRAM = 31.1035
+DB_PATH = "/opt/goldpremium/prices.db"
+
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS price_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts TEXT NOT NULL,
+        market TEXT NOT NULL,
+        gold_usd_oz REAL,
+        gold_local REAL,
+        silver_local REAL,
+        premium_pct REAL,
+        local_currency TEXT
+    )''')
+    c.execute('CREATE INDEX IF NOT EXISTS idx_market_ts ON price_history(market, ts)')
+    conn.commit()
+    conn.close()
+    print("DB initialized")
+
+def save_prices(prices):
+    if not prices.get("spot") or not prices.get("fx"):
+        return
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        ts = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        spot_xau = prices["spot"].get("XAU")
+        spot_xag = prices["spot"].get("XAG")
+        fx = prices["fx"]
+
+        def calc_premium(local_usd_oz):
+            if local_usd_oz and spot_xau:
+                return round((local_usd_oz - spot_xau) / spot_xau * 100, 4)
+            return None
+
+        # COMEX spot
+        c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency) VALUES (?,?,?,?,?,?,?)",
+            (ts, 'comex', spot_xau, spot_xau, spot_xag, 0.0, 'USD'))
+
+        # Istanbul
+        ist = prices.get("istanbul")
+        if ist and not ist.get("is_calculated"):
+            gold = ist.get("gold_try_gram_buy") or ist.get("gold_try_gram")
+            silver = ist.get("silver_try_gram")
+            usd_oz = (gold / fx.get("TRY",1)) * GRAM if gold else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency) VALUES (?,?,?,?,?,?,?)",
+                (ts, 'istanbul', usd_oz, gold, silver, calc_premium(usd_oz), 'TRY'))
+
+        # India
+        ind = prices.get("india")
+        if ind and not ind.get("is_calculated"):
+            gold = ind.get("gold_inr_gram")
+            usd_oz = (gold / fx.get("INR",83)) * GRAM if gold else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency) VALUES (?,?,?,?,?,?,?)",
+                (ts, 'india', usd_oz, gold, None, calc_premium(usd_oz), 'INR'))
+
+        # Japan
+        jpn = prices.get("japan")
+        if jpn and not jpn.get("is_calculated"):
+            gold = jpn.get("gold_jpy_gram_bid")
+            usd_oz = (gold / fx.get("JPY",150)) * GRAM if gold else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency) VALUES (?,?,?,?,?,?,?)",
+                (ts, 'japan', usd_oz, gold, None, calc_premium(usd_oz), 'JPY'))
+
+        # Germany
+        deu = prices.get("germany")
+        if deu and not deu.get("is_calculated"):
+            gold = deu.get("gold_eur_oz_bid")
+            usd_oz = (gold / fx.get("EUR",0.92)) if gold else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency) VALUES (?,?,?,?,?,?,?)",
+                (ts, 'germany', usd_oz, gold, None, calc_premium(usd_oz), 'EUR'))
+
+        # Dubai
+        dub = prices.get("dubai")
+        if dub and not dub.get("is_calculated"):
+            gold = dub.get("gold_aed_gram")
+            silver = dub.get("silver_aed_kg")
+            usd_oz = (gold / fx.get("AED",3.67)) * GRAM if gold else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency) VALUES (?,?,?,?,?,?,?)",
+                (ts, 'dubai', usd_oz, gold, silver, calc_premium(usd_oz), 'AED'))
+
+        # Russia
+        rus = prices.get("russia")
+        if rus and not rus.get("is_calculated"):
+            gold = rus.get("gold_rub_gram")
+            silver = rus.get("silver_rub_gram")
+            usd_oz = (gold / fx.get("RUB",90)) * GRAM if gold else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency) VALUES (?,?,?,?,?,?,?)",
+                (ts, 'russia', usd_oz, gold, silver, calc_premium(usd_oz), 'RUB'))
+
+        conn.commit()
+        conn.close()
+        print(f"DB: saved prices at {ts}")
+    except Exception as e:
+        print(f"DB save error: {e}")
 
 def fetch_fx():
     try:
@@ -501,6 +599,7 @@ def update():
                     prices["spot"]["XAG_chp_eur"] = round((xag_eur_today - xag_eur_yest) / xag_eur_yest * 100, 2)
 
     print(f"[{datetime.now()}] Done: {list(prices.keys())}")
+    save_prices(prices)
 
 def background():
     while True:
@@ -513,6 +612,26 @@ def get_prices():
         update()
     return jsonify({"data": cache["prices"], "last_updated": cache["last_updated"], "status": "ok"})
 
+@app.route("/api/history/<market>")
+def get_history(market):
+    try:
+        hours = int(request.args.get('hours', 24))
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("""
+            SELECT ts, gold_usd_oz, gold_local, silver_local, premium_pct, local_currency
+            FROM price_history
+            WHERE market = ? AND ts >= datetime('now', ? || ' hours')
+            ORDER BY ts ASC
+        """, (market, f'-{hours}'))
+        rows = c.fetchall()
+        conn.close()
+        data = [{"ts": r[0], "gold_usd_oz": r[1], "gold_local": r[2],
+                 "silver_local": r[3], "premium_pct": r[4], "currency": r[5]} for r in rows]
+        return jsonify({"market": market, "data": data, "count": len(data)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/health")
 def health():
     return jsonify({"status": "ok", "last_updated": cache["last_updated"]})
@@ -522,6 +641,7 @@ def index():
     return jsonify({"name": "goldpremium API", "last_updated": cache["last_updated"]})
 
 if __name__ == "__main__":
+    init_db()
     update()
     t = threading.Thread(target=background, daemon=True)
     t.start()
