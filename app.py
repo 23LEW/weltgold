@@ -376,8 +376,42 @@ def fetch_dubai():
         lines = [l.strip() for l in content.split("\n") if l.strip()]
         gold_aed_gram = None
         silver_aed_kg = None
+        gold_usd_bid = None
+        gold_usd_ask = None
+        silver_usd_bid = None
+        silver_usd_ask = None
 
         for i, line in enumerate(lines):
+            # GOLD SPOT bid/ask in USD
+            if line == 'GOLD SPOT':
+                # Next lines: BID, ASK, TODAY, bid_val, ask_val
+                vals = []
+                for j in range(i+1, min(i+8, len(lines))):
+                    try:
+                        val = float(lines[j].replace(',',''))
+                        if 1000 < val < 10000:
+                            vals.append(val)
+                    except:
+                        pass
+                if len(vals) >= 2:
+                    gold_usd_bid = vals[0]
+                    gold_usd_ask = vals[1]
+
+            # SILVER SPOT bid/ask in USD
+            if line == 'SILVER SPOT':
+                vals = []
+                for j in range(i+1, min(i+8, len(lines))):
+                    try:
+                        val = float(lines[j].replace(',',''))
+                        if 10 < val < 500:
+                            vals.append(val)
+                    except:
+                        pass
+                if len(vals) >= 2:
+                    silver_usd_bid = vals[0]
+                    silver_usd_ask = vals[1]
+
+            # GOLD 9999 AED/gram ask price
             if 'GOLD' in line and '9999' in line:
                 for j in range(i+1, min(i+5, len(lines))):
                     try:
@@ -387,7 +421,9 @@ def fetch_dubai():
                             break
                     except:
                         pass
-            if 'SILVER' in line and gold_aed_gram and not silver_aed_kg:
+
+            # SILVER AED/kg
+            if line == 'SILVER' and gold_aed_gram and not silver_aed_kg:
                 for j in range(i+1, min(i+5, len(lines))):
                     try:
                         val = float(lines[j].replace(',',''))
@@ -397,11 +433,15 @@ def fetch_dubai():
                     except:
                         pass
 
-        if gold_aed_gram:
-            print(f"Dubai: gold={gold_aed_gram} AED/gram silver={silver_aed_kg} AED/kg")
+        if gold_aed_gram or gold_usd_bid:
+            print(f"Dubai: gold_aed={gold_aed_gram} bid={gold_usd_bid} ask={gold_usd_ask} silver_bid={silver_usd_bid}")
             return {
                 "gold_aed_gram": gold_aed_gram,
                 "silver_aed_kg": silver_aed_kg,
+                "gold_usd_bid": gold_usd_bid,
+                "gold_usd_ask": gold_usd_ask,
+                "silver_usd_bid": silver_usd_bid,
+                "silver_usd_ask": silver_usd_ask,
                 "source": "tora.bullionview.com",
                 "is_calculated": False
             }
