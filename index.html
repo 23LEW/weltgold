@@ -1122,22 +1122,17 @@ function render(){
       eurCell = `<div class="peur">€${fmt(isGram?eurBidJ*KGFACTOR:eurBidJ,2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAskJ*KGFACTOR:eurAskJ,2)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU'){
       const TAEL2 = 37.429;
-      const midTael2 = (hkLive.bid + hkLive.ask) / 2;
       const hkdRate2 = fx.HKD || 7.78;
-      if(hkLive.loco_bid){
-        const locoBid = unit==='gram' ? hkLive.loco_bid/G*1000 : hkLive.loco_bid;
-        const locoAsk = unit==='gram' ? hkLive.loco_ask/G*1000 : hkLive.loco_ask;
-        const unitLbl = unit==='oz' ? 'USD/oz' : 'USD/1000g';
-        const locoRate = getCurrencyRate(); const locoSym = getCurrencySym();
-        const locoBidConv = isGram ? locoBid/G*1000*locoRate : locoBid*locoRate;
-        const locoAskConv = isGram ? locoAsk/G*1000*locoRate : locoAsk*locoRate;
-        const unitLbl2 = `${displayCurrency}/${isGram?'1000g':'oz'}`;
-        usdCell = `<div class="pusd">${locoSym}${fmt(locoBidConv,2)}</div><div class="punit">Bid (${unitLbl2})</div><div class="pusd" style="margin-top:4px">${locoSym}${fmt(locoAskConv,2)}</div><div class="punit">Ask (${unitLbl2})</div>`;
-      } else {
-        const usdHK = (midTael2 / TAEL2 / hkdRate2) * G;
-        usdCell = `<div class="pusd">${getCurrencySym()}${fmt(isGram?usdHK*KGFACTOR*getCurrencyRate():usdHK*getCurrencyRate(),2)}</div>`;
-      }
-      eurCell = `<div class="peur">€${fmt(isGram?(midTael2/TAEL2/hkdRate2)*G*KGFACTOR*(fx.EUR||1):(midTael2/TAEL2/hkdRate2)*G*(fx.EUR||1),2)}</div>`;
+      const hkdBidOz = (hkLive.bid / TAEL2) * G;
+      const hkdAskOz = (hkLive.ask / TAEL2) * G;
+      const usdBidHK = hkdBidOz / hkdRate2;
+      const usdAskHK = hkdAskOz / hkdRate2;
+      const sym2 = getCurrencySym(), rate2 = getCurrencyRate();
+      const bidConv = isGram ? usdBidHK*KGFACTOR*rate2 : usdBidHK*rate2;
+      const askConv = isGram ? usdAskHK*KGFACTOR*rate2 : usdAskHK*rate2;
+      const unitLbl2 = `${displayCurrency}/${isGram?'1000g':'oz'}`;
+      usdCell = `<div class="pusd">${sym2}${fmt(bidConv,2)}</div><div class="punit">Bid (${unitLbl2})</div><div class="pusd" style="margin-top:4px">${sym2}${fmt(askConv,2)}</div><div class="punit">Ask (${unitLbl2})</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?usdBidHK*KGFACTOR*(fx.EUR||1):usdBidHK*(fx.EUR||1),2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?usdAskHK*KGFACTOR*(fx.EUR||1):usdAskHK*(fx.EUR||1),2)}</div><div class="punit">Ask</div>`;
     } else if(r.istLive && istanbul?.goldBuy && istanbul?.goldSell){
       // Istanbul: convert TRY buy/sell to USD/oz and EUR/oz
       const istBuyUSD = isGold ? istanbul.goldBuy : (istanbul.silver || istanbul.goldBuy);
