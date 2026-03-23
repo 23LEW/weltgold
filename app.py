@@ -264,6 +264,54 @@ def fetch_russia():
         print(f"Russia error: {e}")
         return None
 
+def fetch_dubai():
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto("https://tora.bullionview.com/", timeout=30000)
+            page.wait_for_timeout(6000)
+            content = page.inner_text("body")
+            browser.close()
+
+        lines = [l.strip() for l in content.split("\n") if l.strip()]
+        gold_aed_gram = None
+        silver_aed_kg = None
+
+        for i, line in enumerate(lines):
+            if 'GOLD' in line and '9999' in line:
+                for j in range(i+1, min(i+5, len(lines))):
+                    try:
+                        val = float(lines[j].replace(',',''))
+                        if 400 < val < 2000:
+                            gold_aed_gram = val
+                            break
+                    except:
+                        pass
+            if 'SILVER' in line and gold_aed_gram and not silver_aed_kg:
+                for j in range(i+1, min(i+5, len(lines))):
+                    try:
+                        val = float(lines[j].replace(',',''))
+                        if 5000 < val < 20000:
+                            silver_aed_kg = val
+                            break
+                    except:
+                        pass
+
+        if gold_aed_gram:
+            print(f"Dubai: gold={gold_aed_gram} AED/gram silver={silver_aed_kg} AED/kg")
+            return {
+                "gold_aed_gram": gold_aed_gram,
+                "silver_aed_kg": silver_aed_kg,
+                "source": "tora.bullionview.com",
+                "is_calculated": False
+            }
+        return None
+    except Exception as e:
+        print(f"Dubai error: {e}")
+        return None
+
 def fetch_germany():
     try:
         r = requests.get(
@@ -347,6 +395,7 @@ def update():
     japan = fetch_japan()
     germany = fetch_germany()
     russia = fetch_russia()
+    dubai = fetch_dubai()
 
     prices = {}
     if spot: prices["spot"] = spot
@@ -408,6 +457,16 @@ def update():
         prices["russia"] = {
             "gold_rub_gram": round((spot["XAU"] / GRAM) * fx.get("RUB", 90), 2) if fx.get("RUB") else None,
             "silver_rub_gram": round((spot["XAG"] / GRAM) * fx.get("RUB", 90), 2) if fx.get("RUB") and spot.get("XAG") else None,
+            "source": "calculated",
+            "is_calculated": True
+        }
+
+    if dubai:
+        prices["dubai"] = dubai
+    elif spot and fx:
+        prices["dubai"] = {
+            "gold_aed_gram": round((spot["XAU"] / GRAM) * fx.get("AED", 3.67), 2) if fx.get("AED") else None,
+            "silver_aed_kg": round((spot["XAG"] / GRAM) * 1000 * fx.get("AED", 3.67), 2) if fx.get("AED") and spot.get("XAG") else None,
             "source": "calculated",
             "is_calculated": True
         }
