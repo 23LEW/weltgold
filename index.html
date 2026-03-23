@@ -183,7 +183,7 @@ footer a:hover{text-decoration:underline}
   </div>
   <div class="header-meta">
     <div class="live-badge"><div class="dot"></div>Live</div>
-    <span id="upd">Updated: 20:55 UTC</span>
+    <span id="upd">Loading…</span>
     <span>Refresh every 15 min</span>
   </div>
 </header>
@@ -232,19 +232,19 @@ footer a:hover{text-decoration:underline}
 <div class="err" id="err" style="display: none;">Failed to load price data. Please check your internet connection and reload.</div>
 
 <div class="spots-sticky"><div class="spots">
-  <div class="spot show" id="s-usd">
-    <div class="spot-label" id="lbl-usd">Spot Price · USD / Troy Oz</div>
-    <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">4,424.80</span> <span id="v-usd-chp" style="font-size: 18px; font-weight: 500; margin-left: 8px; color: var(--red);">-1.48%</span></div>
+  <div class="spot" id="s-usd">
+    <div class="spot-label" id="lbl-usd">International Spot Price · USD / Troy Oz</div>
+    <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">—</span> <span id="v-usd-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
     <div class="spot-sub">LBMA London / COMEX New York · Global Benchmark</div>
-    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-usd-bidask">Bid $4,423.80  ·  Ask $4,425.80</div>
-    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-usd-source">Source: kitco.com</div>
+    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-usd-bidask"></div>
+    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-usd-source"></div>
   </div>
-  <div class="spot show" id="s-eur">
-    <div class="spot-label" id="lbl-eur">Spot Price · USD / Troy Oz</div>
-    <div class="spot-price" id="p-eur"><sup id="sym-eur">$</sup><span id="v-eur">4,424.80</span> <span id="v-eur-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
+  <div class="spot" id="s-eur">
+    <div class="spot-label" id="lbl-eur">Spot Price · EUR / Troy Oz</div>
+    <div class="spot-price" id="p-eur"><sup id="sym-eur">€</sup><span id="v-eur">—</span> <span id="v-eur-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
     <div class="spot-sub">Converted via ECB exchange rate</div>
-    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-eur-bidask">Bid $4,423.80  ·  Ask $4,425.80</div>
-    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-eur-source">Source: kitco.com</div>
+    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-eur-bidask"></div>
+    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-eur-source"></div>
   </div>
 </div></div>
 
@@ -253,76 +253,28 @@ footer a:hover{text-decoration:underline}
   <div class="sec-note">🟢 Live &nbsp;|&nbsp; 🟠 Calculated (Spot × FX + known premium)</div>
 </div>
 
-<div id="loading" class="loading" style="display: none;">Loading market data…</div>
-<div id="sticky-thead-wrap" class="sticky-thead" style="display:none;overflow:hidden;margin:0">
+<div id="loading" class="loading">Loading market data…</div>
+<div id="sticky-thead-wrap" class="sticky-thead" style="display: block; overflow: hidden; margin: 0px; position: sticky; top: 156px;">
   <table id="sticky-thead-table"><thead><tr>
-    <th id="sth-0" style="width: 432px;">Market</th>
-    <th id="sth-1" style="white-space: nowrap; width: 122px; padding-right: 12px;">Local Price</th>
-    <th id="sth-2" style="text-align: right; width: 193px;">USD / oz</th>
-    <th id="sth-3" style="text-align: right; width: 205px;">Premium USD</th>
-    <th id="sth-6" style="width: 316px;">24h Chart</th>
+    <th id="sth-0" style="width: 0px;">Market</th>
+    <th id="sth-1" style="white-space: nowrap; width: 0px; padding-right: 12px;">Local Price</th>
+    <th id="sth-2" style="text-align: right; width: 0px;">USD / oz</th>
+    <th id="sth-3" style="text-align: right; width: 0px;">Premium USD</th>
+    <th id="sth-6" style="width: 0px;">24h Chart</th>
   </tr></thead></table>
 </div>
-<div class="tscroll" id="tbl" style="">
+<div class="tscroll" id="tbl" style="display:none">
 <table>
 <thead>
   <tr>
     <th>Market</th>
     <th id="th-local" style="white-space:nowrap;width:1%;padding-right:12px">Local Price</th>
-    <th class="r" id="th-usd">USD / oz</th>
+    <th class="r" id="th-usd">— / oz</th>
     <th class="r">Premium USD</th>
     <th class="chart-th">24h Chart</th>
   </tr>
 </thead>
-<tbody id="tbody"><tr class="lo">
-      <td><div class="mkt"><span class="flag">🇭🇰</span><div><div class="mname">Hong Kong · CGSE</div><div class="mcity">Chinese Gold &amp; Silver Exchange</div><div style="margin-top:4px"><span class="badge live">🟢 LIVE · cgse.com.hk</span></div></div></div></td>
-      <td><div class="plocal">HK$ 28,088</div><div class="punit">Bid (HKD/oz)</div><div class="plocal" style="margin-top:4px">HK$ 28,217</div><div class="punit">Ask (HKD/oz)</div></td>
-      <td class="r"><div class="pusd">$3,586.33</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$3,602.78</div><div class="punit">Ask</div></td>
-      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">$-830.24</span><span class="badge pos">-18.76%</span></td>
-      <td class="chart-td" onclick="openChartModal('hongkong','🇭🇰 Hong Kong · CGSE')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-hongkong" height="120" style="display: block; box-sizing: border-box; height: 60px; width: 300px;" width="600"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
-    </tr><tr class="">
-      <td><div class="mkt"><span class="flag">🇩🇪</span><div><div class="mname">Germany · Degussa</div><div class="mcity">Frankfurt / München</div><div style="margin-top:4px"><span class="badge live">🟢 LIVE · degussa.com</span></div></div></div></td>
-      <td><div class="plocal">€ 3,637.00</div><div class="punit">Bid (EUR/oz)</div><div class="plocal" style="margin-top:4px">€ 3,941.40</div><div class="punit">Ask (EUR/oz)</div></td>
-      <td class="r"><div class="pusd">$4,217.45</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$4,570.43</div><div class="punit">Ask</div></td>
-      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">$-30.86</span><span class="badge pos">-0.70%</span></td>
-      <td class="chart-td" onclick="openChartModal('germany','🇩🇪 Germany · Degussa')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-germany" height="120" style="display: block; box-sizing: border-box; height: 60px; width: 300px;" width="600"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
-    </tr><tr class="">
-      <td><div class="mkt"><span class="flag">🇦🇪</span><div><div class="mname">Dubai · Tora Gold</div><div class="mcity">Dubai Gold Souk</div><div style="margin-top:4px"><span class="badge live">🟢 LIVE · tora.bullionview.com</span></div></div></div></td>
-      <td><div class="plocal">$4,413.19</div><div class="punit">Bid (USD/oz)</div><div class="plocal" style="margin-top:4px">$4,415.65</div><div class="punit">Ask (USD/oz)</div></td>
-      <td class="r"><div class="pusd">$4,413.19</div><div class="punit">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$4,415.65</div><div class="punit">Ask (USD/oz)</div></td>
-      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$20.54</span><span class="badge neg">+0.46%</span></td>
-      <td class="chart-td" onclick="openChartModal('dubai','🇦🇪 Dubai · Tora Gold')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-dubai" height="120" style="display: block; box-sizing: border-box; height: 60px; width: 300px;" width="600"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
-    </tr><tr class="">
-      <td><div class="mkt"><span class="flag">🇨🇳</span><div><div class="mname">Shanghai Gold Exch.</div><div class="mcity">Shanghai · China (SGE)</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
-      <td><div class="plocal">¥ 990</div><div class="punit">CNY/g</div></td>
-      <td class="r"><div class="pusd">$4,469.05</div></td>
-      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$44.25</span><span class="badge neg">+1.00%</span></td>
-      <td class="chart-td" onclick="openChartModal('shanghai','🇨🇳 Shanghai Gold Exch.')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-shanghai" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
-    </tr><tr class="">
-      <td><div class="mkt"><span class="flag">🇷🇺</span><div><div class="mname">Russia · CBR</div><div class="mcity">Central Bank of Russia</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
-      <td><div class="plocal">RUB 144</div><div class="punit">RUB/g</div></td>
-      <td class="r"><div class="pusd">$4,469.05</div></td>
-      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$44.25</span><span class="badge neg">+1.00%</span></td>
-      <td class="chart-td" onclick="openChartModal('russia','🇷🇺 Russia · CBR')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-russia" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
-    </tr><tr class="">
-      <td><div class="mkt"><span class="flag">🇮🇳</span><div><div class="mname">MCX / IBJA</div><div class="mcity">Mumbai · India</div><div style="margin-top:4px"><span class="badge live">🟢 LIVE · ibjarates.com</span></div></div></div></td>
-      <td><div class="plocal">₹ 433,460</div><div class="punit">Bid (INR/oz)</div><div class="plocal" style="margin-top:4px">₹ 434,763</div><div class="punit">Ask (INR/oz)</div></td>
-      <td class="r"><div class="pusd">$4,656.85</div></td>
-      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$232.05</span><span class="badge neg">+5.24%</span></td>
-      <td class="chart-td" onclick="openChartModal('india','🇮🇳 MCX / IBJA')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-india" height="120" style="display: block; box-sizing: border-box; height: 60px; width: 300px;" width="600"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
-    </tr><tr class="">
-      <td><div class="mkt"><span class="flag">🇹🇷</span><div><div class="mname">Istanbul · Turkey</div><div class="mcity">Grand Bazaar / Kapalı Çarşı</div><div style="margin-top:4px"><span class="badge live">🟢 LIVE · nadirdoviz.com</span></div></div></div></td>
-      <td><div class="plocal">₺ 205,070.66</div><div class="punit">Bid (TRY/oz)</div><div class="plocal" style="margin-top:4px">₺ 209,780.36</div><div class="punit">Ask (TRY/oz)</div></td>
-      <td class="r"><div class="pusd">$4,626.94</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$4,733.20</div><div class="punit">Ask</div></td>
-      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$255.27</span><span class="badge neg">+5.77%</span></td>
-      <td class="chart-td" onclick="openChartModal('istanbul','🇹🇷 Istanbul · Turkey')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-istanbul" height="120" style="display: block; box-sizing: border-box; height: 60px; width: 300px;" width="600"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
-    </tr><tr class="hi">
-      <td><div class="mkt"><span class="flag">🇯🇵</span><div><div class="mname">Tokyo · Japan</div><div class="mcity">Tanaka Precious Metals</div><div style="margin-top:4px"><span class="badge live">🟢 LIVE · tanaka.co.jp</span></div></div></div></td>
-      <td><div class="plocal">¥ 757,370</div><div class="punit">Bid (JPY/oz)</div><div class="plocal" style="margin-top:4px">¥ 777,867</div><div class="punit">Ask (JPY/oz)</div></td>
-      <td class="r"><div class="pusd">$4,776.85</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$4,906.13</div><div class="punit">Ask</div></td>
-      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$416.69</span><span class="badge neg">+9.42%</span></td>
-      <td class="chart-td" onclick="openChartModal('japan','🇯🇵 Tokyo · Japan')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-japan" height="120" style="display: block; box-sizing: border-box; height: 60px; width: 300px;" width="600"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
-    </tr></tbody>
+<tbody id="tbody"></tbody>
 </table>
 </div>
 
@@ -345,7 +297,7 @@ footer a:hover{text-decoration:underline}
       <button class="rbtn" onclick="setRange('1Y',this)">1Y</button>
     </div>
   </div>
-  <div class="chart-wrap"><canvas id="chart-spot" style="box-sizing: border-box; display: block; height: 220px; width: 1222px;" width="2444" height="440"></canvas></div>
+  <div class="chart-wrap"><canvas id="chart-spot"></canvas></div>
 </div>
 
 <div class="chart-grid">
@@ -356,7 +308,7 @@ footer a:hover{text-decoration:underline}
         <div class="chart-sub">VS. COMEX SPOT · USD/OZ · LIVE SESSION</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-istanbul" style="box-sizing: border-box; display: block; height: 220px; width: 580px;" width="1160" height="440"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-istanbul"></canvas></div>
   </div>
   <div class="chart-container">
     <div class="chart-header">
@@ -365,7 +317,7 @@ footer a:hover{text-decoration:underline}
         <div class="chart-sub">CURRENT PREMIUM VS. SPOT · USD/OZ</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-all" style="box-sizing: border-box; display: block; height: 220px; width: 580px;" width="1160" height="440"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-all"></canvas></div>
   </div>
 </div>
 
@@ -531,7 +483,8 @@ function calcMarket(m){
       // CGSE quotes in HKD per tael (1 tael = 37.429g)
       const midTael = (hkLive.bid + hkLive.ask) / 2;
       const hkdPerGram = midTael / TAEL;
-      usdOz = (hkdPerGram / hkdRate) * G;
+      // Use Loco London USD price if available (more accurate for COMEX comparison)
+      usdOz = hkLive.loco_bid ? (hkLive.loco_bid + hkLive.loco_ask) / 2 : (hkdPerGram / hkdRate) * G;
       localPrice = unit==='oz' ? hkdPerGram * G : hkdPerGram * 1000;
     } else {
       const hkdPerGram = (spotUSD / G) * hkdRate * (1 + m.calcPremium);
@@ -609,7 +562,7 @@ async function load(){
       // Hong Kong CGSE
       const hk = vps?.hongkong;
       if(hk && hk.gold_hkd_tael_bid && !hk.is_calculated){
-        hkLive = {bid: hk.gold_hkd_tael_bid, ask: hk.gold_hkd_tael_ask, source: hk.source};
+        hkLive = {bid: hk.gold_hkd_tael_bid, ask: hk.gold_hkd_tael_ask, loco_bid: hk.loco_usd_bid, loco_ask: hk.loco_usd_ask, source: hk.source};
       } else {
         hkLive = null;
       }
@@ -1151,14 +1104,19 @@ function render(){
       usdCell = `<div class="pusd">$${fmt(isGram?usdBidJ/G:usdBidJ,decJ)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAskJ/G:usdAskJ,decJ)}</div><div class="punit">Ask</div>`;
       eurCell = `<div class="peur">€${fmt(isGram?eurBidJ/G:eurBidJ,decJ)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAskJ/G:eurAskJ,decJ)}</div><div class="punit">Ask</div>`;
     } else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU'){
-      const TAEL = 37.429;
-      const usdBid = toDisplay((hkLive.bid / TAEL / (fx.HKD||7.78)) * G);
-      const usdAsk = toDisplay((hkLive.ask / TAEL / (fx.HKD||7.78)) * G);
-      const eurBid = toDisplay(usdBid * (fx.EUR||1));
-      const eurAsk = toDisplay(usdAsk * (fx.EUR||1));
-      const dec = isGram ? 3 : 2;
-      usdCell = `<div class="pusd">$${fmt(isGram?usdBid/G:usdBid,dec)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">$${fmt(isGram?usdAsk/G:usdAsk,dec)}</div><div class="punit">Ask</div>`;
-      eurCell = `<div class="peur">€${fmt(isGram?eurBid/G:eurBid,dec)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk/G:eurAsk,dec)}</div><div class="punit">Ask</div>`;
+      const TAEL2 = 37.429;
+      const midTael2 = (hkLive.bid + hkLive.ask) / 2;
+      const hkdRate2 = fx.HKD || 7.78;
+      if(hkLive.loco_bid){
+        const locoBid = unit==='gram' ? hkLive.loco_bid/G*1000 : hkLive.loco_bid;
+        const locoAsk = unit==='gram' ? hkLive.loco_ask/G*1000 : hkLive.loco_ask;
+        const unitLbl = unit==='oz' ? 'USD/oz' : 'USD/1000g';
+        usdCell = `<div class="pusd">$${fmt(locoBid,2)}</div><div class="punit">Bid (${unitLbl})</div><div class="pusd" style="margin-top:4px">$${fmt(locoAsk,2)}</div><div class="punit">Ask (${unitLbl})</div>`;
+      } else {
+        const usdHK = (midTael2 / TAEL2 / hkdRate2) * G;
+        usdCell = `<div class="pusd">${getCurrencySym()}${fmt(isGram?usdHK*KGFACTOR*getCurrencyRate():usdHK*getCurrencyRate(),2)}</div>`;
+      }
+      eurCell = `<div class="peur">€${fmt(isGram?(midTael2/TAEL2/hkdRate2)*G*KGFACTOR*(fx.EUR||1):(midTael2/TAEL2/hkdRate2)*G*(fx.EUR||1),2)}</div>`;
     } else if(r.istLive && istanbul?.goldBuy && istanbul?.goldSell){
       // Istanbul: convert TRY buy/sell to USD/oz and EUR/oz
       const istBuyUSD = isGold ? istanbul.goldBuy : (istanbul.silver || istanbul.goldBuy);
