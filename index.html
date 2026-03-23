@@ -1159,9 +1159,26 @@ function render(){
     const usdPremCls = r.diff > 0.5 ? 'neg' : r.diff < -0.5 ? 'pos' : 'neu';
     const eurPremCls = eurPremDisplay > 0.5 ? 'neg' : eurPremDisplay < -0.5 ? 'pos' : 'neu';
 
-    const usdPremCell = r.isSpot
-      ? `<span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">Ref</span>`
-      : `<span class="badge ${usdPremCls}" style="display:block;margin-bottom:3px">${r.diff>0?'+':''}$${fmt(toDisplay(r.diff),2)}</span><span class="badge ${usdPremCls}">${r.pct>0?'+':''}${r.pct.toFixed(2)}%</span>`;
+    let usdPremCell;
+    if(r.isSpot){
+      usdPremCell = `<span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">Ref</span>`;
+    } else if(r.id==='germany' && germanyLive?.bid && metal==='XAU'){
+      // Germany: show bid premium and ask premium separately
+      const spotRef = isGold ? spot.XAU : spot.XAG;
+      const deRate = getCurrencyRate();
+      const deSym = getCurrencySym();
+      const bidUSD = germanyLive.bid / (fx.EUR||1);
+      const askUSD = germanyLive.ask / (fx.EUR||1);
+      const bidDiff = isGram ? (bidUSD - spotRef)*KGFACTOR*deRate : (bidUSD - spotRef)*deRate;
+      const askDiff = isGram ? (askUSD - spotRef)*KGFACTOR*deRate : (askUSD - spotRef)*deRate;
+      const bidPct = (bidUSD - spotRef)/spotRef*100;
+      const askPct = (askUSD - spotRef)/spotRef*100;
+      const bidCls = bidDiff > 0 ? 'neg' : bidDiff < 0 ? 'pos' : 'neu';
+      const askCls = askDiff > 0 ? 'neg' : askDiff < 0 ? 'pos' : 'neu';
+      usdPremCell = `<span class="badge ${bidCls}" style="display:block;margin-bottom:2px">${bidDiff>0?'+':''}${deSym}${fmt(bidDiff,0)} ${bidPct>0?'+':''}${bidPct.toFixed(2)}%</span><span style="font-size:9px;color:var(--text3);display:block;margin-bottom:2px">Bid</span><span class="badge ${askCls}" style="display:block;margin-bottom:2px">${askDiff>0?'+':''}${deSym}${fmt(askDiff,0)} ${askPct>0?'+':''}${askPct.toFixed(2)}%</span><span style="font-size:9px;color:var(--text3);display:block">Ask</span>`;
+    } else {
+      usdPremCell = `<span class="badge ${usdPremCls}" style="display:block;margin-bottom:3px">${r.diff>0?'+':''}${getCurrencySym()}${fmt(isGram?r.diff*KGFACTOR:r.diff,2)}</span><span class="badge ${usdPremCls}">${r.pct>0?'+':''}${r.pct.toFixed(2)}%</span>`;
+    }
 
     const eurPremCell = r.isSpot
       ? `<span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">Ref</span>`
