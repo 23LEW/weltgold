@@ -71,7 +71,7 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 .spot::before{display:none}
 .spot-label{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gold-b);margin-bottom:12px}
 .spot-price{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;color:var(--gold-p);line-height:1;letter-spacing:-1px;transition:color .3s}
-.spot-price sup{font-size:18px;vertical-align:super;color:var(--gold);margin-right:2px;transition:color .3s;font-weight:400}
+.spot-price sup{font-size:22px;vertical-align:baseline;color:var(--gold);margin-right:2px;transition:color .3s;font-weight:400}
 .spot.silver-mode .spot-price{color:var(--silver-p)}
 .spot.silver-mode .spot-price sup{color:var(--silver-b)}
 .spot-sub{margin-top:8px;font-size:12px;color:var(--text3)}
@@ -184,7 +184,7 @@ footer a:hover{text-decoration:underline}
   </div>
   <div class="header-meta">
     <div class="live-badge"><div class="dot"></div>Live</div>
-    <span id="upd">Updated: 17:05 UTC</span>
+    <span id="upd">Updated: 17:14 UTC</span>
     <span>Refresh every 15 min</span>
   </div>
 </header>
@@ -235,14 +235,14 @@ footer a:hover{text-decoration:underline}
 <div class="spots-sticky"><div class="spots">
   <div class="spot show" id="s-usd">
     <div class="spot-label" id="lbl-usd">Spot Price · USD / Troy Oz</div>
-    <div class="spot-price" id="p-usd"><sup style="font-size:1.1em;top:-0.1em">$</sup><span id="v-usd">4,376.00</span> <span id="v-usd-chp" style="font-size: 18px; font-weight: 500; margin-left: 8px; color: var(--red);">-2.57%</span></div>
+    <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">4,376.00</span> <span id="v-usd-chp" style="font-size: 18px; font-weight: 500; margin-left: 8px; color: var(--red);">-2.57%</span></div>
     <div class="spot-sub">LBMA London / COMEX New York · Global Benchmark</div>
     <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-usd-bidask">Bid $4,375.00  ·  Ask $4,377.00</div>
     <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-usd-source">Source: kitco.com</div>
   </div>
   <div class="spot show" id="s-eur">
     <div class="spot-label" id="lbl-eur">Spot Price · USD / Troy Oz</div>
-    <div class="spot-price" id="p-eur"><sup style="font-size:1.1em;top:-0.1em" id="sym-eur">$</sup><span id="v-eur">4,376.00</span> <span id="v-eur-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
+    <div class="spot-price" id="p-eur"><sup id="sym-eur">$</sup><span id="v-eur">4,376.00</span> <span id="v-eur-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
     <div class="spot-sub">Converted via ECB exchange rate</div>
     <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-eur-bidask">Bid $4,375.00  ·  Ask $4,377.00</div>
     <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-eur-source">Source: kitco.com</div>
@@ -255,7 +255,7 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <div id="loading" class="loading" style="display: none;">Loading market data…</div>
-<div id="sticky-thead-wrap" class="sticky-thead" style="display:none;overflow:hidden;margin:0">
+<div id="sticky-thead-wrap" class="sticky-thead" style="display: none; overflow: hidden; margin: 0px; position: sticky; top: 186px;">
   <table id="sticky-thead-table"><thead><tr>
     <th id="sth-0" style="width: 367px;">Market</th>
     <th id="sth-1" style="width: 228px;">Local Price</th>
@@ -526,18 +526,17 @@ function calcMarket(m){
     localPrice = unit==='oz' ? mid * G : mid;
     usdOz = (mid / jpyRate) * G;
   } else if(m.id==='hongkong' && metal==='XAU'){
-    // HK: spot × HKD rate (CGSE data not reliably live)
-    // HKD is pegged to USD ~7.78, so premium is minimal
     const TAEL = 37.429;
+    const hkdRate = fx.HKD || 7.78;
     if(hkLive?.bid){
-      // Convert CGSE tael price to USD/oz correctly
-      // CGSE quotes in HKD per tael (37.429g)
+      // CGSE quotes in HKD per tael (1 tael = 37.429g)
       const midTael = (hkLive.bid + hkLive.ask) / 2;
       const hkdPerGram = midTael / TAEL;
-      usdOz = (hkdPerGram / fxRate) * G;
-      localPrice = unit==='oz' ? hkdPerGram * G : hkdPerGram * TAEL;
+      usdOz = (hkdPerGram / hkdRate) * G;
+      localPrice = unit==='oz' ? hkdPerGram * G : hkdPerGram * 1000;
     } else {
-      localPrice = unit==='oz' ? spotUSD * fxRate : (spotUSD/G) * fxRate * TAEL;
+      const hkdPerGram = (spotUSD / G) * hkdRate * (1 + m.calcPremium);
+      localPrice = unit==='oz' ? hkdPerGram * G : hkdPerGram * 1000;
       usdOz = spotUSD * (1 + m.calcPremium);
     }
   } else {
