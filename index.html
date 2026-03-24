@@ -234,7 +234,7 @@ footer a:hover{text-decoration:underline}
   </div>
 </div>
 
-<div class="err" id="err">Failed to load price data. Please check your internet connection and reload.</div>
+<div class="err" id="err" style="display: none;">Failed to load price data. Please check your internet connection and reload.</div>
 
 <div class="spots-sticky"><div class="spots">
   <div class="spot" id="s-usd">
@@ -259,13 +259,13 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <div id="loading" class="loading">Loading market data…</div>
-<div id="sticky-thead-wrap" class="sticky-thead" style="display:none;overflow:hidden;margin:0">
+<div id="sticky-thead-wrap" class="sticky-thead" style="display: block; overflow: hidden; margin: 0px; position: sticky; top: 156px;">
   <table id="sticky-thead-table"><thead><tr>
-    <th id="sth-0">Market</th>
-    <th id="sth-1" style="white-space:nowrap;width:1%;padding-right:12px">Local Price</th>
-    <th id="sth-2" style="text-align:right">USD / oz</th>
-    <th id="sth-3" style="text-align:right">vs. COMEX</th>
-    <th id="sth-6">24h Chart</th>
+    <th id="sth-0" style="width: 0px;">Market</th>
+    <th id="sth-1" style="white-space: nowrap; width: 0px; padding-right: 12px;">Local Price</th>
+    <th id="sth-2" style="text-align: right; width: 0px;">USD / oz</th>
+    <th id="sth-3" style="text-align: right; width: 0px;">vs. COMEX</th>
+    <th id="sth-6" style="width: 0px;">24h Chart</th>
   </tr></thead></table>
 </div>
 <div class="tscroll" id="tbl" style="display:none">
@@ -383,7 +383,7 @@ price. The <strong>gold premium</strong> measures how much more buyers pay for p
   <div><a href="file:///impressum.html">Impressum &amp; Datenschutz</a> · <a href="file:///cdn-cgi/l/email-protection#9af9f5f4eefbf9eedafdf5f6feeae8fff7f3eff7b4f5e8fd"><span class="__cf_email__" data-cfemail="b1d2dedfc5d0d2c5f1d6deddd5c1c3d4dcd8c4dc9fdec3d6">[email&nbsp;protected]</span></a></div>
 </footer>
 
-<div id="cookie-banner" style="display:none">
+<div id="cookie-banner" style="display: flex;">
   <div>We use Google Analytics to understand how visitors use this site. <a href="file:///impressum.html">Privacy Policy</a></div>
   <div class="cookie-btns">
     <button class="cookie-btn cookie-decline" onclick="cookieDecline()">Decline</button>
@@ -874,6 +874,11 @@ function renderAllChart(rows, spotUSD){ try {
         ...CHART_OPTS.scales,
         y:{...CHART_OPTS.scales.y,
           title:{display:true,text:'Premium USD/'+(unit==='gram'?'kg':'oz'),color:'#8A8880',font:{family:'DM Mono',size:10}}
+        }
+      }
+    }
+  });
+ } catch(e){ console.warn("renderAllChart error",e); }}
 
 function getCurrencyRate(){
   if(displayCurrency==='USD') return 1;
