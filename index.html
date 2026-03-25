@@ -1331,9 +1331,23 @@ function renderModalChart(data, range){
     : d=>d.ts.slice(0,10);
 
   const labels = data.map(labelFmt);
-  const localVals = data.map(d=>d.gold_local);
-  const premVals = data.map(d=>d.premium_pct);
   const currency = data[0]?.currency || '';
+  const isKg = unit === 'gram';
+  const KGFACT = 1000 / 31.1035;
+
+  // Convert local values based on unit selection and currency type
+  const localVals = data.map(d => {
+    if(!d.gold_local) return null;
+    // Germany stores EUR/oz, Japan stores JPY/gram, Turkey stores TRY/gram
+    // For kg mode: gram-based currencies * 1000, oz-based currencies * KGFACT
+    const ozCurrencies = ['EUR', 'USD', 'GBP']; // stored per oz
+    if(isKg){
+      return ozCurrencies.includes(currency) ? d.gold_local * KGFACT : d.gold_local * 1000;
+    }
+    return ozCurrencies.includes(currency) ? d.gold_local : d.gold_local * 31.1035;
+  });
+  const premVals = data.map(d=>d.premium_pct);
+  const unitLabel = isKg ? `${currency}/kg` : `${currency}/oz`;
 
   modalChart = new Chart(ctx, {
     data:{
@@ -1362,15 +1376,15 @@ function renderModalChart(data, range){
         tooltip:{
           callbacks:{
             label:ctx=>ctx.dataset.yAxisID==='y1'
-              ? `${currency} ${ctx.parsed.y?.toLocaleString()}`
+              ? `${unitLabel}: ${ctx.parsed.y?.toLocaleString(undefined,{maximumFractionDigits:2})}`
               : `${ctx.parsed.y?.toFixed(2)}% premium`
           }
         }
       },
       scales:{
         x:{ticks:{maxTicksLimit:8,font:{size:11},color:'#888'},grid:{display:false}},
-        y1:{position:'left',ticks:{font:{size:11},color:'#D4AF5A'},grid:{color:'rgba(128,128,128,0.1)'}},
-        y2:{position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{display:false}}
+        y1:{position:'left',ticks:{font:{size:11},color:'#D4AF5A'},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:unitLabel,color:'#D4AF5A',font:{size:11}}},
+        y2:{position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{display:false},title:{display:true,text:'Premium %',color:'#5B8DEF',font:{size:11}}}
       }
     }
   });
