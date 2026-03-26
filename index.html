@@ -20,7 +20,9 @@
 <script src="index-Dateien/chart.umd.min_002.js"></script>
 <script>
 if(typeof Chart==='undefined'){
-  document.write('<scr'+'ipt src="https://api.goldpremium.org/static/chart.umd.min.js"><\/scr'+'ipt>');
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+  document.head.appendChild(s);
 }
 </script><script src="index-Dateien/chart.umd.min.js"></script>
 <style>
@@ -200,7 +202,7 @@ footer a:hover{text-decoration:underline}
   </div>
   <div class="header-meta">
     <div class="live-badge"><div class="dot"></div>Live</div>
-    <span id="upd">Updated: 22:42 UTC</span>
+    <span id="upd">Updated: 22:58 UTC</span>
     <span>Refresh every 5 min</span>
   </div>
 </header>
@@ -402,12 +404,12 @@ footer a:hover{text-decoration:underline}
     </div>
   </div>
   <div id="chart-stats" style="display:flex;gap:20px;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:12px;flex-wrap:wrap">
-    <span><span style="color:var(--text3)">Low</span> <span id="stat-low" style="color:var(--text2)">—</span></span>
-    <span><span style="color:var(--text3)">High</span> <span id="stat-high" style="color:var(--text2)">—</span></span>
-    <span><span style="color:var(--text3)">Change</span> <span id="stat-chg" style="color:var(--text2)">—</span></span>
-    <span><span style="color:var(--text3)">Open</span> <span id="stat-open" style="color:var(--text2)">—</span></span>
+    <span><span style="color:var(--text3)">Low</span> <span id="stat-low" style="color:var(--text2)">$4,379.20</span></span>
+    <span><span style="color:var(--text3)">High</span> <span id="stat-high" style="color:var(--text2)">$4,379.20</span></span>
+    <span><span style="color:var(--text3)">Change</span> <span id="stat-chg" style="color: var(--green);">+0.00%</span></span>
+    <span><span style="color:var(--text3)">Open</span> <span id="stat-open" style="color:var(--text2)">$4,379.20</span></span>
   </div>
-  <div class="chart-wrap"><canvas id="chart-spot"></canvas></div>
+  <div class="chart-wrap"><canvas id="chart-spot" style="display: block; box-sizing: border-box; height: 220px; width: 1222px;" width="2444" height="440"></canvas></div>
 </div>
 
 <div class="chart-grid">
@@ -418,7 +420,7 @@ footer a:hover{text-decoration:underline}
         <div class="chart-sub">VS. COMEX SPOT · USD/OZ · LIVE SESSION</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-istanbul"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-istanbul" style="display: block; box-sizing: border-box; height: 220px; width: 580px;" width="1160" height="440"></canvas></div>
   </div>
   <div class="chart-container">
     <div class="chart-header">
@@ -427,7 +429,7 @@ footer a:hover{text-decoration:underline}
         <div class="chart-sub">CURRENT PREMIUM VS. SPOT · USD/OZ</div>
       </div>
     </div>
-    <div class="chart-wrap"><canvas id="chart-all"></canvas></div>
+    <div class="chart-wrap"><canvas id="chart-all" style="display: block; box-sizing: border-box; height: 220px; width: 580px;" width="1160" height="440"></canvas></div>
   </div>
 </div>
 
