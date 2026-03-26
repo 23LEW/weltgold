@@ -246,7 +246,7 @@ footer a:hover{text-decoration:underline}
   </div>
 </div>
 
-<div class="err" id="err">Failed to load price data. Please check your internet connection and reload.</div>
+<div class="err" id="err" style="display: none;">Failed to load price data. Please check your internet connection and reload.</div>
 
 <div class="spots-sticky"><div class="spots">
   <div class="spot" id="s-usd">
@@ -414,7 +414,7 @@ price. The <strong>gold premium</strong> measures how much more buyers pay for p
   <div><a href="file:///impressum.html">Impressum &amp; Datenschutz</a> · <a href="file:///cdn-cgi/l/email-protection#9af9f5f4eefbf9eedafdf5f6feeae8fff7f3eff7b4f5e8fd"><span class="__cf_email__" data-cfemail="b1d2dedfc5d0d2c5f1d6deddd5c1c3d4dcd8c4dc9fdec3d6">[email&nbsp;protected]</span></a></div>
 </footer>
 
-<div id="cookie-banner" style="display:none">
+<div id="cookie-banner" style="display: flex;">
   <div>We use Google Analytics to understand how visitors use this site. <a href="file:///impressum.html">Privacy Policy</a></div>
   <div class="cookie-btns">
     <button class="cookie-btn cookie-decline" onclick="cookieDecline()">Decline</button>
@@ -1549,32 +1549,6 @@ function waitForChart(cb, attempts=0){
 }
 waitForChart(()=>load());
 setInterval(load,5*60*1000);
-
-// Sticky table header removed (two-table layout)
-
-  // Sync horizontal scroll
-  tscroll.addEventListener('scroll', ()=>{ wrap.scrollLeft = tscroll.scrollLeft; });
-
-  // Show sticky header only when real thead scrolls out of view
-  const spotsBar = document.querySelector('.spots-sticky');
-  function onScroll(){
-    const spotsH = spotsBar ? spotsBar.offsetHeight : 0;
-    const realThead = tscroll.querySelector('thead');
-    const realTheadBottom = realThead ? realThead.getBoundingClientRect().bottom : 0;
-    if(realTheadBottom < spotsH){
-      wrap.style.display = 'block';
-      wrap.style.position = 'sticky';
-      wrap.style.top = spotsH + 'px';
-    } else {
-      wrap.style.display = 'none';
-    }
-  }
-  window.addEventListener('scroll', onScroll);
-  onScroll();
-}
-setTimeout(syncStickyHeader, 800);
-
-
 
 // Cookie consent
 (function(){
