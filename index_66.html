@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gold Premium — Worldwide Gold & Silver Price Comparison</title>
+<meta name="description" content="Compare physical gold and silver prices across global markets in real time: Istanbul Grand Bazaar, Shanghai Gold Exchange (SGE), Mumbai MCX, Tokyo TOCOM, Dubai Gold Souk. Track the gold premium vs. international spot price in USD, EUR and local currency.">
+<meta name="keywords" content="physical gold price comparison, gold premium, SGE gold price, Istanbul gold price, Kapalıçarşı gold, MCX gold price India, TOCOM gold Japan, Dubai gold souk, gold spot vs physical, worldwide gold prices, silver premium">
+<link rel="canonical" href="https://goldpremium.org/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://goldpremium.org/">
+<meta property="og:title" content="Gold Premium — Worldwide Gold & Silver Price Comparison">
+<meta property="og:description" content="Track physical gold and silver prices and premiums across global markets: Istanbul, Shanghai, Mumbai, Tokyo, Dubai vs. LBMA/COMEX spot price.">
+<meta property="og:site_name" content="GoldPremium.org">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gold Premium — Worldwide Gold & Silver Price Comparison">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"GoldPremium.org","url":"https://goldpremium.org","description":"Real-time comparison of physical gold and silver prices across global markets.","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥇</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://api.goldpremium.org/static/chart.umd.min.js"></script>
+<script>
+if(typeof Chart==='undefined'){
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+  document.head.appendChild(s);
+}
+</script>
+<style>
+:root{
+  --gold:#C9963A;--gold-b:#E8B24A;--gold-p:#F5C842;
+  --silver:#8AAABB;--silver-b:#AAC8D8;--silver-p:#C8DDE8;
+  --bg:#0E1015;--bg2:#161920;--bg3:#1E2128;--bg4:#252830;
+  --text:#F0F0F0;--text2:#A8ADB8;--text3:#666C78;
+  --green:#22C55E;--green-bg:rgba(34,197,94,0.12);
+  --red:#EF4444;--red-bg:rgba(239,68,68,0.12);
+  --orange:#F59E0B;--orange-bg:rgba(245,158,11,0.1);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.04);
+  --radius:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Open Sans',sans-serif;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1320px;margin:0 auto;padding:0 24px 80px}
+
+/* HEADER */
+header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+.site-title{font-size:36px;font-weight:700;color:var(--text);letter-spacing:-.5px;text-align:center;width:100%}
+.site-title strong{color:var(--gold-p)}
+.site-subtitle{font-size:14px;color:var(--text3);margin-top:4px;text-align:center;width:100%}
+.header-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2)}
+.live-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--green-bg);border-radius:20px;color:var(--green);font-size:11px;font-weight:600}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* CONTROLS */
+.controls{display:flex;flex-direction:column;gap:10px;margin:20px 0}
+.controls-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.controls-row.scrollable{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+.controls-row.scrollable::-webkit-scrollbar{display:none}
+.scroll-hint{position:relative}
+.scroll-hint::after{content:'›';position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:20px;color:var(--gold-p);pointer-events:none;animation:pulse 1.5s ease-in-out infinite}
+.scroll-hint-fade::before{content:'';position:absolute;right:0;top:0;bottom:0;width:40px;background:linear-gradient(to right,transparent,var(--bg0));pointer-events:none;z-index:1}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.controls-row.scrollable .ctrl-group{flex-shrink:0}
+.ctrl-group{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;padding:3px;gap:2px}
+.ctrl-btn{padding:7px 18px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;border:none;color:var(--text2);cursor:pointer;transition:all .15s;border-radius:6px;white-space:nowrap}
+.ctrl-btn:hover{color:var(--text);background:var(--bg3)}
+.ctrl-btn.on{background:var(--gold);color:#0E1015;font-weight:600}
+.ctrl-btn.on.silver{background:var(--silver-b);color:#0E1015}
+.ctrl-sep{display:none}
+
+/* SPOT CARDS */
+.spots-sticky{position:-webkit-sticky;position:sticky;top:0;z-index:100;background:var(--bg);padding:12px 0 8px;margin:0 -24px;padding-left:24px;padding-right:24px;border-bottom:1px solid var(--border)}
+.spots{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:0}
+.spot{background:#1C2028;padding:16px 20px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.12);opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
+.spot.show{opacity:1;transform:none}
+.spot::before{display:none}
+.spot-label{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gold-b);margin-bottom:12px}
+.spot-price{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;color:var(--gold-p);line-height:1;letter-spacing:-1px;transition:color .3s}
+.spot-price sup{font-size:22px;vertical-align:baseline;color:var(--gold);margin-right:2px;transition:color .3s;font-weight:400}
+.spot.silver-mode .spot-price{color:var(--silver-p)}
+.spot.silver-mode .spot-price sup{color:var(--silver-b)}
+.spot-sub{margin-top:8px;font-size:12px;color:var(--text3)}
+
+/* SECTION */
+.sec{display:flex;justify-content:space-between;align-items:center;margin:32px 0 12px}
+.sec-title{font-size:20px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--text2)}
+.sec-note{font-size:12px;color:var(--text3)}
+
+/* TABLE */
+.tscroll{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:1px solid var(--border);background:var(--bg3)}
+th{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);font-weight:600;padding:12px 16px;text-align:left;white-space:nowrap}
+.sticky-thead{position:sticky;top:0;z-index:90;background:var(--bg3);border-bottom:1px solid var(--border);border-top:1px solid var(--border)}
+.sticky-thead table{width:100%;border-collapse:collapse;table-layout:fixed}
+.sticky-thead th{border:none}
+th.r{text-align:right}
+td{padding:16px 16px;border-bottom:1px solid var(--border2);vertical-align:middle;font-size:13px;color:var(--text)}
+td.r{text-align:right}
+tr:hover td{background:rgba(255,255,255,0.02)}
+tr.ref-row td{background:rgba(201,150,58,0.04)}
+tr.ref-row td:first-child{border-left:2px solid var(--gold)}
+tr.lo td:first-child{border-left:2px solid var(--green)}
+tr.hi td:first-child{border-left:2px solid var(--red)}
+.mkt{display:flex;align-items:center;gap:12px}
+.flag{font-size:22px}
+.mname{font-size:15px;font-weight:600;color:var(--text)}
+.mcity{font-size:11px;color:var(--text3);margin-top:2px}
+.plocal{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:#C8CDD8}
+.plocal.sv{color:var(--silver-p)}
+.punit{font-size:11px;color:var(--text3);margin-top:2px}
+.pusd{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--gold-b)}
+.peur{font-family:'DM Mono',monospace;font-size:14px;color:var(--gold)}
+.badge{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.badge.pos{background:var(--green-bg);color:var(--green)}
+.badge.neg{background:var(--red-bg);color:var(--red)}
+.badge.neu{background:rgba(255,255,255,0.06);color:var(--text3)}
+.badge.calc{background:var(--orange-bg);color:var(--orange);font-size:10px;letter-spacing:.5px}
+.badge.live{background:var(--green-bg);color:var(--green);font-size:10px;letter-spacing:.5px}
+.badge.closed{background:rgba(255,255,255,0.06);color:var(--text3);font-size:10px;letter-spacing:.5px}
+
+/* CHARTS */
+.chart-container{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-top:12px}
+.chart-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.chart-title{font-size:14px;font-weight:600;color:var(--text)}
+.chart-sub{font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-top:3px}
+.range-btns{display:flex;gap:4px;background:var(--bg3);border-radius:6px;padding:3px}
+.rbtn{padding:5px 12px;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:500;background:transparent;border:none;border-radius:4px;color:var(--text3);cursor:pointer;transition:all .15s}
+.rbtn:hover{color:var(--text)}
+.rbtn.on{background:var(--bg4);color:var(--text);font-weight:600}
+.chart-wrap{position:relative;height:220px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+
+/* INFO */
+.info{margin-top:32px;border:1px solid var(--border);border-left:2px solid var(--gold);background:rgba(201,150,58,.03);border-radius:var(--radius);padding:20px 24px;font-size:12px;color:var(--text2);line-height:1.9}
+.info strong{color:var(--text);font-weight:600}
+.info a{color:var(--gold-b);text-decoration:none}
+.about{margin-top:12px;padding:24px 28px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--text2);line-height:1.9}
+.about h2{font-size:18px;font-weight:700;color:var(--text);margin-bottom:12px}
+.about p{max-width:860px;margin-bottom:10px}
+.about strong{color:var(--text)}
+
+.err{background:var(--red-bg);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--red);margin:12px 0;display:none}
+.chart-td{width:160px;min-width:120px;padding:6px 8px!important}
+.chart-th{width:160px;min-width:120px}
+.mini-chart-wrap{width:100%;height:60px;position:relative}
+.loading{color:var(--text3);text-align:center;padding:48px 0;font-size:13px}
+footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--text3)}
+footer a{color:var(--gold-b);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* COOKIE BANNER */
+#cookie-banner{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;z-index:999;font-size:13px;color:var(--text2)}
+#cookie-banner a{color:var(--gold-b);text-decoration:none}
+.cookie-btns{display:flex;gap:8px}
+.cookie-btn{padding:8px 18px;border:none;border-radius:6px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.cookie-accept{background:var(--gold);color:#0E1015}
+.cookie-decline{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+
+@media(max-width:900px){.spots{grid-template-columns:1fr 1fr}.chart-grid{grid-template-columns:1fr}.wrap{padding:0 16px 60px}}
+@media(max-width:600px){.spot-price{font-size:24px}.spot-label{font-size:10px}.spot-sub{font-size:10px}th,td{padding:8px 6px}.controls{gap:6px}}
+</style>
+<!-- Google Analytics (consent-gated) -->
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    analytics_storage: 'denied'
+  });
+  function loadGA(){
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-X137B76JHQ';
+    document.head.appendChild(s);
+    gtag('js', new Date());
+    gtag('config', 'G-X137B76JHQ');
+    gtag('consent', 'update', {analytics_storage: 'granted'});
+  }
+  if(localStorage.getItem('ga_consent') === 'granted') loadGA();
+</script>
+</head>
+<body>
+<div id="page-loader" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg0);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
+  <div style="font-size:28px;font-weight:700;color:var(--gold-p)">GoldPremium<span style="color:var(--text2)">.org</span></div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <div class="loader-dot" style="width:8px;height:8px;border-radius:50%;background:var(--gold-p);animation:loader-pulse 1.2s ease-in-out infinite"></div>
+    <div class="loader-dot" style="width:8px;height:8px;border-radius:50%;background:var(--gold-p);animation:loader-pulse 1.2s ease-in-out 0.4s infinite"></div>
+    <div class="loader-dot" style="width:8px;height:8px;border-radius:50%;background:var(--gold-p);animation:loader-pulse 1.2s ease-in-out 0.8s infinite"></div>
+  </div>
+  <div style="font-size:13px;color:var(--text3)">Loading live gold prices…</div>
+</div>
+<style>
+@keyframes loader-pulse{0%,100%{opacity:.2;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
+</style>
+<div class="wrap">
+
+<header style="flex-direction:column;align-items:center;text-align:center;gap:8px">
+  <div style="width:100%">
+    <h1 class="site-title"><strong>GoldPremium</strong>.org</h1>
+    <p class="site-subtitle">Worldwide Physical Gold &amp; Silver Price Comparison</p>
+  </div>
+  <div class="header-meta">
+    <div class="live-badge"><div class="dot"></div>Live</div>
+    <span id="upd">Loading…</span>
+    <span>Refresh every 5 min</span>
+  </div>
+</header>
+
+<!-- CONTROLS: Metal + Unit -->
+<div class="controls">
+  <div class="controls-row">
+    <div class="ctrl-group">
+      <button class="ctrl-btn on" id="btn-gold" onclick="setMetal('XAU')">Gold</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn silver" id="btn-silver" onclick="setMetal('XAG')">Silver</button>
+    </div>
+    <div class="ctrl-group" style="margin-left:16px">
+      <button class="ctrl-btn on" id="btn-oz" onclick="setUnit('oz')">1 oz</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-gram" onclick="setUnit('gram')">Kilo</button>
+    </div>
+  </div>
+  <div style="position:relative" class="scroll-hint-fade"><div class="controls-row scrollable" id="currency-row" onscroll="this.parentElement.classList.toggle('scroll-hint-fade', this.scrollLeft < this.scrollWidth - this.clientWidth - 10)">
+    <div class="ctrl-group">
+      <button class="ctrl-btn on" id="btn-usd" onclick="setCurrency('USD')">USD</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-eur" onclick="setCurrency('EUR')">EUR</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-gbp" onclick="setCurrency('GBP')">GBP</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-jpy" onclick="setCurrency('JPY')">JPY</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-cny" onclick="setCurrency('CNY')">CNY</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-try" onclick="setCurrency('TRY')">TRY</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-aed" onclick="setCurrency('AED')">AED</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-inr" onclick="setCurrency('INR')">INR</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-rub" onclick="setCurrency('RUB')">RUB</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-aud" onclick="setCurrency('AUD')">AUD</button>
+      <div class="ctrl-sep"></div>
+      <button class="ctrl-btn" id="btn-hkd" onclick="setCurrency('HKD')">HKD</button>
+    </div>
+  </div>
+</div>
+
+<div class="err" id="err">Failed to load price data. Please check your internet connection and reload.</div>
+
+<div class="spots-sticky"><div class="spots">
+  <div class="spot" id="s-usd">
+    <div class="spot-label" id="lbl-usd">International Spot Price · USD / Troy Oz</div>
+    <div style="display:flex;gap:16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:6px">
+      <span>L <span id="v-usd-low" style="color:var(--text2)">—</span></span>
+      <span>H <span id="v-usd-high" style="color:var(--text2)">—</span></span>
+    </div>
+    <div class="spot-price" id="p-usd"><sup>$</sup><span id="v-usd">—</span> <span id="v-usd-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
+    <div class="spot-sub">LBMA London / COMEX New York · Global Benchmark</div>
+    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-usd-bidask"></div>
+    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-usd-source"></div>
+  </div>
+  <div class="spot" id="s-eur">
+    <div class="spot-label" id="lbl-eur">Spot Price · EUR / Troy Oz</div>
+    <div style="display:flex;gap:16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);margin-bottom:6px">
+      <span>L <span id="v-eur-low" style="color:var(--text2)">—</span></span>
+      <span>H <span id="v-eur-high" style="color:var(--text2)">—</span></span>
+    </div>
+    <div class="spot-price" id="p-eur"><sup id="sym-eur">€</sup><span id="v-eur">—</span> <span id="v-eur-chp" style="font-size:18px;font-weight:500;margin-left:8px"></span></div>
+    <div class="spot-sub">Converted via ECB exchange rate</div>
+    <div style="margin-top:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)" id="v-eur-bidask"></div>
+    <div style="margin-top:2px;font-size:10px;color:var(--text3);opacity:.5" id="v-eur-source"></div>
+  </div>
+</div></div>
+
+<div class="sec">
+  <div class="sec-title">Exchange & Benchmark Prices</div>
+  <div class="sec-note">🟢 Live &nbsp;|&nbsp; 🟠 Calculated &nbsp;|&nbsp; COMEX is the default reference</div>
+</div>
+
+<div id="loading" class="loading">Loading market data…</div>
+<div class="tscroll" id="tbl-exchanges" style="display:none">
+<table>
+<thead>
+  <tr>
+    <th>Exchange</th>
+    <th id="th-local-ex" style="white-space:nowrap;width:1%;padding-right:12px">Local Price</th>
+    <th class="r" id="th-usd-ex">Price / oz</th>
+    <th class="r">vs. COMEX</th>
+    <th class="chart-th">24h Chart</th>
+  </tr>
+</thead>
+<tbody id="tbody-exchanges"></tbody>
+</table>
+</div>
+
+<div class="sec" style="margin-top:32px">
+  <div class="sec-title">Physical Dealer Prices</div>
+  <div class="sec-note">🟢 Live &nbsp;|&nbsp; 🟠 Calculated (Spot × FX + known premium)</div>
+</div>
+
+<div class="tscroll" id="tbl-dealers" style="display:none">
+<table>
+<thead>
+  <tr>
+    <th>Dealer</th>
+    <th id="th-local-dl" style="white-space:nowrap;width:1%;padding-right:12px">Local Price</th>
+    <th class="r" id="th-usd-dl">Price / oz</th>
+    <th class="r">vs. COMEX</th>
+    <th class="chart-th">24h Chart</th>
+  </tr>
+</thead>
+<tbody id="tbody-dealers"></tbody>
+</table>
+</div>
+
+<!-- CHARTS -->
+<div class="sec" style="margin-top:48px">
+  <div class="sec-title">Price Charts</div>
+  <div class="sec-note" id="chart-unit-note">USD / Troy Oz</div>
+</div>
+
+<div class="chart-container">
+  <div class="chart-header">
+    <div>
+      <div class="chart-title" id="chart1-title">Gold Spot Price</div>
+      <div class="chart-sub">LBMA / COMEX · HISTORICAL</div>
+    </div>
+    <div class="range-btns">
+      <button class="rbtn on" onclick="setRange('1D',this)">1D</button>
+      <button class="rbtn" onclick="setRange('5D',this)">5D</button>
+      <button class="rbtn" onclick="setRange('1M',this)">1M</button>
+      <button class="rbtn" onclick="setRange('1Y',this)">1Y</button>
+      <button class="rbtn" onclick="setRange('5Y',this)">5Y</button>
+      <button class="rbtn" onclick="setRange('MAX',this)">Max</button>
+    </div>
+  </div>
+  <div id="chart-stats" style="display:flex;gap:20px;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:12px;flex-wrap:wrap">
+    <span><span style="color:var(--text3)">Low</span> <span id="stat-low" style="color:var(--text2)">—</span></span>
+    <span><span style="color:var(--text3)">High</span> <span id="stat-high" style="color:var(--text2)">—</span></span>
+    <span><span style="color:var(--text3)">Change</span> <span id="stat-chg" style="color:var(--text2)">—</span></span>
+    <span><span style="color:var(--text3)">Open</span> <span id="stat-open" style="color:var(--text2)">—</span></span>
+  </div>
+  <div class="chart-wrap"><canvas id="chart-spot"></canvas></div>
+</div>
+
+<div class="chart-grid">
+  <div class="chart-container">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Istanbul Premium</div>
+        <div class="chart-sub">VS. COMEX SPOT · USD/OZ · LIVE SESSION</div>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-istanbul"></canvas></div>
+  </div>
+  <div class="chart-container">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">All Markets Premium</div>
+        <div class="chart-sub">CURRENT PREMIUM VS. SPOT · USD/OZ</div>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="chart-all"></canvas></div>
+  </div>
+</div>
+
+<div class="info">
+  <strong>About the data</strong><br><br>
+  <strong>🇹🇷 Istanbul Grand Bazaar:</strong> Real-time buy/sell prices from Nadir Döviz, Istanbul's leading precious metals dealer. Updated every 10 minutes.<br><br>
+  <strong>🌍 LBMA / COMEX Spot:</strong> Live Bid/Ask from Kitco. Updated every 10 minutes via our server.<br><br>
+  <strong>🟠 Calculated</strong> (Shanghai SGE, Tokyo TOCOM, Dubai, Jakarta Antam): Spot × FX + known structural premiums.</p><p><strong>🟢 Live India</strong> (MCX / IBJA): Real daily rates from ibjarates.com — India's official bullion association. SGE premium historically −$10 to +$50/oz.<br><br>
+  Sources: <a href="https://www.kitco.com" target="_blank">kitco.com</a> (spot bid/ask) · <a href="https://www.nadirdoviz.com" target="_blank">nadirdoviz.com</a> (Istanbul) · <a href="https://frankfurter.app" target="_blank">frankfurter.app</a> (FX) · <a href="https://freegoldapi.com" target="_blank">freegoldapi.com</a> (history)
+</div>
+
+<div class="about">
+  <h2>About GoldPremium.org</h2>
+  <p>GoldPremium.org tracks physical gold and silver prices across major global markets and compares them to the international LBMA/COMEX spot price. The <strong>gold premium</strong> measures how much more buyers pay for physical metal vs. the global benchmark.</p>
+  <p>A rising <strong>Shanghai premium</strong> signals strong Chinese physical demand. <strong>Istanbul premiums</strong> reflect Turkish lira dynamics and import conditions. <strong>India's premium</strong> is structural due to government import duties. All data for informational purposes only — not financial advice.</p>
+</div>
+
+<div id="chart-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:24px;width:90%;max-width:800px;max-height:90vh;overflow:auto;position:relative">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div id="modal-title" style="font-size:16px;font-weight:600;color:var(--text1)"></div>
+        <div id="modal-sub" style="font-size:12px;color:var(--text3);margin-top:2px"></div>
+      </div>
+      <button onclick="closeChartModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:16px">
+      <button class="rbtn on" id="modal-btn-24h" onclick="setModalRange('24h')">24h</button>
+      <button class="rbtn" id="modal-btn-5d" onclick="setModalRange('5d')">5D</button>
+      <button class="rbtn" id="modal-btn-30d" onclick="setModalRange('30d')">30D</button>
+      <button class="rbtn" id="modal-btn-1y" onclick="setModalRange('1y')">1Y</button>
+    </div>
+    <div style="display:flex;gap:12px;margin-bottom:8px;font-size:12px;color:var(--text3)">
+      <span><span style="display:inline-block;width:10px;height:3px;background:#D4AF5A;border-radius:2px;vertical-align:middle"></span> Local price</span>
+      <span><span style="display:inline-block;width:10px;height:3px;background:#5B8DEF;border-radius:2px;vertical-align:middle"></span> Premium vs COMEX %</span>
+    </div>
+    <div style="position:relative;width:100%;height:300px">
+      <canvas id="modal-chart"></canvas>
+    </div>
+    <div id="modal-note" style="font-size:11px;color:var(--text3);margin-top:8px;text-align:right"></div>
+  </div>
+</div>
+
+<footer>
+  <div>GoldPremium.org © 2026 · Informational purposes only · Not financial advice</div>
+  <div><a href="/impressum.html">Impressum & Datenschutz</a> · <a href="/cdn-cgi/l/email-protection#9af9f5f4eefbf9eedafdf5f6feeae8fff7f3eff7b4f5e8fd"><span class="__cf_email__" data-cfemail="b1d2dedfc5d0d2c5f1d6deddd5c1c3d4dcd8c4dc9fdec3d6">[email&#160;protected]</span></a></div>
+</footer>
+
+<div id="cookie-banner" style="display:none">
+  <div>We use Google Analytics to understand how visitors use this site. <a href="/impressum.html">Privacy Policy</a></div>
+  <div class="cookie-btns">
+    <button class="cookie-btn cookie-decline" onclick="cookieDecline()">Decline</button>
+    <button class="cookie-btn cookie-accept" onclick="cookieAccept()">Accept</button>
+  </div>
+</div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+const G = 31.1035; // grams per troy oz
+let metal = 'XAU';
+let unit = 'oz'; // 'oz' or 'gram'
+let spot = null, fx = null, istanbul = null, indiaLive = null, hkLive = null, japanLive = null, germanyLive = null, russiaLive = null, dubaiLive = null, usaLive = null;
+let displayCurrency = 'USD';
+const CURRENCIES = {USD:{sym:'$',name:'USD'},EUR:{sym:'€',name:'EUR'},GBP:{sym:'£',name:'GBP'},JPY:{sym:'JP¥',name:'JPY'},CNY:{sym:'CN¥',name:'CNY'},TRY:{sym:'₺',name:'TRY'},AED:{sym:'د.إ',name:'AED'},INR:{sym:'₹',name:'INR'},RUB:{sym:'₽',name:'RUB'},AUD:{sym:'A$',name:'AUD'},HKD:{sym:'HK$',name:'HKD'}};
+let histData = []; // historical spot prices
+let currentRange = '1D';
+let chartSpot = null, chartIst = null, chartAll = null;
+
+const CS = {USD:'$',EUR:'€',GBP:'£',TRY:'₺',CNY:'¥',INR:'₹',JPY:'¥',HKD:'HK$',AED:'د.إ'};
+
+// Istanbul session history
+let istHistory = [];
+try { istHistory = JSON.parse(localStorage.getItem('ist_history')||'[]'); } catch(e){}
+
+// Exchange & Benchmark Prices
+const EXCHANGES = [
+  {id:'comex', name:'COMEX · New York', city:'CME Group / Futures Exchange', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0, isReference:true},
+  {id:'lbma', name:'LBMA · London', city:'London Bullion Market Assoc.', flag:'🇬🇧', currency:'USD', unitLabel:'USD/oz', calcPremium:0},
+  {id:'hongkong', name:'Hong Kong · CGSE', city:'Chinese Gold & Silver Exchange', flag:'🇭🇰', currency:'HKD', unitLabel:'HKD/tael', calcPremium:0.002, tael:true},
+  {id:'russia', name:'Russia · CBR', city:'Central Bank of Russia', flag:'🇷🇺', currency:'RUB', unitLabel:'RUB/g', calcPremium:0.01},
+  {id:'shanghai', name:'Shanghai · SGE', city:'Shanghai Gold Exchange', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/g', calcPremium:0.01},
+];
+
+// Physical Dealer Prices
+const MARKETS = [
+  {id:'istanbul', name:'Istanbul · Turkey', city:'Grand Bazaar / Kapalı Çarşı', flag:'🇹🇷', currency:'TRY', unitLabel:'TRY/g', calcPremium:0.02},
+  {id:'india', name:'India · IBJA', city:'Mumbai · Reference Price', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0.13, per10g:true, ibjaSpread:0.0015},
+  {id:'japan', name:'Tokyo · Japan', city:'Tanaka Precious Metals', flag:'🇯🇵', currency:'JPY', unitLabel:'JPY/g', calcPremium:0.005},
+  {id:'dubai', name:'Dubai · Tora Gold', city:'Dubai Gold Souk', flag:'🇦🇪', currency:'AED', unitLabel:'AED/g', calcPremium:0.005},
+  {id:'usa', name:'USA · BGASC', city:'Online Bullion Dealer', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0.02},
+  {id:'germany', name:'Germany · Degussa', city:'Frankfurt / München', flag:'🇩🇪', currency:'EUR', unitLabel:'EUR/oz', calcPremium:0.015},
+];
+
+// Chart defaults
+const CHART_OPTS = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'rgba(20,22,26,0.95)',titleColor:'#D4AF5A',bodyColor:'#D0CCC4',borderColor:'rgba(184,151,58,0.3)',borderWidth:1}},
+  scales:{
+    x:{ticks:{color:'#8A8880',font:{family:'DM Mono',size:10},maxTicksLimit:8},grid:{color:'rgba(255,255,255,0.03)'}},
+    y:{ticks:{color:'#8A8880',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.03)'}}
+  }
+};
+
+function fmt(n,d){
+  if(n==null||isNaN(n))return '—';
+  return Number(n).toLocaleString('en-US',{minimumFractionDigits:d??2,maximumFractionDigits:d??2});
+}
+function badge(pct){
+  if(pct==null)return '<span class="badge neu">—</span>';
+  const s=pct>0?'+':'',c=pct>0.5?'neg':pct<-0.5?'pos':'neu';
+  return `<span class="badge ${c}">${s}${pct.toFixed(2)}%</span>`;
+}
+function diffBadge(d,u){
+  if(d==null)return '<span class="badge neu">—</span>';
+  const val = u==='gram' ? d/G : d;
+  const s=val>0?'+':'',c=val>0.1?'neg':val<-0.1?'pos':'neu';
+  return `<span class="badge ${c}">${s}$${fmt(val,2)}</span>`;
+}
+
+// Convert price to display unit
+function toDisplay(pricePerOz){
+  if(pricePerOz==null)return null;
+  return pricePerOz;
+}
+
+function calcMarket(m){
+  if(!spot||!fx)return null;
+  const spotUSD = metal==='XAU'?spot.XAU:spot.XAG;
+  if(!spotUSD)return null;
+  const fxRate = fx[m.currency]||1;
+  let localPrice, usdOz;
+
+  if(m.id==='istanbul'){
+    const istPrice = metal==='XAU' ? istanbul?.gold : istanbul?.silver;
+    if(istPrice){
+      localPrice = unit==='oz' ? istPrice * G : istPrice * 1000;
+      usdOz = (istPrice/fxRate)*G;
+    } else {
+      localPrice = unit==='oz' ? (spotUSD/G)*fxRate*(1+m.calcPremium) : spotUSD*(1000/G)*fxRate*(1+m.calcPremium);
+      usdOz = spotUSD*(1+m.calcPremium);
+    }
+  } else if(m.id==='usa' && usaLive?.kg_ask){
+    const usdOzVal = usaLive.oz_ask || usaLive.kg_ask/1000*31.1035;
+    localPrice = unit==='oz' ? usdOzVal*fxRate : usaLive.kg_ask*fxRate;
+    usdOz = usdOzVal;
+  } else if(m.id==='dubai' && dubaiLive?.gold_aed_gram){
+    const aedPerGram = metal==='XAU' ? dubaiLive.gold_aed_gram : (dubaiLive.silver_aed_kg ? dubaiLive.silver_aed_kg/1000 : (spotUSD/G)*fxRate);
+    localPrice = unit==='oz' ? aedPerGram * G : aedPerGram;
+    usdOz = (aedPerGram / (fx.AED||3.67)) * G;
+  } else if(m.id==='russia' && russiaLive?.gold_rub_gram){
+    const rubPerGram = metal==='XAU' ? russiaLive.gold_rub_gram : (russiaLive.silver_rub_gram || (spotUSD/G)*fxRate);
+    localPrice = unit==='oz' ? rubPerGram * G : rubPerGram * 1000;
+    usdOz = (rubPerGram / (fx.RUB||90)) * G;
+  } else if(m.id==='germany' && germanyLive?.bid && metal==='XAU'){
+    const mid = (germanyLive.bid + germanyLive.ask) / 2;
+    localPrice = unit==='oz' ? mid : mid / G * 1000;
+    usdOz = (mid / (fx.EUR||1));
+  } else if(m.id==='india' && indiaLive?.gold_inr_gram && metal==='XAU'){
+    const inrPerGram = indiaLive.gold_inr_gram;
+    localPrice = unit==='oz' ? inrPerGram * G : inrPerGram * 1000;
+    usdOz = (inrPerGram / fxRate) * G;
+  } else if(m.id==='japan' && japanLive?.bid && metal==='XAU'){
+    const mid = (japanLive.bid + japanLive.ask) / 2;
+    const jpyRate = fx.JPY || 150;
+    localPrice = unit==='oz' ? mid * G : mid * 1000;
+    usdOz = (mid / jpyRate) * G;
+  } else if(m.id==='hongkong' && metal==='XAU'){
+    const TAEL = 37.429;
+    const hkdRate = fx.HKD || 7.78;
+    if(hkLive?.bid){
+      // CGSE quotes in HKD per tael (1 tael = 37.429g)
+      const midTael = (hkLive.bid + hkLive.ask) / 2;
+      const hkdPerGram = midTael / TAEL;
+      // Use Loco London USD price if available (more accurate for COMEX comparison)
+      usdOz = hkLive.loco_bid ? (hkLive.loco_bid + hkLive.loco_ask) / 2 : (hkdPerGram / hkdRate) * G;
+      localPrice = unit==='oz' ? hkdPerGram * G : hkdPerGram * 1000;
+    } else {
+      const hkdPerGram = (spotUSD / G) * hkdRate * (1 + m.calcPremium);
+      localPrice = unit==='oz' ? hkdPerGram * G : hkdPerGram * 1000;
+      usdOz = spotUSD * (1 + m.calcPremium);
+    }
+  } else {
+    localPrice = unit==='oz' ? (spotUSD/G)*fxRate*(1+m.calcPremium) : spotUSD*(1000/G)*fxRate*(1+m.calcPremium);
+    usdOz = spotUSD*(1+m.calcPremium);
+  }
+  return {localPrice, usdOz};
+}
+
+async function load(){
+  try{
+    document.getElementById('err').style.display='none';
+    // Fetch spot (gold-api) + FX in parallel, then VPS for Istanbul + Kitco bid/ask
+    const [gr, sr, fxr] = await Promise.all([
+      fetch('https://api.gold-api.com/price/XAU').then(r=>r.json()),
+      fetch('https://api.gold-api.com/price/XAG').then(r=>r.json()),
+      fetch('https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,HKD,AED,RUB').then(r=>r.json())
+    ]);
+    spot = {XAU:gr.price, XAG:sr.price, XAU_bid:gr.price, XAU_ask:gr.price, XAG_bid:sr.price, XAG_ask:sr.price, XAU_chp:gr.chp, XAU_ch:gr.ch, XAG_chp:sr.chp, XAG_ch:sr.ch};
+    fx = {...fxr.rates, USD:1};
+
+    // VPS: Istanbul live price + Kitco spot bid/ask
+    try{
+      const vpsData = await fetch('https://api.goldpremium.org/api/prices').then(r=>r.json());
+      const vps = vpsData?.data;
+
+      // Update spot bid/ask + change from Kitco via VPS
+      if(vps?.spot?.XAU_bid && vps?.spot?.XAU_ask){
+        spot.XAU = vps.spot.XAU || spot.XAU;
+        spot.XAU_bid = vps.spot.XAU_bid;
+        spot.XAU_ask = vps.spot.XAU_ask;
+        spot.XAU_ch = vps.spot.XAU_ch;
+        spot.XAU_chp = vps.spot.XAU_chp;
+        spot.XAU_high = vps.spot.XAU_high;
+        spot.XAU_low = vps.spot.XAU_low;
+        spot.XAG = vps.spot.XAG || spot.XAG;
+        spot.XAG_bid = vps.spot.XAG_bid || spot.XAG;
+        spot.XAG_ask = vps.spot.XAG_ask || spot.XAG;
+        spot.XAG_ch = vps.spot.XAG_ch;
+        spot.XAG_chp = vps.spot.XAG_chp;
+        spot.XAU_chp_eur = vps.spot.XAU_chp_eur;
+        spot.XAG_chp_eur = vps.spot.XAG_chp_eur;
+      }
+
+      // Istanbul
+      const ist = vps?.istanbul;
+      if(ist && ist.gold_try_gram && !ist.is_calculated){
+        const gold = ist.gold_try_gram;
+        const goldBuy = ist.gold_try_gram_buy || gold;
+        const goldSell = ist.gold_try_gram_sell || gold;
+        const silver = ist.silver_try_gram;
+        istanbul={gold,goldBuy,goldSell,silver,status:'live',ts:new Date().toISOString()};
+        try{localStorage.setItem('ist_last',JSON.stringify(istanbul));}catch(e){}
+        const istUSD=(gold/(fx.TRY||1))*G;
+        const prem=Math.round((istUSD-spot.XAU)*100)/100;
+        const t=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+        istHistory.push({t,p:prem});
+        if(istHistory.length>40)istHistory=istHistory.slice(-40);
+        try{localStorage.setItem('ist_history',JSON.stringify(istHistory));}catch(e){}
+      } else {
+        let last=null;
+        try{last=JSON.parse(localStorage.getItem('ist_last')||'null');}catch(e){}
+        istanbul=last?{...last,status:'closed'}:{gold:null,silver:null,status:'closed',ts:null};
+      }
+      // India IBJA
+      const ind = vps?.india;
+      if(ind && ind.gold_inr_gram && !ind.is_calculated){
+        indiaLive = {gold_inr_gram: ind.gold_inr_gram, source: ind.source};
+      } else {
+        indiaLive = null;
+      }
+
+      // Hong Kong CGSE
+      const hk = vps?.hongkong;
+      if(hk && hk.gold_hkd_tael_bid && !hk.is_calculated){
+        hkLive = {bid: hk.gold_hkd_tael_bid, ask: hk.gold_hkd_tael_ask, loco_bid: hk.loco_usd_bid, loco_ask: hk.loco_usd_ask, source: hk.source};
+      } else {
+        hkLive = null;
+      }
+
+      // USA BGASC
+      const us = vps?.usa;
+      if(us && us.gold_usd_kg_ask && !us.is_calculated){
+        usaLive = {kg_ask: us.gold_usd_kg_ask, kg_bid: us.gold_usd_kg_bid, oz_ask: us.gold_usd_oz_ask, oz_bid: us.gold_usd_oz_bid, source: us.source};
+      } else { usaLive = null; }
+
+      // Dubai Tora
+      const du = vps?.dubai;
+      if(du && du.gold_aed_gram && !du.is_calculated){
+        dubaiLive = {gold_aed_gram: du.gold_aed_gram, silver_aed_kg: du.silver_aed_kg, gold_usd_bid: du.gold_usd_bid, gold_usd_ask: du.gold_usd_ask, silver_usd_bid: du.silver_usd_bid, silver_usd_ask: du.silver_usd_ask, source: du.source};
+      } else { dubaiLive = null; }
+
+      // Russia CBR
+      const ru = vps?.russia;
+      if(ru && ru.gold_rub_gram && !ru.is_calculated){
+        russiaLive = {gold_rub_gram: ru.gold_rub_gram, silver_rub_gram: ru.silver_rub_gram, source: ru.source};
+      } else { russiaLive = null; }
+
+      // Germany Degussa
+      const de = vps?.germany;
+      if(de && de.gold_eur_oz_bid && !de.is_calculated){
+        germanyLive = {bid: de.gold_eur_oz_bid, ask: de.gold_eur_oz_ask, kg_bid: de.gold_eur_kg_bid, kg_ask: de.gold_eur_kg_ask, source: de.source};
+      } else { germanyLive = null; }
+
+      // Japan Tanaka
+      const jp = vps?.japan;
+      if(jp && jp.gold_jpy_gram_bid && !jp.is_calculated){
+        japanLive = {bid: jp.gold_jpy_gram_bid, ask: jp.gold_jpy_gram_ask, source: jp.source};
+      } else {
+        japanLive = null;
+      }
+
+    }catch(e){
+      let last=null;
+      try{last=JSON.parse(localStorage.getItem('ist_last')||'null');}catch(ex){}
+      istanbul=last?{...last,status:'closed'}:{gold:null,silver:null,status:'closed',ts:null};
+      indiaLive = null;
+      console.warn('VPS fetch failed',e);
+    }
+
+    document.getElementById('upd').textContent='Updated: '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+' UTC';
+    render();
+    try{ await loadHistory(); }catch(he){ console.warn('History failed',he); }
+    try{ await loadMiniHistory(); render(); }catch(me){ console.warn('Mini history failed',me); }
+  }catch(e){
+    // Only show error if it's a network/data issue, not a chart rendering issue
+    if(e.message && e.message.includes('Chart')) {
+      console.warn('Chart.js not loaded:', e);
+    } else {
+      document.getElementById('err').style.display='block';
+      console.error(e);
+    }
+  }
+}
+
+async function loadHistory(){
+  try{
+    // Load historical daily data from freegoldapi.com (free, no API key, back to 1990)
+    const r = await fetch('https://freegoldapi.com/data/latest.json');
+    const j = await r.json();
+    const historical = j.filter(d=>d.date>='1990-01-01' && d.price>100)
+      .map(d=>({date:d.date, ts:d.date+'T00:00:00Z', gold:d.price, silver:null}));
+    // Also load recent intraday data from our VPS for accurate 1D chart
+    try{
+      const r2 = await fetch('https://api.goldpremium.org/api/history/comex?hours=48');
+      const j2 = await r2.json();
+      const intraday = (j2.data||[]).map(d=>({date:d.ts.slice(0,10), ts:d.ts, gold:d.gold_usd_oz, silver:null}))
+        .filter(d=>d.gold>100);
+      if(intraday.length > 0){
+        const firstIntraday = intraday[0].date;
+        // Use historical for older dates, intraday for recent
+        histData = [...historical.filter(d=>d.date<firstIntraday), ...intraday];
+      } else {
+        histData = historical;
+      }
+    }catch(e2){
+      histData = historical;
+    }
+    renderSpotChart();
+  }catch(e){
+    console.warn('History load failed',e);
+    if(spot?.XAU){
+      const base = spot.XAU;
+      histData = Array.from({length:365},(_,i)=>{
+        const d = new Date(); d.setDate(d.getDate()-364+i);
+        return {date:d.toISOString().slice(0,10), ts:d.toISOString(), gold: base*(0.85+0.3*(i/365)+((Math.random()-0.5)*0.02)), silver:null};
+      });
+      renderSpotChart();
+    }
+  }
+}
+
+function getFilteredHistory(){
+  if(!histData.length)return [];
+  const now = new Date();
+  let cutoff;
+  if(currentRange==='1D'){
+    cutoff = new Date(now - 24*60*60*1000);
+  } else if(currentRange==='5D'){
+    cutoff = new Date(now - 5*24*60*60*1000);
+  } else if(currentRange==='1M'){
+    cutoff = new Date(now - 30*24*60*60*1000);
+  } else if(currentRange==='5Y'){
+    cutoff = new Date(now - 5*365*24*60*60*1000);
+  } else if(currentRange==='MAX'){
+    cutoff = new Date('1900-01-01');
+  } else {
+    cutoff = new Date(now - 365*24*60*60*1000);
+  }
+  const cutStr = cutoff.toISOString().slice(0,10);
+  if(currentRange==='1D'){
+    const cutStr1D = new Date(now - 24*60*60*1000).toISOString().slice(0,16);
+    return histData.filter(d=>d.ts && d.ts>=cutStr1D);
+  }
+  return histData.filter(d=>d.date>=cutStr);
+}
+
+function renderMiniCharts(rows, spotUSD){
+  if(typeof Chart==='undefined') return;
+  rows.forEach(r=>{
+    const canvas = document.getElementById(`mini-${r.id}`);
+    if(!canvas) return;
+    // Get history data for this market from our VPS DB cache (miniHistCache)
+    const mData = miniHistCache[r.id] || [];
+    if(mData.length < 2) {
+      // Show placeholder text
+      const ctx2 = canvas.getContext('2d');
+      ctx2.fillStyle = 'rgba(128,128,128,0.3)';
+      ctx2.fillRect(0, 0, canvas.width, canvas.height);
+      ctx2.fillStyle = '#888';
+      ctx2.font = '9px sans-serif';
+      ctx2.textAlign = 'center';
+      ctx2.fillText('collecting...', canvas.width/2, canvas.height/2+3);
+      return;
+    }
+    const labels = mData.map(d=>d.ts.slice(11,16));
+    const vals = mData.map(d=>d.premium_pct);
+    const color = r.isSpot ? '#D4AF5A' : '#5B8DEF';
+    if(canvas._chartInst) canvas._chartInst.destroy();
+    canvas._chartInst = new Chart(canvas, {
+      type:'line',
+      data:{labels, datasets:[{data:vals, borderColor:color, borderWidth:1.5, pointRadius:0, fill:false, tension:0.3}]},
+      options:{
+        responsive:false, animation:false,
+        plugins:{legend:{display:false}, tooltip:{enabled:false}},
+        scales:{
+          x:{display:false},
+          y:{display:false}
+        }
+      }
+    });
+  });
+}
+
+let miniHistCache = {};
+
+async function loadMiniHistory(){
+  const markets = ['comex','istanbul','india','japan','germany','russia','dubai','hongkong'];
+  for(const m of markets){
+    try{
+      const r = await fetch(`https://api.goldpremium.org/api/history/${m}?hours=24`);
+      const j = await r.json();
+      miniHistCache[m] = j.data || [];
+    }catch(e){ miniHistCache[m] = []; }
+  }
+}
+
+function renderSpotChart(){ try {
+  const ctx = document.getElementById('chart-spot').getContext('2d');
+  if(chartSpot)chartSpot.destroy();
+
+  const filtered = getFilteredHistory();
+  const isGold = metal==='XAU';
+  const color = isGold ? '#D4AF5A' : '#B8CCD8';
+  const fillColor = isGold ? 'rgba(212,175,90,0.08)' : 'rgba(184,204,216,0.08)';
+  const unitLabel = unit==='gram' ? 'USD/g' : 'USD/oz';
+
+  let labels, values;
+  if(!filtered || filtered.length===0){
+    labels = [new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})];
+    const s = isGold?spot?.XAU:spot?.XAG;
+    values = [s ? (unit==='gram'?s/G:s) : null];
+  } else {
+    // 1D: show time labels, other ranges: show date labels
+    labels = filtered.map(d=> currentRange==='1D'
+      ? (d.ts||d.date).slice(11,16)
+      : d.date.slice(5));
+    values = filtered.map(d=>{
+      const p = isGold?d.gold:d.silver;
+      return p ? (unit==='gram' ? p/G : p) : null;
+    });
+  }
+
+  chartSpot = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        data:values,
+        borderColor:color,
+        backgroundColor:fillColor,
+        borderWidth:2,
+        pointRadius:0,
+        pointHoverRadius:4,
+        fill:true,
+        tension:0.2
+      }]
+    },
+    options:{...CHART_OPTS,
+      plugins:{...CHART_OPTS.plugins,
+        tooltip:{...CHART_OPTS.plugins.tooltip,
+          callbacks:{label:ctx=>`$${fmt(ctx.parsed.y,2)} ${unitLabel}`}
+        }
+      },
+      scales:{
+        ...CHART_OPTS.scales,
+        y:{...CHART_OPTS.scales.y,
+          title:{display:true,text:unitLabel,color:'#8A8880',font:{family:'DM Mono',size:10}}
+        }
+      }
+    }
+  });
+
+  // Update stats
+  const validVals = values.filter(v=>v!=null);
+  if(validVals.length>0){
+    const lo = Math.min(...validVals);
+    const hi = Math.max(...validVals);
+    const open = validVals[0];
+    const close = validVals[validVals.length-1];
+    const chg = ((close-open)/open*100);
+    const sym = unit==='gram' ? 'USD/g' : '$';
+    document.getElementById('stat-low').textContent = `${sym}${fmt(lo,2)}`;
+    document.getElementById('stat-high').textContent = `${sym}${fmt(hi,2)}`;
+    document.getElementById('stat-open').textContent = `${sym}${fmt(open,2)}`;
+    const chgEl = document.getElementById('stat-chg');
+    chgEl.textContent = `${chg>=0?'+':''}${chg.toFixed(2)}%`;
+    chgEl.style.color = chg>=0 ? 'var(--green)' : 'var(--red)';
+  }
+ } catch(e){ console.warn("renderSpotChart error",e); }}
+
+function renderIstanbulChart(){ try {
+  const ctx = document.getElementById('chart-istanbul').getContext('2d');
+  if(chartIst)chartIst.destroy();
+  const data = istHistory.length>0 ? istHistory : [{t:'—',p:0}];
+  const vals = data.map(d=>unit==='gram'?Math.round(d.p*1000*100)/100:Math.round(d.p*G*100)/100);
+  chartIst = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:data.map(d=>d.t),
+      datasets:[{
+        data:vals,
+        borderColor:'#D4AF5A',
+        backgroundColor:'rgba(212,175,90,0.08)',
+        borderWidth:2,
+        pointRadius:3,
+        pointBackgroundColor:'#D4AF5A',
+        fill:true,
+        tension:0.3
+      }]
+    },
+    options:{...CHART_OPTS,
+      plugins:{...CHART_OPTS.plugins,
+        tooltip:{...CHART_OPTS.plugins.tooltip,
+          callbacks:{label:ctx=>`$${fmt(ctx.parsed.y,2)} premium`}
+        }
+      },
+      scales:{
+        ...CHART_OPTS.scales,
+        y:{...CHART_OPTS.scales.y,
+          title:{display:true,text:'TRY/'+(unit==='gram'?'kg':'oz'),color:'#8A8880',font:{family:'DM Mono',size:10}}
+        }
+      }
+    }
+  });
+ } catch(e){ console.warn("renderIstanbulChart error",e); }}
+
+function renderAllChart(rows, spotUSD){ try {
+  const ctx = document.getElementById('chart-all').getContext('2d');
+  if(chartAll)chartAll.destroy();
+  const barData = rows.map(r=>{
+    const diff = unit==='gram' ? r.diff*KGFACTOR : r.diff;
+    return {name:r.flag+' '+r.name, diff:Math.round(diff*100)/100};
+  });
+  chartAll = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:barData.map(d=>d.name),
+      datasets:[{
+        data:barData.map(d=>d.diff),
+        backgroundColor:barData.map(d=>d.diff>0.1?'rgba(168,74,74,0.5)':d.diff<-0.1?'rgba(78,146,104,0.5)':'rgba(184,151,58,0.35)'),
+        borderColor:barData.map(d=>d.diff>0.1?'#A84A4A':d.diff<-0.1?'#4E9268':'#B8973A'),
+        borderWidth:1
+      }]
+    },
+    options:{...CHART_OPTS,
+      plugins:{...CHART_OPTS.plugins,
+        tooltip:{...CHART_OPTS.plugins.tooltip,
+          callbacks:{label:ctx=>`$${fmt(ctx.parsed.y,2)} vs spot`}
+        }
+      },
+      scales:{
+        ...CHART_OPTS.scales,
+        y:{...CHART_OPTS.scales.y,
+          title:{display:true,text:'Premium USD/'+(unit==='gram'?'kg':'oz'),color:'#8A8880',font:{family:'DM Mono',size:10}}
+        }
+      }
+    }
+  });
+ } catch(e){ console.warn("renderAllChart error",e); }}
+
+function getCurrencyRate(){
+  if(displayCurrency==='USD') return 1;
+  return fx[displayCurrency] || 1;
+}
+function getCurrencySym(){
+  return CURRENCIES[displayCurrency]?.sym || '$';
+}
+
+function render(){
+  if(!spot||!fx)return;
+  const isGold = metal==='XAU';
+  const spotUSD = isGold?spot.XAU:spot.XAG;
+  const isGram = unit==='gram'; // gram mode = per 1000g
+  const unitSuffix = isGram ? '/ Gramm' : '/ Troy Oz';
+
+  // Silver mode styling
+  ['s-usd','s-eur'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.toggle('silver-mode',!isGold);
+    el.classList.add('show');
+  });
+
+  // Update labels
+  document.getElementById('lbl-usd').textContent = `International Spot Price · USD ${unitSuffix}`;
+  document.getElementById('lbl-eur').textContent = `Spot Price · EUR ${unitSuffix}`;
+  const thLabel = `Price (${displayCurrency}) / ${isGram?'kg':'oz'}`;
+  const thEx = document.getElementById('th-usd-ex'); if(thEx) thEx.textContent = thLabel;
+  const thDl = document.getElementById('th-usd-dl'); if(thDl) thDl.textContent = thLabel;
+
+  document.getElementById('chart-unit-note').textContent = `USD / ${isGram?'Kilo':'Troy Oz'}`;
+  document.getElementById('chart1-title').textContent = (isGold?'Gold':'Silver')+' Spot Price';
+
+  const displaySpot = toDisplay(spotUSD);
+  const displayEur = toDisplay(spotUSD&&fx.EUR?spotUSD*fx.EUR:null);
+
+  const dispRate = getCurrencyRate();
+  const dispSym = getCurrencySym();
+
+  // First card: always USD
+  const KGFACTOR = 1000/G; // factor to convert oz price to 1000g price
+  const displayUSD = toDisplay(spotUSD);
+  document.getElementById('v-usd').textContent = fmt(isGram ? displayUSD*KGFACTOR : displayUSD, isGram?2:2);
+  document.getElementById('lbl-usd').textContent = `Spot Price · USD / ${unit==='oz'?'Troy Oz':'Gram'}`;
+  document.getElementById('p-usd').querySelector('sup').textContent = '$';
+
+  // Second card: selected currency
+  const displaySel = toDisplay(spotUSD && dispRate ? spotUSD * dispRate : null);
+  document.getElementById('v-eur').textContent = fmt(isGram ? displaySel*KGFACTOR : displaySel, isGram?2:2);
+  document.getElementById('lbl-eur').textContent = `Spot Price · ${displayCurrency} / ${unit==='oz'?'Troy Oz':'Gram'}`;
+  const symEl = document.getElementById('sym-eur'); if(symEl) symEl.textContent = getCurrencySym();
+
+  // Bid/Ask + source for spot cards
+  const spotBidV = isGold ? spot.XAU_bid : spot.XAG_bid;
+  const spotAskV = isGold ? spot.XAU_ask : spot.XAG_ask;
+  if(spotBidV && spotAskV){
+    const dec = isGram ? 3 : 2;
+    const dBid = toDisplay(isGram ? spotBidV*KGFACTOR : spotBidV);
+    const dAsk = toDisplay(isGram ? spotAskV*KGFACTOR : spotAskV);
+    const dBidEur = toDisplay(dBid * dispRate);
+    const dAskEur = toDisplay(dAsk * dispRate);
+    document.getElementById('v-usd-bidask').textContent = `Bid $${fmt(dBid,dec)}  ·  Ask $${fmt(dAsk,dec)}`;
+    const dBidDisp = toDisplay(dBid * dispRate);
+    const dAskDisp = toDisplay(dAsk * dispRate);
+    document.getElementById('v-eur-bidask').textContent = `Bid ${getCurrencySym()}${fmt(dBidDisp,dec)}  ·  Ask ${getCurrencySym()}${fmt(dAskDisp,dec)}`;
+  }
+  document.getElementById('v-usd-source').textContent = 'Source: kitco.com';
+  document.getElementById('v-eur-source').textContent = 'Source: kitco.com';
+
+  // High/Low from DB
+  const xauHigh = isGold ? spot.XAU_high : spot.XAG_high;
+  const xauLow = isGold ? spot.XAU_low : spot.XAG_low;
+  if(xauHigh && xauLow){
+    const hiDisp = isGram ? xauHigh*KGFACTOR : xauHigh;
+    const loDisp = isGram ? xauLow*KGFACTOR : xauLow;
+    const hiEur = hiDisp * (displayCurrency==='USD' ? 1 : getCurrencyRate());
+    const loEur = loDisp * (displayCurrency==='USD' ? 1 : getCurrencyRate());
+    document.getElementById('v-usd-low').textContent = `$${fmt(loDisp,2)}`;
+    document.getElementById('v-usd-high').textContent = `$${fmt(hiDisp,2)}`;
+    document.getElementById('v-eur-low').textContent = `${getCurrencySym()}${fmt(loEur,2)}`;
+    document.getElementById('v-eur-high').textContent = `${getCurrencySym()}${fmt(hiEur,2)}`;
+  }
+
+  // Daily change % — USD from Kitco, EUR adjusted for EUR/USD move
+  const chp = isGold ? spot.XAU_chp : spot.XAG_chp;
+  const chpEl = document.getElementById('v-usd-chp');
+  const chpEurEl = document.getElementById('v-eur-chp');
+  if(chp != null){
+    const sign = chp >= 0 ? '+' : '';
+    const color = chp >= 0 ? 'var(--green)' : 'var(--red)';
+    chpEl.textContent = `${sign}${chp.toFixed(2)}%`;
+    chpEl.style.color = color;
+
+    // EUR/currency chp: use VPS calculated value (available after 22:00 UTC)
+    // For selected currency: approximate = USD chp + FX move (if yesterday FX known)
+    const chpEur = isGold ? spot.XAU_chp_eur : spot.XAG_chp_eur;
+    if(chpEur != null && displayCurrency === 'EUR'){
+      const signEur = chpEur >= 0 ? '+' : '';
+      chpEurEl.textContent = `${signEur}${chpEur.toFixed(2)}%`;
+      chpEurEl.style.color = chpEur >= 0 ? 'var(--green)' : 'var(--red)';
+    } else if(displayCurrency === 'USD'){
+      // USD card 2 same as card 1 — hide chp on card 2
+      chpEurEl.textContent = '';
+    } else {
+      // No accurate yesterday FX data — show nothing
+      chpEurEl.textContent = '';
+    }
+  } else {
+    chpEl.textContent = '';
+    chpEurEl.textContent = '';
+  }
+
+  // Rows — dealers
+  const rows = MARKETS.map(m=>{
+    const calc = calcMarket(m);
+    if(!calc)return null;
+    const {localPrice,usdOz} = calc;
+    const dispRate2 = getCurrencyRate();
+    const usdOzConverted = usdOz * dispRate2;
+    const spotConverted = spotUSD * dispRate2;
+    const diff = usdOzConverted - spotConverted;
+    const pct = (diff/spotConverted)*100;
+    const eurOz = fx.EUR?usdOz*fx.EUR:null;
+    const istLive = m.id==='istanbul'&&istanbul?.status==='live';
+    const istClosed = m.id==='istanbul'&&istanbul?.status==='closed';
+    return {...m, localPrice, usdOz, diff, pct, eurOz, istLive, istClosed};
+  }).filter(Boolean).sort((a,b)=>a.usdOz-b.usdOz);
+
+  // Rows — exchanges (COMEX spot row + others)
+  const exchangeRows = EXCHANGES.map(m=>{
+    if(m.id==='comex'){
+      return {...m, localPrice:spotUSD, usdOz:spotUSD, diff:0, pct:0, eurOz:fx.EUR?spotUSD*fx.EUR:null, isSpot:true, istLive:false, istClosed:false};
+    }
+    const calc = calcMarket(m);
+    if(!calc)return null;
+    const {localPrice,usdOz} = calc;
+    const diff = (usdOz - spotUSD)*getCurrencyRate();
+    const pct = (usdOz - spotUSD)/spotUSD*100;
+    return {...m, localPrice, usdOz, diff, pct, eurOz:fx.EUR?usdOz*fx.EUR:null, istLive:false, istClosed:false};
+  }).filter(Boolean);
+
+  const lo = rows.reduce((min,r)=>r.usdOz<min?r.usdOz:min,Infinity);
+  const hi = rows.reduce((max,r)=>r.usdOz>max?r.usdOz:max,-Infinity);
+
+  document.getElementById('loading').style.display='none';
+  const loader = document.getElementById('page-loader');
+  if(loader){ loader.style.opacity='0'; loader.style.transition='opacity 0.4s'; setTimeout(()=>loader.style.display='none', 400); }
+  document.getElementById('tbl-exchanges').style.display='';
+  document.getElementById('tbl-dealers').style.display='';
+
+  const spotBid = isGold ? spot.XAU_bid : spot.XAG_bid;
+  const spotAsk = isGold ? spot.XAU_ask : spot.XAG_ask;
+  let html = '';
+  let htmlEx = '';
+
+  html+=rows.map(r=>{
+    const sym=CS[r.currency]||r.currency;
+    // Local price: always in local currency per gram (or per 10g for India)
+    const lp = r.per10g ? fmt(r.localPrice,0) : (r.localPrice>100?fmt(r.localPrice,0):fmt(r.localPrice,2));
+    const rowCls=r.usdOz===lo?'lo':r.usdOz===hi?'hi':'';
+    const indiaIsLive = r.id==='india' && indiaLive?.gold_inr_gram && metal==='XAU';
+    let srcBadge;
+    if(r.istLive)srcBadge='<span class="badge live">🟢 LIVE · nadirdoviz.com</span>';
+    else if(r.istClosed){
+      const ts=istanbul?.ts?' '+new Date(istanbul.ts).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+      const hasLast=istanbul?.gold!=null;
+      srcBadge=`<span class="badge closed">⚫ CLOSED${hasLast?ts:''}</span>`;
+    } else if(indiaIsLive) srcBadge='<span class="badge live">🟢 LIVE · ibjarates.com</span>';
+    else if(r.id==='usa' && usaLive?.kg_ask && metal==='XAU') srcBadge='<span class="badge live">🟢 LIVE · bgasc.com</span>';
+    else if(r.id==='dubai' && dubaiLive?.gold_aed_gram) srcBadge='<span class="badge live">🟢 LIVE · tora.bullionview.com</span>';
+    else if(r.id==='russia' && russiaLive?.gold_rub_gram) srcBadge='<span class="badge live">🟢 LIVE · cbr.ru</span>';
+    else if(r.id==='germany' && germanyLive?.bid && metal==='XAU') srcBadge='<span class="badge live">🟢 LIVE · degussa.com</span>';
+    else if(r.id==='japan' && japanLive?.bid && metal==='XAU') srcBadge='<span class="badge live">🟢 LIVE · tanaka.co.jp</span>';
+    else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU') srcBadge='<span class="badge live">🟢 LIVE · cgse.com.hk</span>';
+    else srcBadge='<span class="badge calc">🟠 CALC</span>';
+
+    // Local price cell: buy / sell
+    let priceCell;
+    if(r.istLive && istanbul?.goldBuy && istanbul?.goldSell){
+      const istBuy = isGold ? istanbul.goldBuy : (istanbul.silver || istanbul.goldBuy);
+      const istSell = isGold ? istanbul.goldSell : (istanbul.silver || istanbul.goldSell);
+      const buy = unit==='oz' ? fmt(istBuy*G,2) : fmt(istBuy*1000,0);
+      const sell = unit==='oz' ? fmt(istSell*G,2) : fmt(istSell*1000,0);
+      const istUnit = unit==='oz' ? 'TRY/oz' : 'TRY/kg';
+      priceCell = `<div class="plocal${!isGold?' sv':''}">₺ ${buy}</div><div class="punit">Bid (${istUnit})</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">₺ ${sell}</div><div class="punit">Ask (${istUnit})</div>`;
+    } else if(r.isSpot){
+      // Spot row: show bid/ask
+      const spotBid = metal==='XAU' ? spot.XAU_bid : spot.XAG_bid;
+      const spotAsk = metal==='XAU' ? spot.XAU_ask : spot.XAG_ask;
+      const dBid = toDisplay(spotBid), dAsk = toDisplay(spotAsk);
+      priceCell = `<div class="plocal${!isGold?' sv':''}">$${fmt(dBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="plocal${!isGold?' sv':''}" style="margin-top:4px">$${fmt(dAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
+    } else if(r.id==='usa' && usaLive?.kg_ask && metal==='XAU'){
+      const askDisp = unit==='oz' ? fmt(usaLive.oz_ask*getCurrencyRate(),2) : fmt(usaLive.kg_ask*getCurrencyRate(),2);
+      const bidDisp = unit==='oz' ? fmt(usaLive.oz_bid*getCurrencyRate(),2) : fmt(usaLive.kg_bid*getCurrencyRate(),2);
+      const unitLbl = `${displayCurrency}/${unit==='oz'?'oz':'kg'}`;
+      priceCell = `<div class="plocal">${getCurrencySym()}${bidDisp}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">${getCurrencySym()}${askDisp}</div><div class="punit">Ask (${unitLbl})</div>`;
+    } else if(r.id==='dubai' && dubaiLive?.gold_aed_gram){
+      const aedVal = metal==='XAU' ? dubaiLive.gold_aed_gram : (dubaiLive.silver_aed_kg ? dubaiLive.silver_aed_kg/1000 : 0);
+      const hasBidAsk = metal==='XAU' ? dubaiLive.gold_usd_bid : dubaiLive.silver_usd_bid;
+      const bidUSD = metal==='XAU' ? dubaiLive.gold_usd_bid : dubaiLive.silver_usd_bid;
+      const askUSD = metal==='XAU' ? dubaiLive.gold_usd_ask : dubaiLive.silver_usd_ask;
+      if(hasBidAsk){
+        const bidDisp = unit==='gram' ? fmt(bidUSD/G*1000,2) : fmt(bidUSD,2);
+        const askDisp = unit==='gram' ? fmt(askUSD/G*1000,2) : fmt(askUSD,2);
+        const unitLbl = unit==='oz' ? 'USD/oz' : 'USD/kg';
+        priceCell = `<div class="plocal">$${bidDisp}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">$${askDisp}</div><div class="punit">Ask (${unitLbl})</div>`;
+      } else {
+        const aedDisplay = unit==='oz' ? fmt(aedVal*G,0) : fmt(aedVal,2);
+        const unitLbl = unit==='oz' ? 'AED/oz' : 'AED/g';
+        priceCell = `<div class="plocal">د.إ ${aedDisplay}</div><div class="punit">${unitLbl}</div>`;
+      }
+    } else if(r.id==='russia' && russiaLive?.gold_rub_gram){
+      const rubVal = metal==='XAU' ? russiaLive.gold_rub_gram : (russiaLive.silver_rub_gram||0);
+      const rubDisplay = unit==='oz' ? fmt(rubVal*G,0) : fmt(rubVal,2);
+      const unitLbl = unit==='oz' ? 'RUB/oz' : 'RUB/g';
+      priceCell = `<div class="plocal">₽ ${rubDisplay}</div><div class="punit">${unitLbl}</div>`;
+    } else if(r.id==='germany' && germanyLive?.bid && metal==='XAU'){
+      const bidDisplay = isGram ? fmt(germanyLive.kg_bid||germanyLive.bid/G*1000,2) : fmt(germanyLive.bid,2);
+      const askDisplay = isGram ? fmt(germanyLive.kg_ask||germanyLive.ask/G*1000,2) : fmt(germanyLive.ask,2);
+      const unitLbl = unit==='oz' ? 'EUR/oz' : 'EUR/kg';
+      priceCell = `<div class="plocal">€ ${bidDisplay}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">€ ${askDisplay}</div><div class="punit">Ask (${unitLbl})</div>`;
+    } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
+      const bidDisplay = unit==='oz' ? fmt(japanLive.bid*G,0) : fmt(japanLive.bid*1000,0);
+      const askDisplay = unit==='oz' ? fmt(japanLive.ask*G,0) : fmt(japanLive.ask*1000,0);
+      const unitLbl = unit==='oz' ? 'JPY/oz' : 'JPY/kg';
+      priceCell = `<div class="plocal">¥ ${bidDisplay}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">¥ ${askDisplay}</div><div class="punit">Ask (${unitLbl})</div>`;
+    } else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU'){
+      const TAEL = 37.429;
+      const bidDisplay = unit==='oz' ? fmt((hkLive.bid/TAEL)*G,0) : fmt(hkLive.bid/TAEL,2);
+      const askDisplay = unit==='oz' ? fmt((hkLive.ask/TAEL)*G,0) : fmt(hkLive.ask/TAEL,2);
+      const unitLbl = unit==='oz' ? 'HKD/oz' : 'HKD/tael';
+      priceCell = `<div class="plocal">HK$ ${bidDisplay}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">HK$ ${askDisplay}</div><div class="punit">Ask (${unitLbl})</div>`;
+    } else if(r.id==='india' && indiaLive?.gold_inr_gram && metal==='XAU'){
+      const inrPerGram = indiaLive.gold_inr_gram;
+      const inrOz = inrPerGram * G;
+      const bid = unit==='oz' ? Math.round(inrOz * (1 - 0.0015)) : Math.round(inrPerGram * 1000 * (1 - 0.0015));
+      const ask = unit==='oz' ? Math.round(inrOz * (1 + 0.0015)) : Math.round(inrPerGram * 1000 * (1 + 0.0015));
+      const unitLbl = unit==='oz' ? 'INR/oz' : 'INR/kg';
+      priceCell = `<div class="plocal">₹ ${fmt(bid,0)}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">₹ ${fmt(ask,0)}</div><div class="punit">Ask (${unitLbl})</div>`;
+    } else {
+      const priceNote=(r.istClosed&&istanbul?.gold)?'<div class="punit" style="font-size:10px;color:var(--dim)">last known</div>':`<div class="punit">${r.unitLabel}</div>`;
+      priceCell = `<div class="plocal${!isGold?' sv':''}">${sym} ${lp}</div>${priceNote}`;
+    }
+
+    // USD and EUR columns with bid/ask for spot + Istanbul rows
+    const _usdOz = r.dispOz||r.usdOz;
+    const dUSD=toDisplay(isGram?_usdOz*KGFACTOR*getCurrencyRate():_usdOz*getCurrencyRate()), dEUR=toDisplay(isGram?r.eurOz*KGFACTOR:r.eurOz);
+    let usdCell, eurCell;
+    if(r.isSpot){
+      const spotBid = metal==='XAU' ? spot.XAU_bid : spot.XAG_bid;
+      const spotAsk = metal==='XAU' ? spot.XAU_ask : spot.XAG_ask;
+      const eurBid = spotBid * (fx.EUR||1);
+      const eurAsk = spotAsk * (fx.EUR||1);
+      const dBid=toDisplay(spotBid), dAsk=toDisplay(spotAsk);
+      const dEBid=toDisplay(eurBid), dEAsk=toDisplay(eurAsk);
+      usdCell = `<div class="pusd">${getCurrencySym()}${fmt(isGram?dBid*KGFACTOR*getCurrencyRate():dBid*getCurrencyRate(),2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${getCurrencySym()}${fmt(isGram?dAsk*KGFACTOR*getCurrencyRate():dAsk*getCurrencyRate(),2)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(dEBid,isGram?3:2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(dEAsk,isGram?3:2)}</div><div class="punit">Ask</div>`;
+    } else if(r.id==='usa' && usaLive?.kg_ask && metal==='XAU'){
+      const sym = getCurrencySym(), rate = getCurrencyRate();
+      const bidVal = isGram ? usaLive.kg_bid*rate : usaLive.oz_bid*rate;
+      const askVal = isGram ? usaLive.kg_ask*rate : usaLive.oz_ask*rate;
+      const unitLbl = `${displayCurrency}/${isGram?'kg':'oz'}`;
+      usdCell = `<div class="pusd">${sym}${fmt(bidVal,2)}</div><div class="punit">Bid (${unitLbl})</div><div class="pusd" style="margin-top:4px">${sym}${fmt(askVal,2)}</div><div class="punit">Ask (${unitLbl})</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?usaLive.kg_bid*(fx.EUR||1):usaLive.oz_bid*(fx.EUR||1),2)}</div>`;
+    } else if(r.id==='dubai' && dubaiLive?.gold_aed_gram){
+      const bidUSD3 = metal==='XAU' ? dubaiLive.gold_usd_bid : dubaiLive.silver_usd_bid;
+      const askUSD3 = metal==='XAU' ? dubaiLive.gold_usd_ask : dubaiLive.silver_usd_ask;
+      const aedVal3 = metal==='XAU' ? dubaiLive.gold_aed_gram : (dubaiLive.silver_aed_kg ? dubaiLive.silver_aed_kg/1000 : 0);
+      const usdMid3 = bidUSD3 || (aedVal3 / (fx.AED||3.67)) * G;
+      if(bidUSD3){
+        const unitLbl3 = unit==='oz' ? 'USD/oz' : 'USD/kg';
+        const bD = unit==='gram' ? fmt(bidUSD3/G*1000,2) : fmt(bidUSD3,2);
+        const aD = unit==='gram' ? fmt(askUSD3/G*1000,2) : fmt(askUSD3,2);
+        const duSym = getCurrencySym(); const duRate = getCurrencyRate();
+        const bDC = isGram ? fmt(bidUSD3/G*1000*duRate,2) : fmt(bidUSD3*duRate,2);
+        const aDC = isGram ? fmt(askUSD3/G*1000*duRate,2) : fmt(askUSD3*duRate,2);
+        const unitLbl3b = `${displayCurrency}/${isGram?'kg':'oz'}`;
+        usdCell = `<div class="pusd">${duSym}${bDC}</div><div class="punit">Bid (${unitLbl3b})</div><div class="pusd" style="margin-top:4px">${duSym}${aDC}</div><div class="punit">Ask (${unitLbl3b})</div>`;
+      } else {
+        usdCell = `<div class="pusd">${getCurrencySym()}${fmt(isGram?usdMid3*KGFACTOR*getCurrencyRate():usdMid3*getCurrencyRate(),2)}</div>`;
+      }
+      eurCell = `<div class="peur">€${fmt(isGram?usdMid3*KGFACTOR*(fx.EUR||1):usdMid3*(fx.EUR||1),2)}</div>`;
+    } else if(r.id==='russia' && russiaLive?.gold_rub_gram){
+      const rubVal = metal==='XAU' ? russiaLive.gold_rub_gram : (russiaLive.silver_rub_gram||0);
+      const rubDisplay = unit==='oz' ? fmt(rubVal*G,0) : fmt(rubVal,2);
+      const unitLbl = unit==='oz' ? 'RUB/oz' : 'RUB/g';
+      priceCell = `<div class="plocal">₽ ${rubDisplay}</div><div class="punit">${unitLbl}</div>`;
+    } else if(r.id==='usa' && usaLive?.kg_ask && metal==='XAU'){
+      const askDisp = unit==='oz' ? fmt(usaLive.oz_ask*getCurrencyRate(),2) : fmt(usaLive.kg_ask*getCurrencyRate(),2);
+      const bidDisp = unit==='oz' ? fmt(usaLive.oz_bid*getCurrencyRate(),2) : fmt(usaLive.kg_bid*getCurrencyRate(),2);
+      const unitLbl = `${displayCurrency}/${unit==='oz'?'oz':'kg'}`;
+      priceCell = `<div class="plocal">${getCurrencySym()}${bidDisp}</div><div class="punit">Bid (${unitLbl})</div><div class="plocal" style="margin-top:4px">${getCurrencySym()}${askDisp}</div><div class="punit">Ask (${unitLbl})</div>`;
+    } else if(r.id==='dubai' && dubaiLive?.gold_aed_gram){
+      const bidUSD2 = metal==='XAU' ? dubaiLive.gold_usd_bid : dubaiLive.silver_usd_bid;
+      const aedVal2 = metal==='XAU' ? dubaiLive.gold_aed_gram : (dubaiLive.silver_aed_kg ? dubaiLive.silver_aed_kg/1000 : 0);
+      const usdDu = toDisplay(bidUSD2 || (aedVal2 / (fx.AED||3.67)) * G);
+      usdCell = `<div class="pusd">${getCurrencySym()}${fmt(isGram?usdDu*KGFACTOR*getCurrencyRate():usdDu*getCurrencyRate(),2)}</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?usdDu*KGFACTOR*(fx.EUR||1):usdDu*(fx.EUR||1),2)}</div>`;
+    } else if(r.id==='russia' && russiaLive?.gold_rub_gram){
+      const rubVal2 = metal==='XAU' ? russiaLive.gold_rub_gram : (russiaLive.silver_rub_gram||0);
+      const usdBidRu = toDisplay((rubVal2 / (fx.RUB||90)) * G);
+      const decRu = isGram ? 2 : 2;
+      usdCell = `<div class="pusd">${getCurrencySym()}${fmt(isGram?usdBidRu*KGFACTOR*getCurrencyRate():usdBidRu*getCurrencyRate(),decRu)}</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?usdBidRu*KGFACTOR*(fx.EUR||1):usdBidRu*(fx.EUR||1),decRu)}</div>`;
+    } else if(r.id==='germany' && germanyLive?.bid && metal==='XAU'){
+      const deSym=getCurrencySym(), deRate=getCurrencyRate();
+      const eurOz = (germanyLive.bid + germanyLive.ask) / 2 / (fx.EUR||1);
+      // bid/ask in selected currency
+      let bidVal, askVal;
+      if(displayCurrency==='EUR'){
+        bidVal = isGram ? (germanyLive.kg_bid||germanyLive.bid/G*1000) : germanyLive.bid;
+        askVal = isGram ? (germanyLive.kg_ask||germanyLive.ask/G*1000) : germanyLive.ask;
+      } else {
+        const usdBidD = germanyLive.bid / (fx.EUR||1);
+        const usdAskD = germanyLive.ask / (fx.EUR||1);
+        bidVal = isGram ? usdBidD*KGFACTOR*deRate : usdBidD*deRate;
+        askVal = isGram ? usdAskD*KGFACTOR*deRate : usdAskD*deRate;
+      }
+      usdCell = `<div class="pusd">${deSym}${fmt(bidVal,2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${deSym}${fmt(askVal,2)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?germanyLive.bid/G*1000:germanyLive.bid,2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?germanyLive.ask/G*1000:germanyLive.ask,2)}</div><div class="punit">Ask</div>`;
+    } else if(r.id==='japan' && japanLive?.bid && metal==='XAU'){
+      // Japan USD/EUR cells inline
+      const usdBidJ = toDisplay((japanLive.bid / (fx.JPY||150)) * G);
+      const usdAskJ = toDisplay((japanLive.ask / (fx.JPY||150)) * G);
+      const eurBidJ = toDisplay(usdBidJ * (fx.EUR||1));
+      const eurAskJ = toDisplay(usdAskJ * (fx.EUR||1));
+      const decJ = isGram ? 3 : 2;
+      const jSym=getCurrencySym(),jRate=getCurrencyRate();
+      usdCell = `<div class="pusd">${jSym}${fmt(isGram?usdBidJ*KGFACTOR*jRate:usdBidJ*jRate,2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${jSym}${fmt(isGram?usdAskJ*KGFACTOR*jRate:usdAskJ*jRate,2)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?eurBidJ*KGFACTOR:eurBidJ,2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAskJ*KGFACTOR:eurAskJ,2)}</div><div class="punit">Ask</div>`;
+    } else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU'){
+      const TAEL2 = 37.429;
+      const hkdRate2 = fx.HKD || 7.78;
+      const hkdBidOz = (hkLive.bid / TAEL2) * G;
+      const hkdAskOz = (hkLive.ask / TAEL2) * G;
+      const usdBidHK = hkdBidOz / hkdRate2;
+      const usdAskHK = hkdAskOz / hkdRate2;
+      const sym2 = getCurrencySym(), rate2 = getCurrencyRate();
+      const bidConv = isGram ? usdBidHK*KGFACTOR*rate2 : usdBidHK*rate2;
+      const askConv = isGram ? usdAskHK*KGFACTOR*rate2 : usdAskHK*rate2;
+      const unitLbl2 = `${displayCurrency}/${isGram?'kg':'oz'}`;
+      usdCell = `<div class="pusd">${sym2}${fmt(bidConv,2)}</div><div class="punit">Bid (${unitLbl2})</div><div class="pusd" style="margin-top:4px">${sym2}${fmt(askConv,2)}</div><div class="punit">Ask (${unitLbl2})</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?usdBidHK*KGFACTOR*(fx.EUR||1):usdBidHK*(fx.EUR||1),2)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?usdAskHK*KGFACTOR*(fx.EUR||1):usdAskHK*(fx.EUR||1),2)}</div><div class="punit">Ask</div>`;
+    } else if(r.istLive && istanbul?.goldBuy && istanbul?.goldSell){
+      // Istanbul: convert TRY buy/sell to USD/oz and EUR/oz
+      const istBuyUSD = isGold ? istanbul.goldBuy : (istanbul.silver || istanbul.goldBuy);
+      const istSellUSD = isGold ? istanbul.goldSell : (istanbul.silver || istanbul.goldSell);
+      const usdBid = toDisplay((istBuyUSD / (fx.TRY||1)) * G);
+      const usdAsk = toDisplay((istSellUSD / (fx.TRY||1)) * G);
+      const eurBid = toDisplay(usdBid * (fx.EUR||1));
+      const eurAsk = toDisplay(usdAsk * (fx.EUR||1));
+      const dec = isGram ? 2 : 2;
+      const gSym=getCurrencySym(),gRate=getCurrencyRate();
+      usdCell = `<div class="pusd">${gSym}${fmt(isGram?usdBid*KGFACTOR*gRate:usdBid*gRate,2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:2px">${gSym}${fmt(isGram?usdAsk*KGFACTOR*gRate:usdAsk*gRate,2)}</div><div class="punit">Ask</div>`;
+      eurCell = `<div class="peur">€${fmt(isGram?eurBid*KGFACTOR:eurBid,dec)}</div><div class="punit">Bid</div><div class="peur" style="margin-top:2px">€${fmt(isGram?eurAsk*KGFACTOR:eurAsk,dec)}</div><div class="punit">Ask</div>`;
+    } else {
+      usdCell = `<div class="pusd">${getCurrencySym()}${fmt(dUSD,2)}</div>`;
+      eurCell = `<div class="peur">€${fmt(dEUR,2)}</div>`;
+    }
+
+    // Premium in EUR
+    const eurPrem = r.diff != null ? r.diff * (fx.EUR||1) : null;
+    const eurPremDisplay = toDisplay(eurPrem);
+    const eurPct = r.pct;
+
+    // Premium color: red = more expensive than COMEX, green = cheaper
+    const usdPremCls = r.diff > 0.5 ? 'neg' : r.diff < -0.5 ? 'pos' : 'neu';
+    const eurPremCls = eurPremDisplay > 0.5 ? 'neg' : eurPremDisplay < -0.5 ? 'pos' : 'neu';
+
+    let usdPremCell;
+    if(r.isSpot){
+      usdPremCell = `<span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">Ref</span>`;
+    } else if(r.id==='germany' && germanyLive?.bid && metal==='XAU'){
+      // Germany: show bid premium and ask premium separately
+      const spotRef = isGold ? spot.XAU : spot.XAG;
+      const deRate = getCurrencyRate();
+      const deSym = getCurrencySym();
+      const bidUSD = germanyLive.bid / (fx.EUR||1);
+      const askUSD = germanyLive.ask / (fx.EUR||1);
+      const bidKgUSD = isGram ? (germanyLive.kg_bid||germanyLive.bid/G*1000) / (fx.EUR||1) : bidUSD;
+      const askKgUSD = isGram ? (germanyLive.kg_ask||germanyLive.ask/G*1000) / (fx.EUR||1) : askUSD;
+      const spotKg = isGram ? spotRef*KGFACTOR : spotRef;
+      const bidDiff = (bidKgUSD - spotKg) * deRate;
+      const askDiff = (askKgUSD - spotKg) * deRate;
+      const bidPct = (bidUSD - spotRef)/spotRef*100;
+      const askPct = (askUSD - spotRef)/spotRef*100;
+      const bidCls = bidDiff > 0 ? 'neg' : bidDiff < 0 ? 'pos' : 'neu';
+      const askCls = askDiff > 0 ? 'neg' : askDiff < 0 ? 'pos' : 'neu';
+      usdPremCell = `<span class="badge ${bidCls}" style="display:block;margin-bottom:2px">${bidDiff>0?'+':''}${deSym}${fmt(bidDiff,0)} ${bidPct>0?'+':''}${bidPct.toFixed(2)}%</span><span style="font-size:9px;color:var(--text3);display:block;margin-bottom:2px">Bid</span><span class="badge ${askCls}" style="display:block;margin-bottom:2px">${askDiff>0?'+':''}${deSym}${fmt(askDiff,0)} ${askPct>0?'+':''}${askPct.toFixed(2)}%</span><span style="font-size:9px;color:var(--text3);display:block">Ask</span>`;
+    } else {
+      usdPremCell = `<span class="badge ${usdPremCls}" style="display:block;margin-bottom:3px">${r.diff>0?'+':''}${getCurrencySym()}${fmt(isGram?r.diff*KGFACTOR:r.diff,2)}</span><span class="badge ${usdPremCls}">${r.pct>0?'+':''}${r.pct.toFixed(2)}%</span>`;
+    }
+
+    const eurPremCell = r.isSpot
+      ? `<span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">Ref</span>`
+      : eurPremDisplay!=null
+        ? `<span class="badge ${eurPremCls}" style="display:block;margin-bottom:3px">${eurPremDisplay>0?'+':''}€${fmt(eurPremDisplay,2)}</span><span class="badge ${eurPremCls}">${eurPct>0?'+':''}${eurPct.toFixed(2)}%</span>`
+        : `<span class="badge neu" style="display:block;margin-bottom:3px">—</span><span class="badge neu">—</span>`;
+
+    const chartId = `mini-${r.id}`;
+    return `<tr class="${rowCls}">
+      <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div><div style="margin-top:4px">${srcBadge}</div></div></div></td>
+      <td>${priceCell}</td>
+      <td class="r">${usdCell}</td>
+      <td class="r">${usdPremCell}</td>
+      <td class="chart-td" onclick="openChartModal('${r.id}','${r.flag} ${r.name}')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="${chartId}" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+    </tr>`;
+  }).join('');
+
+  // Build exchange rows using same template
+  htmlEx = exchangeRows.map(r=>{
+    const sym = CS[r.currency]||r.currency;
+    const rowCls = r.isSpot ? 'ref' : '';
+    const isGold2 = metal==='XAU';
+    const lp = r.isSpot ? (isGram?fmt(spotUSD*KGFACTOR*getCurrencyRate(),2):fmt(spotUSD*getCurrencyRate(),2)) : fmt(r.localPrice,2);
+    const srcBadge = r.isSpot
+      ? `<span class="badge ref" style="background:rgba(184,151,58,0.15);color:var(--gold-p)">⭐ REFERENCE · kitco.com</span>`
+      : `<span class="badge calc">🟠 CALC</span>`;
+    const priceCell = r.isSpot
+      ? `<div class="plocal">$${fmt(spotUSD,2)}</div><div class="punit">USD/oz · Spot</div>`
+      : `<div class="plocal">${sym} ${lp}</div><div class="punit">${r.unitLabel}</div>`;
+    const usdVal = isGram ? r.usdOz*KGFACTOR*getCurrencyRate() : r.usdOz*getCurrencyRate();
+    const usdCell2 = r.isSpot
+      ? `<div class="pusd">${getCurrencySym()}${fmt(isGram?spotUSD*KGFACTOR*getCurrencyRate():spotUSD*getCurrencyRate(),2)}</div><div class="punit">Ref</div>`
+      : `<div class="pusd">${getCurrencySym()}${fmt(usdVal,2)}</div>`;
+    const premCls = r.diff > 0.5 ? 'neg' : r.diff < -0.5 ? 'pos' : 'neu';
+    const premCell = r.isSpot
+      ? `<span class="badge neu">—</span>`
+      : `<span class="badge ${premCls}" style="display:block;margin-bottom:3px">${r.diff>0?'+':''}${getCurrencySym()}${fmt(Math.abs(r.diff),2)}</span><span class="badge ${premCls}">${r.pct>0?'+':''}${r.pct.toFixed(2)}%</span>`;
+    const chartId = `mini-${r.id}`;
+    return `<tr class="${rowCls}">
+      <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div><div style="margin-top:4px">${srcBadge}</div></div></div></td>
+      <td>${priceCell}</td>
+      <td class="r">${usdCell2}</td>
+      <td class="r">${premCell}</td>
+      <td class="chart-td" onclick="openChartModal('${r.id}','${r.flag} ${r.name}')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="${chartId}" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tbody-exchanges').innerHTML=htmlEx;
+  document.getElementById('tbody-dealers').innerHTML=html;
+  try{renderMiniCharts([...rows,...exchangeRows], spotUSD);}catch(e){console.warn('Mini charts failed',e);}
+  try{renderSpotChart();}catch(e){console.warn('Spot chart failed',e);}
+  try{renderIstanbulChart();}catch(e){console.warn('Istanbul chart failed',e);}
+  try{renderAllChart(rows, spotUSD);}catch(e){console.warn('All chart failed',e);}
+}
+
+function setRange(range, btn){
+  currentRange = range;
+  document.querySelectorAll('.range-btns .rbtn').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  try{renderSpotChart();}catch(e){console.warn(e);}
+}
+
+function setMetal(m){
+  metal=m;
+  const isG=m==='XAU';
+  document.getElementById('btn-gold').className='ctrl-btn'+(isG?' on':'');
+  document.getElementById('btn-silver').className='ctrl-btn silver'+(!isG?' on':'');
+  render();
+}
+
+let modalChart = null;
+let modalMarket = null;
+let modalRange = '24h';
+let modalHistCache = {};
+
+async function openChartModal(marketId, title){
+  modalMarket = marketId;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-sub').textContent = 'Gold price & COMEX premium';
+  document.getElementById('chart-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  await loadModalData(marketId, modalRange);
+}
+
+function closeChartModal(){
+  document.getElementById('chart-modal').style.display = 'none';
+  document.body.style.overflow = '';
+  if(modalChart){ modalChart.destroy(); modalChart = null; }
+}
+
+async function setModalRange(range){
+  modalRange = range;
+  ['24h','5d','30d','1y'].forEach(r=>{
+    const btn = document.getElementById('modal-btn-'+r);
+    if(btn){ btn.className = 'rbtn' + (r===range?' on':''); }
+  });
+  if(modalMarket) await loadModalData(modalMarket, range);
+}
+
+async function loadModalData(marketId, range){
+  const hours = {'24h':24,'5d':120,'30d':720,'1y':8760}[range] || 24;
+  document.getElementById('modal-note').textContent = 'Loading...';
+  try{
+    const r = await fetch(`https://api.goldpremium.org/api/history/${marketId}?hours=${hours}`);
+    const j = await r.json();
+    const data = j.data || [];
+    document.getElementById('modal-note').textContent = `${data.length} data points · source: api.goldpremium.org`;
+    renderModalChart(data, range);
+  }catch(e){
+    document.getElementById('modal-note').textContent = 'Error loading data';
+    console.warn('Modal data error', e);
+  }
+}
+
+function renderModalChart(data, range){
+  if(typeof Chart==='undefined') return;
+  const ctx = document.getElementById('modal-chart');
+  if(modalChart){ modalChart.destroy(); modalChart = null; }
+
+  if(data.length < 2){
+    const c = ctx.getContext('2d');
+    c.clearRect(0,0,ctx.width,ctx.height);
+    c.fillStyle = '#888';
+    c.font = '14px sans-serif';
+    c.textAlign = 'center';
+    c.fillText('Not enough data yet — collecting...', ctx.width/2, 150);
+    return;
+  }
+
+  const labelFmt = range==='24h'
+    ? d=>d.ts.slice(11,16)
+    : range==='5d'
+    ? d=>d.ts.slice(5,13).replace('T',' ')
+    : d=>d.ts.slice(0,10);
+
+  const labels = data.map(labelFmt);
+  const currency = data[0]?.currency || '';
+  const isKg = unit === 'gram';
+  const KGFACT = 1000 / 31.1035;
+
+  // Convert local values based on unit selection and currency type
+  const localVals = data.map(d => {
+    if(!d.gold_local) return null;
+    // Germany stores EUR/oz, Japan stores JPY/gram, Turkey stores TRY/gram
+    // For kg mode: gram-based currencies * 1000, oz-based currencies * KGFACT
+    const ozCurrencies = ['EUR', 'USD', 'GBP']; // stored per oz
+    if(isKg){
+      return ozCurrencies.includes(currency) ? d.gold_local * KGFACT : d.gold_local * 1000;
+    }
+    return ozCurrencies.includes(currency) ? d.gold_local : d.gold_local * 31.1035;
+  });
+  const premVals = data.map(d=>d.premium_pct);
+  const unitLabel = isKg ? `${currency}/kg` : `${currency}/oz`;
+
+  modalChart = new Chart(ctx, {
+    data:{
+      labels,
+      datasets:[
+        {
+          type:'line', label:`Local (${currency})`,
+          data:localVals,
+          borderColor:'#D4AF5A', backgroundColor:'rgba(212,175,90,0.08)',
+          borderWidth:2, pointRadius:0, fill:true, tension:0.3, yAxisID:'y1'
+        },
+        {
+          type:'line', label:'Premium %',
+          data:premVals,
+          borderColor:'#5B8DEF', backgroundColor:'rgba(91,141,239,0.05)',
+          borderWidth:2, pointRadius:0, fill:false, tension:0.3,
+          borderDash:[4,3], yAxisID:'y2'
+        }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label:ctx=>ctx.dataset.yAxisID==='y1'
+              ? `${unitLabel}: ${ctx.parsed.y?.toLocaleString(undefined,{maximumFractionDigits:2})}`
+              : `${ctx.parsed.y?.toFixed(2)}% premium`
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{maxTicksLimit:8,font:{size:11},color:'#888'},grid:{display:false}},
+        y1:{position:'left',ticks:{font:{size:11},color:'#D4AF5A'},grid:{color:'rgba(128,128,128,0.1)'},title:{display:true,text:unitLabel,color:'#D4AF5A',font:{size:11}}},
+        y2:{position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{display:false},title:{display:true,text:'Premium %',color:'#5B8DEF',font:{size:11}}}
+      }
+    }
+  });
+}
+
+// Close modal on background click
+document.getElementById('chart-modal').addEventListener('click', function(e){
+  if(e.target===this) closeChartModal();
+});
+
+function setCurrency(c){
+  displayCurrency=c;
+  ['USD','EUR','GBP','JPY','CNY','TRY','AED','INR','RUB','AUD','HKD'].forEach(x=>{
+    const el = document.getElementById('btn-'+x.toLowerCase());
+    if(el) el.className='ctrl-btn'+(x===c?' on':'');
+  });
+  render();
+}
+
+function setUnit(u){
+  unit=u;
+  document.getElementById('btn-oz').className='ctrl-btn'+(u==='oz'?' on':'');
+  document.getElementById('btn-gram').className='ctrl-btn'+(u==='gram'?' on':'')
+  render();
+}
+
+// Wait for Chart.js to be available before starting
+function waitForChart(cb, attempts=0){
+  if(typeof Chart !== 'undefined'){ cb(); return; }
+  if(attempts > 20){ console.warn('Chart.js failed to load'); cb(); return; }
+  setTimeout(()=>waitForChart(cb, attempts+1), 200);
+}
+waitForChart(()=>load());
+setInterval(load,5*60*1000);
+
+// Cookie consent
+(function(){
+  const consent = localStorage.getItem('ga_consent');
+  if(!consent) document.getElementById('cookie-banner').style.display='flex';
+})();
+function cookieAccept(){
+  localStorage.setItem('ga_consent','granted');
+  document.getElementById('cookie-banner').style.display='none';
+  loadGA();
+}
+function cookieDecline(){
+  localStorage.setItem('ga_consent','denied');
+  document.getElementById('cookie-banner').style.display='none';
+}
+</script>
+</body>
+</html>
