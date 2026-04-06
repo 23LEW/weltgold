@@ -630,7 +630,7 @@ async function load(){
     const [gr, sr, fxr] = await Promise.all([
       fetch('https://api.gold-api.com/price/XAU').then(r=>r.json()),
       fetch('https://api.gold-api.com/price/XAG').then(r=>r.json()),
-      fetch('https://api.frankfurter.app/latest?base=USD&symbols=EUR,GBP,TRY,CNY,INR,JPY,HKD,AED,RUB').then(r=>r.json())
+      fetch('https://api.goldpremium.org/api/fx').then(r=>r.json())
     ]);
     spot = {XAU:gr.price, XAG:sr.price, XAU_bid:gr.price, XAU_ask:gr.price, XAG_bid:sr.price, XAG_ask:sr.price, XAU_chp:gr.chp, XAU_ch:gr.ch, XAG_chp:sr.chp, XAG_ch:sr.ch};
     fx = {...fxr.rates, USD:1};
