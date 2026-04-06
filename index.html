@@ -1100,7 +1100,7 @@ function render(){
     // EUR/currency chp: use VPS calculated value (available after 22:00 UTC)
     // For selected currency: approximate = USD chp + FX move (if yesterday FX known)
     const chpEur = isGold ? spot.XAU_chp_eur : spot.XAG_chp_eur;
-    if(chpEur != null && displayCurrency === 'EUR'){
+    if(chpEur != null){
       const signEur = chpEur >= 0 ? '+' : '';
       chpEurEl.textContent = `${signEur}${chpEur.toFixed(2)}%`;
       chpEurEl.style.color = chpEur >= 0 ? 'var(--green)' : 'var(--red)';
