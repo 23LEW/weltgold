@@ -496,7 +496,7 @@ price. The <strong>gold premium</strong> measures how much more buyers pay for p
 const G = 31.1035; // grams per troy oz
 let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
-let spot = null, fx = null, istanbul = null, indiaLive = null, hkLive = null, japanLive = null, germanyLive = null, russiaLive = null, dubaiLive = null, usaLive = null;
+let spot = null, fx = null, istanbul = null, indiaLive = null, hkLive = null, japanLive = null, germanyLive = null, russiaLive = null, dubaiLive = null, usaLive = null, lbmaLive = null;
 let displayCurrency = 'USD';
 const CURRENCIES = {USD:{sym:'$',name:'USD'},EUR:{sym:'€',name:'EUR'},GBP:{sym:'£',name:'GBP'},JPY:{sym:'JP¥',name:'JPY'},CNY:{sym:'CN¥',name:'CNY'},TRY:{sym:'₺',name:'TRY'},AED:{sym:'د.إ',name:'AED'},INR:{sym:'₹',name:'INR'},RUB:{sym:'₽',name:'RUB'},AUD:{sym:'A$',name:'AUD'},HKD:{sym:'HK$',name:'HKD'}};
 let histData = []; // historical spot prices
@@ -512,6 +512,7 @@ try { istHistory = JSON.parse(localStorage.getItem('ist_history')||'[]'); } catc
 // Exchange & Benchmark Prices
 const EXCHANGES = [
   {id:'comex', name:'COMEX · New York', city:'CME Group / Futures Exchange', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0, isReference:true},
+  {id:'lbma', name:'LBMA · London', city:'London Bullion Market Association', flag:'🇬🇧', currency:'USD', unitLabel:'USD/oz', calcPremium:0},
   {id:'lbma', name:'LBMA · London', city:'London Bullion Market Assoc.', flag:'🇬🇧', currency:'USD', unitLabel:'USD/oz', calcPremium:0},
   {id:'russia', name:'Russia · CBR', city:'Central Bank of Russia', flag:'🇷🇺', currency:'RUB', unitLabel:'RUB/g', calcPremium:0.01},
   {id:'shanghai', name:'Shanghai · SGE', city:'Shanghai Gold Exchange', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/g', calcPremium:0.01},
@@ -575,6 +576,9 @@ function calcMarket(m){
       localPrice = unit==='oz' ? (spotUSD/G)*fxRate*(1+m.calcPremium) : spotUSD*(1000/G)*fxRate*(1+m.calcPremium);
       usdOz = spotUSD*(1+m.calcPremium);
     }
+  } else if(m.id==='lbma' && lbmaLive?.usd_oz){
+    localPrice = unit==='oz' ? lbmaLive.usd_oz : lbmaLive.usd_oz*KGFACTOR;
+    usdOz = lbmaLive.usd_oz;
   } else if(m.id==='usa' && usaLive?.kg_ask){
     const usdOzVal = usaLive.oz_ask || usaLive.kg_ask/1000*31.1035;
     localPrice = unit==='oz' ? usdOzVal*fxRate : usaLive.kg_ask*fxRate;
@@ -698,6 +702,12 @@ async function load(){
       if(us && us.gold_usd_kg_ask && !us.is_calculated){
         usaLive = {kg_ask: us.gold_usd_kg_ask, kg_bid: us.gold_usd_kg_bid, oz_ask: us.gold_usd_oz_ask, oz_bid: us.gold_usd_oz_bid, source: us.source};
       } else { usaLive = null; }
+
+      // LBMA
+      const lb = vps?.lbma;
+      if(lb && lb.gold_usd_oz && !lb.is_calculated){
+        lbmaLive = {usd_oz: lb.gold_usd_oz, eur_oz: lb.gold_eur_oz, gbp_oz: lb.gold_gbp_oz, date: lb.date, fix: lb.fix};
+      } else { lbmaLive = null; }
 
       // Dubai Tora
       const du = vps?.dubai;
