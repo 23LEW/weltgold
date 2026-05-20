@@ -223,7 +223,7 @@ def save_prices(prices):
         # Germany
         deu = prices.get("germany")
         if deu and not deu.get("is_calculated"):
-            gold = deu.get("gold_eur_oz_bid")
+            gold = deu.get("gold_eur_oz_ask")
             usd_oz = (gold / fx.get("EUR",0.92)) if gold else None
             silver_kg = deu.get("silver_eur_kg_ask")
             c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
