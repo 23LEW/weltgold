@@ -266,10 +266,11 @@ def save_prices(prices):
         # Hong Kong Hang Seng
         hk = prices.get("hongkong")
         if hk and not hk.get("is_calculated"):
-            gold = hk.get("gold_hkd_oz_bid") or hk.get("gold_hkd_oz_ask")
+            gold = hk.get("gold_hkd_oz_ask") or hk.get("gold_hkd_oz_bid")
+            gold_bid = hk.get("gold_hkd_oz_bid")
             usd_oz = (gold / fx.get("HKD",7.83)) if gold else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
-                (ts, 'hongkong', usd_oz, gold, None, calc_premium(usd_oz), 'HKD', 'oz', None))
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit,gold_local_bid) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'hongkong', usd_oz, gold, None, calc_premium(usd_oz), 'HKD', 'oz', None, gold_bid))
 
         # Russia Dealer
         rd = prices.get("russia_dealer")
@@ -1750,7 +1751,7 @@ def update():
     NORM_TABLE = {
         "istanbul":      ("gold_try_gram",     "TRY", "gram", "silver_try_gram",    "TRY", "gram"),
         "india_gjc":     ("gold_inr_gram_ask",  "INR", "gram", "silver_inr_kg_ask",  "INR", "kg"),
-        "hongkong":      ("gold_hkd_oz_bid",   "HKD", "oz",   None,                 None,  None),
+        "hongkong":      ("gold_hkd_oz_ask",   "HKD", "oz",   None,                 None,  None),
         "lbma":          ("gold_usd_oz",       "USD", "oz",   "silver_usd_oz",      "USD", "oz"),
         "hkgx":          ("gold_usd_oz_ask",   "USD", "oz",   None,                 None,  None),
         "australia":     ("gold_aud_kg_ask",   "AUD", "kg",   "silver_aud_kg",      "AUD", "kg"),
