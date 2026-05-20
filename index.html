@@ -826,7 +826,7 @@ function calcMarket(m){
                    s: mumbaiLive?.silver_oz_ask || null,
                    gBid: mumbaiLive?.oz_bid || null,
                    sBid: mumbaiLive?.silver_oz_bid || null },
-    hongkong:    { g: hkLive?.bid ? (hkLive.is_oz ? hkLive.bid/(fx.HKD||7.78) : (hkLive.bid/37.429)*G/(fx.HKD||7.78)) : null,
+    hongkong:    { g: hkLive?.ask ? (hkLive.is_oz ? hkLive.ask/(fx.HKD||7.78) : (hkLive.ask/37.429)*G/(fx.HKD||7.78)) : null,
                    s: null,
                    gBid: hkLive?.bid ? (hkLive.is_oz ? hkLive.bid/(fx.HKD||7.78) : (hkLive.bid/37.429)*G/(fx.HKD||7.78)) : null,
                    gAsk: hkLive?.ask ? (hkLive.is_oz ? hkLive.ask/(fx.HKD||7.78) : (hkLive.ask/37.429)*G/(fx.HKD||7.78)) : null },
