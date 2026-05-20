@@ -154,9 +154,10 @@ def save_prices(prices):
         if ist and not ist.get("is_calculated"):
             gold = ist.get("gold_try_gram_buy") or ist.get("gold_try_gram")
             silver = ist.get("silver_try_gram")
+            silver_bid = ist.get("silver_try_gram_buy")
             usd_oz = (gold / fx.get("TRY",1)) * GRAM if gold else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
-                (ts, 'istanbul', usd_oz, gold, silver, calc_premium(usd_oz), 'TRY', 'gram', 'gram'))
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_local_bid) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'istanbul', usd_oz, gold, silver, calc_premium(usd_oz), 'TRY', 'gram', 'gram', silver_bid))
 
         # India GJC
         gjc = prices.get("india_gjc")
@@ -673,6 +674,7 @@ def fetch_istanbul():
 
         gold_buy = None
         gold_sell = None
+        silver_buy = None
         silver_sell = None
         lines = content.split("\n")
         for i, line in enumerate(lines):
@@ -690,24 +692,34 @@ def fetch_istanbul():
                     except:
                         pass
             if "GümüşKG/TL" in line.strip():
+                # Seite liefert zwei Werte: Alis (Ankauf/bid), Satis (Verkauf/ask) - in KG/TL
+                svals = []
                 for j in range(i+1, min(i+6, len(lines))):
                     val_text = lines[j].strip().replace(".", "").replace(",", ".")
                     try:
                         val = float(val_text)
                         if val > 10000:
-                            silver_sell = round(val / 1000, 4)
-                            break
+                            svals.append(val)
+                            if len(svals) >= 2:
+                                break
                     except:
                         pass
+                if len(svals) >= 2:
+                    silver_buy = round(svals[0] / 1000, 4)    # Alis = Ankauf (bid)
+                    silver_sell = round(svals[1] / 1000, 4)   # Satis = Verkauf (ask)
+                elif len(svals) == 1:
+                    silver_sell = round(svals[0] / 1000, 4)
 
         if gold_buy and gold_sell:
             gold = round((gold_buy + gold_sell) / 2, 2)
-            print(f"Nadir: buy={gold_buy} sell={gold_sell}")
+            print(f"Nadir: gold buy={gold_buy} sell={gold_sell}  silver buy={silver_buy} sell={silver_sell}")
             return {
                 "gold_try_gram": gold,
                 "gold_try_gram_buy": gold_buy,
                 "gold_try_gram_sell": gold_sell,
                 "silver_try_gram": silver_sell,
+                "silver_try_gram_buy": silver_buy,
+                "silver_try_gram_sell": silver_sell,
                 "source": "nadirdoviz.com",
                 "is_calculated": False
             }

@@ -817,9 +817,9 @@ function calcMarket(m){
   // --- Hole gold_usd_oz / silver_usd_oz direkt aus VPS-Daten ---
   const vpsMap = {
     istanbul:    { g: istanbul?.usdOzAsk || (istanbul?.goldSell ? (istanbul.goldSell/(fx.TRY||1))*G : null),
-                   s: istanbul?.silver   ? (istanbul.silver/(fx.TRY||1))*G : null,
+                   s: (istanbul?.silverSell||istanbul?.silver) ? ((istanbul.silverSell||istanbul.silver)/(fx.TRY||1))*G : null,
                    gBid: istanbul?.usdOzBid || (istanbul?.goldBuy ? (istanbul.goldBuy/(fx.TRY||1))*G : null),
-                   sBid: istanbul?.silver ? (istanbul.silver/(fx.TRY||1))*G : null },
+                   sBid: (istanbul?.silverBuy||istanbul?.silver) ? ((istanbul.silverBuy||istanbul.silver)/(fx.TRY||1))*G : null },
     india_gjc:   { g: gjcLive?.oz_ask || null, s: gjcLive?.silver_oz_ask || null,
                    gBid: gjcLive?.oz_bid || null, sBid: gjcLive?.silver_oz_bid || null },
     india_mumbai:{ g: mumbaiLive?.oz_ask || null,
@@ -975,7 +975,9 @@ async function load(){
         const usdOzBid = ist.gold_usd_oz_bid || null;
         const usdOzAsk = ist.gold_usd_oz_ask || null;
         const silver = ist.silver_try_gram;
-        istanbul={gold,goldBuy,goldSell,silver,usdOzBid,usdOzAsk,status:'live',ts:new Date().toISOString()};
+        const silverBuy = ist.silver_try_gram_buy || silver;
+        const silverSell = ist.silver_try_gram_sell || silver;
+        istanbul={gold,goldBuy,goldSell,silver,silverBuy,silverSell,usdOzBid,usdOzAsk,status:'live',ts:new Date().toISOString()};
         try{localStorage.setItem('ist_last',JSON.stringify(istanbul));}catch(e){}
         const istUSD=(gold/(fx.TRY||1))*G;
         const prem=Math.round((istUSD-spot.XAU)*100)/100;
