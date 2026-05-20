@@ -2426,11 +2426,13 @@ setInterval(load,5*60*1000);
 (function(){
   const logoInner = document.getElementById('logo-inner');
   const ratioDisplay = document.getElementById('ratio-display');
+  const sp500Display = document.getElementById('sp500-display');
   const mainHeader = document.querySelector('header');
   function onScroll(){
     const slot=document.getElementById('ratio-mobile-slot');
     if(slot&&ratioDisplay.parentNode===slot){
       ratioDisplay.style.opacity='1';
+      if(sp500Display) sp500Display.style.opacity='1';
       logoInner.style.opacity='0';
       logoInner.style.visibility='hidden';
       return;
@@ -2438,10 +2440,12 @@ setInterval(load,5*60*1000);
     const headerBottom = mainHeader.getBoundingClientRect().bottom;
     if(headerBottom < 0){
       ratioDisplay.style.opacity = '0';
+      if(sp500Display) sp500Display.style.opacity = '0';
       logoInner.style.visibility = 'visible';
       requestAnimationFrame(()=>{ logoInner.style.opacity = '1'; });
     } else {
       ratioDisplay.style.opacity = '1';
+      if(sp500Display) sp500Display.style.opacity = '1';
       logoInner.style.opacity = '0';
       logoInner.style.visibility = 'hidden';
     }
