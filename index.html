@@ -182,7 +182,7 @@ footer a:hover{text-decoration:underline}
 @media(max-width:900px){.chart-grid{grid-template-columns:1fr}.wrap{padding:0 16px 60px}}
 @media(max-width:700px){.spots-inner{flex-wrap:wrap}.controls{margin-top:4px}}
 @media(max-width:768px) and (orientation:landscape){#spots-sticky{display:flex!important;flex-direction:row!important;align-items:stretch;gap:0}#mobile-cards-row{padding:1px 4px!important;gap:6px!important;flex-shrink:0}#mobile-toggles-row{padding:1px 4px!important;gap:8px!important;flex:1;align-items:center!important}#v-usd-chp,#v-eur-chp{font-size:11px!important;padding:1px 6px!important}.spot-price{font-size:11px!important}.spot-label{font-size:7px!important}.spot{padding:1px 3px!important}.spot-sub{display:none!important}#toggles-col{width:90px!important;gap:3px!important}.ctrl-group{padding:1px!important}.spots-sticky .ctrl-btn{padding:1px 4px!important}#currency-row{gap:3px!important}#currency-row .ctrl-btn{padding:1px 3px!important}#compare-bar{padding:4px 10px!important}#compare-hint{font-size:11px!important}#compare-btn-open{font-size:13px!important;padding:2px 8px!important}.cookie-btn{padding:3px 8px!important;font-size:10px!important}}
-@media(max-width:768px){#compare-bar{padding:6px 12px!important}#compare-hint{font-size:12px!important}#compare-btn-open{font-size:14px!important;padding:3px 10px!important}.cookie-btn{padding:4px 10px!important;font-size:11px!important}.th-usd{display:none!important}.td-usd{display:none!important}.usd-mob{display:block!important;margin-top:5px;padding-top:5px;border-top:1px solid var(--border2)}table .plocal{font-size:12px!important;white-space:nowrap}table .pusd{font-size:11px!important;white-space:nowrap}table .punit{font-size:10px!important}.spot-price{font-size:13px!important}.spot-label{font-size:8px!important;margin-bottom:0!important}.spot-sub{font-size:8px}th{padding:3px 6px!important;font-size:10px!important}td{padding:8px 6px}.controls{gap:4px}.spot{width:auto!important;flex:1 1 0!important;min-width:0!important;height:auto!important;flex-shrink:1!important;padding:2px 4px!important}.spots-inner{display:none!important}.spots-sticky .ctrl-btn{padding:2px 5px!important;font-size:10px!important}#toggles-col{flex:0 0 auto!important;width:110px!important;min-width:unset!important}#currency-row{flex:1!important}#currency-row .ctrl-btn{font-size:9px!important;padding:2px 4px!important}#v-usd-chp,#v-eur-chp{font-size:13px!important;padding:1px 8px!important}#v-fx-rate{display:none!important}#mobile-cards-row{display:flex!important;gap:6px;padding:4px 6px 0}#mobile-toggles-row{display:flex!important;gap:12px;padding:0 4px 2px;align-items:stretch}#sticky-logo{display:none!important}#logo-inner{display:none!important}#ratio-mobile-slot{display:block!important}#ratio-display{width:100%;box-sizing:border-box;height:auto!important;min-height:120px}}
+@media(max-width:768px){#compare-bar{padding:6px 12px!important}#compare-hint{font-size:12px!important}#compare-btn-open{font-size:14px!important;padding:3px 10px!important}.cookie-btn{padding:4px 10px!important;font-size:11px!important}.th-usd{display:none!important}.td-usd{display:none!important}.usd-mob{display:block!important;margin-top:5px;padding-top:5px;border-top:1px solid var(--border2)}table .plocal{font-size:12px!important;white-space:nowrap}table .pusd{font-size:11px!important;white-space:nowrap}table .punit{font-size:10px!important}.spot-price{font-size:13px!important}.spot-label{font-size:8px!important;margin-bottom:0!important}.spot-sub{font-size:8px}th{padding:3px 6px!important;font-size:10px!important}td{padding:8px 6px}.controls{gap:4px}.spot{width:auto!important;flex:1 1 0!important;min-width:0!important;height:auto!important;flex-shrink:1!important;padding:2px 4px!important}.spots-inner{display:none!important}.spots-sticky .ctrl-btn{padding:2px 5px!important;font-size:10px!important}#toggles-col{flex:0 0 auto!important;width:110px!important;min-width:unset!important}#currency-row{flex:1!important}#currency-row .ctrl-btn{font-size:9px!important;padding:2px 4px!important}#v-usd-chp,#v-eur-chp{font-size:13px!important;padding:1px 8px!important}#v-fx-rate{display:none!important}#mobile-cards-row{display:flex!important;gap:6px;padding:4px 6px 0}#mobile-toggles-row{display:flex!important;gap:12px;padding:0 4px 2px;align-items:stretch}#sticky-logo{display:none!important}#logo-inner{display:none!important}#ratio-mobile-slot{display:block!important}#ratio-display{width:100%;box-sizing:border-box;height:auto!important;min-height:120px}#sp500-mobile-slot{display:block!important;margin-top:8px!important}#sp500-display{width:100%;box-sizing:border-box;height:auto!important;min-height:100px}}
 </style>
 <!-- Google Analytics (consent-gated) -->
 <script>
@@ -308,6 +308,17 @@ footer a:hover{text-decoration:underline}
       <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);opacity:0.7">
         <span>30 · 2011</span><span>avg ~65</span><span>125 · 2020</span>
       </div>
+    </div>
+    <div id="sp500-display" style="cursor:pointer;transition:opacity 0.2s;background:#1C2028;border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:12px 18px 10px;min-width:200px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;margin-top:8px">
+      <div style="text-align:center;margin-bottom:8px">
+        <div style="font-size:10px;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase">Gold · S&amp;P 500 · Ratio</div>
+        <div style="font-size:9px;color:var(--text3);opacity:0.6;margin-top:2px">Click to expand</div>
+      </div>
+      <div style="display:flex;align-items:baseline;justify-content:center;gap:6px;margin-bottom:6px">
+        <div id="v-sp500-ratio" style="font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--gold-p);letter-spacing:-1px;line-height:1">—</div>
+        <div style="font-size:11px;color:var(--text3);line-height:1">oz</div>
+      </div>
+      <div style="font-size:9px;color:var(--text3);opacity:0.7;text-align:center">oz Gold per S&amp;P 500 point</div>
     </div>
     <div id="logo-inner" style="display:flex;flex-direction:column;align-items:center;gap:4px;visibility:hidden;opacity:0;transition:opacity 0.2s;position:absolute">
       <svg viewBox="0 0 40 40" width="48" height="48">
@@ -486,6 +497,7 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <div id="ratio-mobile-slot" style="display:none;margin:16px 0"></div>
+<div id="sp500-mobile-slot" style="display:none;margin:16px 0"></div>
 
 <div style="margin-top:12px">
   <div class="ctrl-group" style="display:inline-flex">
@@ -636,6 +648,33 @@ footer a:hover{text-decoration:underline}
     <div style="font-size:11px;color:var(--text3);margin-top:8px;display:flex;justify-content:space-between">
       <span>Drag to zoom · Double-click to reset</span>
       <span>Source: LBMA PM Fix (long-term) · COMEX Futures (1D/5D/30D)</span>
+    </div>
+  </div>
+</div>
+
+<div id="sp500-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:24px;width:90%;max-width:900px;max-height:90vh;overflow:auto;position:relative">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div style="font-size:16px;font-weight:600;color:var(--text1)">Gold / S&amp;P 500 Ratio</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px">oz Gold per S&amp;P 500 index point · Historical</div>
+      </div>
+      <button onclick="closeSp500Modal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:16px">
+      <button class="rbtn" id="rbtn-sp500-1d" onclick="setSp500Range('1d')">1D</button>
+      <button class="rbtn" id="rbtn-sp500-5d" onclick="setSp500Range('5d')">5D</button>
+      <button class="rbtn on" id="rbtn-sp500-30d" onclick="setSp500Range('30d')">30D</button>
+      <button class="rbtn" id="rbtn-sp500-1y" onclick="setSp500Range('1y')">1Y</button>
+      <button class="rbtn" id="rbtn-sp500-10y" onclick="setSp500Range('10y')">10Y</button>
+      <button class="rbtn" id="rbtn-sp500-max" onclick="setSp500Range('max')">Max</button>
+    </div>
+    <div style="position:relative;width:100%;height:420px">
+      <canvas id="chart-sp500"></canvas>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px;display:flex;justify-content:space-between">
+      <span>Drag to zoom · Double-click to reset</span>
+      <span>Source: Yahoo Finance (^GSPC) · LBMA gold (long-term) · COMEX gold (1D/5D/30D)</span>
     </div>
   </div>
 </div>
@@ -2525,6 +2564,8 @@ function toggleLangMenu(e){
 document.addEventListener('click',()=>{const m=document.getElementById('lang-menu');if(m)m.style.display='none';});
 function positionRatioForDevice(){
   const ratio=document.getElementById('ratio-display');
+  const sp500=document.getElementById('sp500-display');
+  const sp500Slot=document.getElementById('sp500-mobile-slot');
   const logoInner=document.getElementById('logo-inner');
   const slot=document.getElementById('ratio-mobile-slot');
   const langContainer=document.getElementById('lang-btn-container');
@@ -2539,6 +2580,7 @@ function positionRatioForDevice(){
   const mobileTogglesRow=document.getElementById('mobile-toggles-row');
   if(window.innerWidth<=768){
     if(ratio&&slot&&ratio.parentNode!==slot) slot.appendChild(ratio);
+    if(sp500&&sp500Slot&&sp500.parentNode!==sp500Slot) sp500Slot.appendChild(sp500);
     if(langContainer&&togglesCol&&langContainer.parentNode!==togglesCol) togglesCol.appendChild(langContainer);
     if(sUsd&&mobileCardsRow&&sUsd.parentNode!==mobileCardsRow) mobileCardsRow.appendChild(sUsd);
     if(sEur&&mobileCardsRow&&sEur.parentNode!==mobileCardsRow) mobileCardsRow.appendChild(sEur);
@@ -2546,6 +2588,7 @@ function positionRatioForDevice(){
     if(currencyRow&&mobileTogglesRow&&currencyRow.parentNode!==mobileTogglesRow) mobileTogglesRow.appendChild(currencyRow);
   } else {
     if(ratio&&logoInner&&ratio.parentNode!==logoInner.parentNode) logoInner.parentNode.insertBefore(ratio,logoInner);
+    if(sp500&&logoInner&&sp500.parentNode!==logoInner.parentNode) logoInner.parentNode.insertBefore(sp500,logoInner);
     if(langContainer&&togglesCol&&langContainer.parentNode!==togglesCol) togglesCol.insertBefore(langContainer,togglesCol.firstChild);
     if(sUsd&&leftGroup&&sUsd.parentNode!==leftGroup) leftGroup.insertBefore(sUsd,leftGroup.firstChild);
     if(togglesCol&&leftGroup&&togglesCol.parentNode!==leftGroup) leftGroup.appendChild(togglesCol);
@@ -2681,6 +2724,108 @@ function renderRatioChart(data,range){
     }
   });
 }
+
+// ── Gold / S&P 500 Ratio Modal ─────────────────────────────────
+let chartSp500 = null;
+let sp500Range = '30d';
+let sp500ModalReady = false;
+let sp500LiveRatio = null;
+
+const sp500DisplayEl = document.getElementById('sp500-display');
+if (sp500DisplayEl) sp500DisplayEl.addEventListener('click', openSp500Modal);
+
+function openSp500Modal(){
+  const modal = document.getElementById('sp500-modal');
+  if(!modal) return;
+  modal.style.display='flex';
+  document.body.style.overflow='hidden';
+  if(!sp500ModalReady){
+    document.getElementById('chart-sp500').addEventListener('dblclick',()=>{ if(chartSp500) chartSp500.resetZoom(); });
+    modal.addEventListener('click', e=>{ if(e.target===modal) closeSp500Modal(); });
+    sp500ModalReady=true;
+  }
+  loadSp500Data(sp500Range);
+}
+function closeSp500Modal(){
+  document.getElementById('sp500-modal').style.display='none';
+  document.body.style.overflow='';
+  if(chartSp500){ chartSp500.destroy(); chartSp500=null; }
+}
+function setSp500Range(r){
+  sp500Range=r;
+  ['1d','5d','30d','1y','10y','max'].forEach(x=>{
+    const btn=document.getElementById('rbtn-sp500-'+x);
+    if(btn) btn.className='rbtn'+(x===r?' on':'');
+  });
+  loadSp500Data(r);
+}
+async function loadSp500Data(range){
+  try{
+    const r=await fetch(`https://api.goldpremium.org/api/ratio-history?range=${range}&type=gold_sp500`);
+    const data=await r.json();
+    renderSp500Chart(data,range);
+  }catch(e){ console.warn('SP500 ratio history error',e); }
+}
+async function loadSp500LiveRatio(){
+  try{
+    const r=await fetch('https://api.goldpremium.org/api/ratio-history?range=1d&type=gold_sp500');
+    const data=await r.json();
+    if(data && data.length){
+      sp500LiveRatio = data[data.length-1].ratio;
+      const el = document.getElementById('v-sp500-ratio');
+      if(el) el.textContent = sp500LiveRatio.toFixed(2);
+    }
+  }catch(e){ console.warn('SP500 live ratio error',e); }
+}
+function renderSp500Chart(data,range){
+  const ctx=document.getElementById('chart-sp500');
+  if(chartSp500){ chartSp500.destroy(); chartSp500=null; }
+  if(!data||!data.length) return;
+  const isShort=range==='1d'||range==='5d';
+  const timeUnit=range==='1d'?'hour':range==='5d'?'hour':range==='30d'?'day':range==='1y'?'month':'year';
+  chartSp500=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:data.map(d=>d.ts),
+      datasets:[{
+        data:data.map(d=>d.ratio),
+        borderColor:'#D4AF5A',
+        backgroundColor:'rgba(212,175,90,0.06)',
+        borderWidth:1.5,
+        pointRadius:0,
+        pointHoverRadius:4,
+        fill:true,
+        tension:0,
+        spanGaps:false
+      }]
+    },
+    options:{...CHART_OPTS,
+      plugins:{...CHART_OPTS.plugins,
+        zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},mode:'x'},pan:{enabled:false}},
+        verticalGrid:{enabled:isShort},
+        tooltip:{...CHART_OPTS.plugins.tooltip,
+          callbacks:{
+            title:ctx=>{
+              const d=data[ctx[0].dataIndex];
+              if(!d) return '';
+              return isShort?(d.ts||'').slice(0,16).replace('T',' ')+' UTC':d.ts;
+            },
+            label:ctx=>`Ratio: ${fmt(ctx.parsed.y,3)} oz Gold per S&P 500 point`
+          }
+        }
+      },
+      scales:{
+        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy',year:'yyyy'}},ticks:{color:'#888',maxTicksLimit:10,font:{size:11}},grid:{display:false}},
+        y:{ticks:{color:'#888',font:{size:11},callback:v=>v.toFixed(2)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'oz Gold per S&P 500 point',color:'#888',font:{size:10}}}
+      }
+    }
+  });
+}
+
+// Live-Wert beim Laden initialisieren und alle 5 Min auffrischen
+loadSp500LiveRatio();
+setInterval(loadSp500LiveRatio, 5*60*1000);
+
 // ── Market Compare ────────────────────────────────────────────
 const COMPARE_COLORS={comex:'#E85A5A',lbma:'#5B8DEF',hongkong:'#F0A500',russia:'#CC4444',shanghai:'#EE4B2B',japan:'#4A90D9',dubai:'#C67BD4',germany:'#5BAD7A',switzerland:'#E63946',uk_royalmint:'#C8102E',istanbul:'#D4AF5A',usa:'#00A693'};
 const COMPARE_LABELS=Object.fromEntries([...EXCHANGES,...MARKETS].map(r=>[r.id,r.flag+' '+r.name]));
