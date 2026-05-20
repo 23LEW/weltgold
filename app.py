@@ -620,6 +620,26 @@ def fetch_comex_futures():
         print(f"COMEX Futures error: {e2}")
         return None
 
+def fetch_sp500():
+    """S&P 500 current index value via Yahoo Finance.
+    Returns the regularMarketPrice as float, or None on error.
+    Historischer Backfill liegt bereits in der Tabelle `sp500_history` (Yahoo
+    range=10y/1d + range=max/1mo)."""
+    try:
+        r = requests.get(
+            "https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?interval=1d&range=1d",
+            headers={"User-Agent": "Mozilla/5.0"}, timeout=(5, 10)
+        )
+        meta = r.json()['chart']['result'][0]['meta']
+        price = meta.get('regularMarketPrice')
+        if price and price > 100:
+            print(f"S&P 500 (Yahoo): {price}")
+            return float(price)
+        return None
+    except Exception as e:
+        print(f"S&P 500 error: {e}")
+        return None
+
 def fetch_spot_fallback():
     try:
         gold = requests.get("https://api.gold-api.com/price/XAU", timeout=(5, 10)).json()
@@ -1562,6 +1582,20 @@ def update():
     if prices.get("spot") and cache.get("last_gc"):
         prices["spot"]["GC"] = cache["last_gc"]
         prices["spot"]["SI"] = cache["last_si"]
+
+    # S&P 500 — wird separat in sp500_history Tabelle gespeichert (fuer Gold/SP500 Ratio)
+    sp500_value = fetch_sp500()
+    if sp500_value:
+        try:
+            _conn = sqlite3.connect(DB_PATH)
+            _c = _conn.cursor()
+            _ts = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+            _c.execute("INSERT OR IGNORE INTO sp500_history (ts, value) VALUES (?, ?)", (_ts, sp500_value))
+            _conn.commit()
+            _conn.close()
+        except Exception as _e:
+            print(f"S&P 500 DB save error: {_e}")
+
     if fx: prices["fx"] = fx
     if fx_yest: prices["fx_yest"] = fx_yest
     if fx_yahoo: prices["fx_yahoo"] = fx_yahoo
@@ -1988,7 +2022,60 @@ def get_premium_history():
 @app.route("/api/ratio-history")
 def get_ratio_history():
     range_ = request.args.get('range', '30d')
+    type_  = request.args.get('type', 'gold_silver')  # 'gold_silver' (default) oder 'gold_sp500'
     try:
+        # ------- Gold / S&P 500 -------
+        if type_ == 'gold_sp500':
+            if range_ in ('1d', '5d', '30d'):
+                hours = {'1d': 24, '5d': 120, '30d': 720}[range_]
+                conn = sqlite3.connect(DB_PATH)
+                c = conn.cursor()
+                c.execute("""
+                    SELECT
+                        sp.ts,
+                        sp.value AS sp500,
+                        (SELECT gold_usd_oz FROM price_history
+                         WHERE market='comex' AND gold_usd_oz IS NOT NULL
+                         AND ts <= sp.ts ORDER BY ts DESC LIMIT 1) AS gold
+                    FROM sp500_history sp
+                    WHERE sp.ts >= datetime('now', ? || ' hours')
+                    ORDER BY sp.ts ASC
+                """, (f'-{hours}',))
+                rows = c.fetchall()
+                conn.close()
+                result = [{"ts": ts, "ratio": round(sp / g, 4)} for ts, sp, g in rows if g and g > 0]
+                return jsonify(result)
+            else:
+                # Lange Zeitraeume: SP500 aus sp500_history + LBMA gold per Tag matchen
+                import time as _time
+                now = _time.time()
+                gold_map = cache.get("lbma_gold_map")
+                gold_map_ts = cache.get("lbma_gold_map_ts", 0)
+                if not gold_map or (now - gold_map_ts) >= 3600:
+                    gr = requests.get("https://prices.lbma.org.uk/json/gold_pm.json",
+                                      headers={"User-Agent": "Mozilla/5.0", "Referer": "https://www.lbma.org.uk/"}, timeout=(5, 20))
+                    gold_map = {e['d']: float(e['v'][0])
+                                for e in gr.json()
+                                if e.get('v') and e['v'][0] and float(e['v'][0]) > 100}
+                    cache["lbma_gold_map"] = gold_map
+                    cache["lbma_gold_map_ts"] = now
+                from datetime import timedelta
+                years = {'1y': 1, '10y': 10, 'max': 200}.get(range_, 200)
+                cutoff = (datetime.now() - timedelta(days=years * 365)).strftime('%Y-%m-%d')
+                conn = sqlite3.connect(DB_PATH)
+                c = conn.cursor()
+                c.execute("SELECT ts, value FROM sp500_history WHERE ts >= ? ORDER BY ts ASC",
+                          (cutoff + "T00:00:00Z",))
+                rows = c.fetchall()
+                conn.close()
+                result = []
+                for ts, value in rows:
+                    date_str = ts[:10]
+                    if date_str in gold_map:
+                        result.append({"ts": date_str, "ratio": round(value / gold_map[date_str], 4)})
+                return jsonify(result)
+
+        # ------- Gold / Silver (bestehende Logik) -------
         if range_ in ('1d', '5d', '30d'):
             hours = {'1d': 24, '5d': 120, '30d': 720}[range_]
             conn = sqlite3.connect(DB_PATH)
