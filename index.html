@@ -295,18 +295,9 @@ footer a:hover{text-decoration:underline}
         <div data-i18n="ratioTitle" style="font-size:10px;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase">Gold · Silver · Ratio</div>
         <div data-i18n="ratioExpand" style="font-size:9px;color:var(--text3);opacity:0.6;margin-top:2px">Click to expand</div>
       </div>
-      <div style="display:flex;align-items:baseline;justify-content:center;gap:10px;margin-bottom:10px">
+      <div style="display:flex;align-items:baseline;justify-content:center;gap:10px;margin-bottom:0">
         <div id="v-ratio" style="font-family:'DM Mono',monospace;font-size:36px;font-weight:700;color:var(--gold-p);letter-spacing:-1px;line-height:1">—</div>
         <div id="v-ratio-status" style="font-size:10px;color:var(--text3);line-height:1.4;text-align:left"></div>
-      </div>
-      <!-- Gauge: 30 (2011 low) → 125 (2020 high), avg ~65 at ~37% -->
-      <div style="position:relative;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;margin-bottom:5px">
-        <div id="v-ratio-fill" style="position:absolute;left:0;top:0;bottom:0;background:linear-gradient(to right,#8aabb8,#B9B6AE,#D4AF5A);border-radius:3px;width:0;transition:width 0.6s ease"></div>
-        <div style="position:absolute;left:37%;top:-2px;bottom:-2px;width:1.5px;background:rgba(255,255,255,0.25);border-radius:1px" title="Historical average ~65"></div>
-        <div id="v-ratio-dot" style="position:absolute;top:50%;width:9px;height:9px;background:var(--gold-p);border-radius:50%;transform:translate(-50%,-50%);border:1.5px solid #1C2028;left:0;transition:left 0.6s ease"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text3);opacity:0.7">
-        <span>30 · 2011</span><span>avg ~65</span><span>125 · 2020</span>
       </div>
     </div>
     <div id="sp500-display" style="cursor:pointer;transition:opacity 0.2s;background:#1C2028;border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:12px 18px 10px;min-width:200px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;margin-top:8px">
@@ -1783,18 +1774,13 @@ function render(){
   document.getElementById('v-usd-source').textContent = 'Source: kitco.com';
   // v-eur-source wird dynamisch in setCurrency gesetzt
 
-  // Gold/Silver ratio + gauge
+  // Gold/Silver ratio (gauge entfernt 2026-05-20)
   if(spot.XAU && spot.XAG && spot.XAG > 0){
     const ratio = spot.XAU / spot.XAG;
     const ratioEl = document.getElementById('v-ratio');
-    const ratioFill = document.getElementById('v-ratio-fill');
-    const ratioDot = document.getElementById('v-ratio-dot');
     const ratioStatus = document.getElementById('v-ratio-status');
     if(ratioEl) ratioEl.textContent = ratio.toFixed(1);
-    const RMIN = 30, RMAX = 125, RAVG = 65;
-    const pct = Math.min(97, Math.max(3, (ratio - RMIN) / (RMAX - RMIN) * 100));
-    if(ratioFill) ratioFill.style.width = pct + '%';
-    if(ratioDot) ratioDot.style.left = pct + '%';
+    const RAVG = 65;
     if(ratioStatus){
       const diff = (ratio - RAVG).toFixed(1);
       const sign = diff > 0 ? '+' : '';
