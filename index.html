@@ -2629,6 +2629,10 @@ let ratioModalReady = false;
 document.getElementById('ratio-display').addEventListener('click', openRatioModal);
 
 function openRatioModal(){
+  if(window.innerWidth<=768 && window.innerHeight>window.innerWidth){
+    _showRotateHint(()=>openRatioModal());
+    return;
+  }
   const modal = document.getElementById('ratio-modal');
   if(!modal) return;
   modal.style.display='flex';
@@ -2638,6 +2642,7 @@ function openRatioModal(){
     modal.addEventListener('click', e=>{ if(e.target===modal) closeRatioModal(); });
     ratioModalReady=true;
   }
+  _autoFsOnFirstTap('ratio-modal');
   loadRatioData(ratioRange);
 }
 function closeRatioModal(){
@@ -2714,6 +2719,10 @@ const sp500DisplayEl = document.getElementById('sp500-display');
 if (sp500DisplayEl) sp500DisplayEl.addEventListener('click', openSp500Modal);
 
 function openSp500Modal(){
+  if(window.innerWidth<=768 && window.innerHeight>window.innerWidth){
+    _showRotateHint(()=>openSp500Modal());
+    return;
+  }
   const modal = document.getElementById('sp500-modal');
   if(!modal) return;
   modal.style.display='flex';
@@ -2723,6 +2732,7 @@ function openSp500Modal(){
     modal.addEventListener('click', e=>{ if(e.target===modal) closeSp500Modal(); });
     sp500ModalReady=true;
   }
+  _autoFsOnFirstTap('sp500-modal');
   loadSp500Data(sp500Range);
 }
 function closeSp500Modal(){
