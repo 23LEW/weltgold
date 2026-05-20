@@ -214,7 +214,7 @@ def save_prices(prices):
         # Switzerland Philoro
         swi = prices.get("switzerland")
         if swi and not swi.get("is_calculated"):
-            gold = swi.get("gold_chf_oz_bid")
+            gold = swi.get("gold_chf_oz_ask")
             usd_oz = (gold / fx.get("CHF", 0.89)) if gold else None
             silver_kg = swi.get("silver_chf_kg_ask")
             c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
