@@ -1501,7 +1501,7 @@ function renderSpotChart(){ try {
           }
         },
         zoom:{
-          zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},mode:'x'},
+          zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},
           pan:{enabled:false}
         },
         verticalGrid:{enabled:currentRange==='1D'||currentRange==='5D'}
@@ -2688,7 +2688,7 @@ function renderRatioChart(data,range){
     },
     options:{...CHART_OPTS,
       plugins:{...CHART_OPTS.plugins,
-        zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},mode:'x'},pan:{enabled:false}},
+        zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
         verticalGrid:{enabled:isShort},
         tooltip:{...CHART_OPTS.plugins.tooltip,
           callbacks:{
@@ -2790,7 +2790,7 @@ function renderSp500Chart(data,range){
     },
     options:{...CHART_OPTS,
       plugins:{...CHART_OPTS.plugins,
-        zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},mode:'x'},pan:{enabled:false}},
+        zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
         verticalGrid:{enabled:isShort},
         tooltip:{...CHART_OPTS.plugins.tooltip,
           callbacks:{
@@ -3066,7 +3066,7 @@ function renderCompareChart(results,range){
     options:{...CHART_OPTS,
       plugins:{...CHART_OPTS.plugins,
         legend:{display:true,position:'right',align:'start',labels:{color:'#888',font:{size:22},boxWidth:20,padding:12,usePointStyle:true,pointStyle:'line'}},
-        zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},mode:'x'},pan:{enabled:false}},
+        zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
         verticalGrid:{enabled:isShort},
         tooltip:{...CHART_OPTS.plugins.tooltip,mode:'index',intersect:false,
           callbacks:{label:c=>`${c.dataset.label}: $${fmt(c.parsed.y,2)}`}
