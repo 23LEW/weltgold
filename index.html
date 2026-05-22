@@ -2774,12 +2774,14 @@ function renderSp500Chart(data,range){
   if(!data||!data.length) return;
   const isShort=range==='1d'||range==='5d';
   const timeUnit=range==='1d'?'hour':range==='5d'?'hour':range==='30d'?'day':range==='1y'?'month':'year';
+  // {x,y}-Format + parsing:false sind Voraussetzung fuers Decimation-Plugin (LTTB).
+  const points=data.map(d=>({x:new Date(d.ts).getTime(), y:d.ratio}));
   chartSp500=new Chart(ctx,{
     type:'line',
     data:{
-      labels:data.map(d=>d.ts),
       datasets:[{
-        data:data.map(d=>d.ratio),
+        data:points,
+        normalized:true,
         borderColor:'#D4AF5A',
         backgroundColor:'rgba(212,175,90,0.06)',
         borderWidth:1.5,
@@ -2791,15 +2793,19 @@ function renderSp500Chart(data,range){
       }]
     },
     options:{...CHART_OPTS,
+      parsing:false,
       plugins:{...CHART_OPTS.plugins,
+        // LTTB duennt aus, wenn die Punkte im sichtbaren Bereich den Schwellwert ueberschreiten;
+        // beim Reinzoomen (Zoom-Plugin) rechnet es neu -> glatt in der Uebersicht, scharf im Zoom.
+        decimation:{enabled:true,algorithm:'lttb',samples:500},
         zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
         verticalGrid:{enabled:isShort},
         tooltip:{...CHART_OPTS.plugins.tooltip,
           callbacks:{
             title:ctx=>{
-              const d=data[ctx[0].dataIndex];
-              if(!d) return '';
-              return isShort?(d.ts||'').slice(0,16).replace('T',' ')+' UTC':d.ts;
+              if(!ctx.length) return '';
+              const dt=new Date(ctx[0].parsed.x);
+              return isShort ? dt.toISOString().slice(0,16).replace('T',' ')+' UTC' : dt.toISOString().slice(0,10);
             },
             label:ctx=>`Ratio: ${fmt(ctx.parsed.y,3)} oz Gold per S&P 500 point`
           }
