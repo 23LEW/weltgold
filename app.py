@@ -306,6 +306,25 @@ def save_prices(prices):
             c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?,?)",
                 (ts, 'shanghai', usd_oz, gold_cny_gram, silver_cny_kg, silver_usd, calc_premium(usd_oz), 'CNY', 'gram', 'kg'))
 
+        # China Gold (中国黄金) — Investment-Barren mit Bid/Ask (CNY/gram)
+        cg = prices.get("chinagold")
+        if cg and not cg.get("is_calculated"):
+            gold_ask = cg.get("gold_cny_gram_ask")
+            gold_bid = cg.get("gold_cny_gram_bid")
+            usd_oz_ask = (gold_ask / fx.get("CNY", 7.1)) * GRAM if gold_ask else None
+            usd_oz_bid = (gold_bid / fx.get("CNY", 7.1)) * GRAM if gold_bid else None
+            c.execute(
+                "INSERT INTO price_history "
+                "(ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,"
+                "premium_pct,local_currency,gold_local_unit,silver_local_unit,"
+                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'chinagold',
+                 usd_oz_ask, gold_ask, None, None,
+                 calc_premium(usd_oz_ask), 'CNY', 'gram', None,
+                 usd_oz_bid, calc_premium(usd_oz_bid),
+                 gold_bid, None))
+
         # Australia Perth Mint
         au = prices.get("australia")
         if au and not au.get("is_calculated"):
@@ -1310,6 +1329,49 @@ def fetch_shanghai():
         print(f"SGE error: {e}")
         return None
 
+def fetch_chinagold():
+    """中国黄金 (China Gold) Investment-Barren via Bright Data Web Unlocker.
+    Quelle: chnau99999.com (offizielle Terminal-Preisseite).
+    零售价 = Verkauf (ask), 回购价 = Rueckkauf (bid), 基础金价 = Basis (Referenz). Alle CNY/Gramm.
+    Token + Zone aus den Umgebungsvariablen BRIGHTDATA_API_TOKEN / BRIGHTDATA_ZONE."""
+    import os, re
+    token = os.environ.get("BRIGHTDATA_API_TOKEN")
+    zone  = os.environ.get("BRIGHTDATA_ZONE")
+    if not token or not zone:
+        print("ChinaGold: BRIGHTDATA_API_TOKEN/ZONE fehlt -> uebersprungen")
+        return None
+    try:
+        r = requests.post(
+            "https://api.brightdata.com/request",
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            json={"zone": zone, "url": "https://www.chnau99999.com/page/goldPrice",
+                  "format": "raw", "data_format": "markdown"},
+            timeout=(10, 60))
+        r.raise_for_status()
+        text = r.text
+
+        def grab(label):
+            m = re.search(label + r"[^0-9]{0,15}([0-9]{3,5}\.[0-9]{2})", text)
+            return float(m.group(1)) if m else None
+
+        ask  = grab("零售价")
+        bid  = grab("回购价")
+        base = grab("基础金价")
+        if not ask:
+            print("ChinaGold: 零售价 nicht gefunden -> Parser/Quelle pruefen")
+            return None
+        print(f"ChinaGold: ask={ask} bid={bid} base={base} CNY/g")
+        return {
+            "gold_cny_gram_ask":  round(ask, 2),
+            "gold_cny_gram_bid":  round(bid, 2) if bid else None,
+            "gold_cny_gram_base": round(base, 2) if base else None,
+            "source": "chnau99999.com",
+            "is_calculated": False,
+        }
+    except Exception as e:
+        print(f"ChinaGold error: {e}")
+        return None
+
 def fetch_hkgx():
     try:
         from playwright.sync_api import sync_playwright
@@ -1572,6 +1634,7 @@ def update():
     hk = fetch_hongkong()
     lbma = fetch_lbma()
     sge = fetch_shanghai()
+    chinagold = fetch_chinagold()
     hkgx = fetch_hkgx()
     australia = fetch_australia()
     usa = fetch_usa()
@@ -1649,6 +1712,8 @@ def update():
         prices["lbma"] = lbma
     if sge:
         prices["shanghai"] = sge
+    if chinagold:
+        prices["chinagold"] = chinagold
     if hkgx:
         prices["hkgx"] = hkgx
     if australia:
@@ -1765,6 +1830,7 @@ def update():
         "india":         ("gold_inr_gram",     "INR", "gram", "silver_inr_kg",      "INR", "kg"),
         "japan":         ("gold_jpy_gram_ask", "JPY", "gram", None,                 None,  None),
         "shanghai":      ("gold_cny_gram",     "CNY", "gram", "silver_cny_kg",      "CNY", "kg"),
+        "chinagold":     ("gold_cny_gram_ask", "CNY", "gram", None,                 None,  None),
         "uk_royalmint":  ("gold_gbp_oz_ask",   "GBP", "oz",   "silver_gbp_oz_ask",  "GBP", "oz"),
     }
 
@@ -1781,6 +1847,11 @@ def update():
             silver_usd = to_usd_oz(silver_val, silver_cur, silver_unit)
             if silver_usd:
                 prices[market]["silver_usd_oz"] = silver_usd
+
+    # China Gold: zusaetzlich Rueckkauf (bid) in USD/oz fuers Frontend
+    _cg = prices.get("chinagold")
+    if _cg and _cg.get("gold_cny_gram_bid"):
+        _cg["gold_usd_oz_bid"] = to_usd_oz(_cg["gold_cny_gram_bid"], "CNY", "gram")
 
     print(f"Normalized gold/silver usd_oz: { {k: (prices[k].get('gold_usd_oz'), prices[k].get('silver_usd_oz')) for k in NORM_TABLE if k in prices} }")
 
