@@ -1377,7 +1377,7 @@ let miniHistCache = {};
 let modalGridIndices = [];
 
 async function loadMiniHistory(){
-  const markets = ['comex','lbma','istanbul','india_gjc','india_mumbai','india','japan','germany','switzerland','uk_royalmint','russia_dealer','dubai','hongkong','usa','canada','australia','shanghai','hkgx'];
+  const markets = ['comex','lbma','istanbul','india_gjc','india_mumbai','india','japan','germany','switzerland','uk_royalmint','russia_dealer','dubai','hongkong','usa','canada','australia','shanghai','hkgx','chinagold'];
   const hours = {'1d':24,'5d':120,'30d':720,'1y':8760}[modalRange] || 24;
   for(const m of markets){
     try{
