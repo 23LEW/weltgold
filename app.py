@@ -1634,7 +1634,13 @@ def update():
     hk = fetch_hongkong()
     lbma = fetch_lbma()
     sge = fetch_shanghai()
-    chinagold = fetch_chinagold()
+    # China Gold nur alle 30 Min abfragen (Preis traege, spart Bright-Data-Kosten).
+    # An fetch-freien Zyklen bleibt der letzte Wert ueber die DB-Injection in /api/prices sichtbar.
+    chinagold = None
+    if datetime.now().timestamp() - cache.get("chinagold_last_ts", 0) >= 1800:
+        chinagold = fetch_chinagold()
+        if chinagold:
+            cache["chinagold_last_ts"] = datetime.now().timestamp()
     hkgx = fetch_hkgx()
     australia = fetch_australia()
     usa = fetch_usa()
@@ -2026,6 +2032,33 @@ def get_prices():
             }
     except Exception as e:
         print(f"CCB DB error: {e}")
+    # China Gold: letzter Wert aus DB (Fetch ist auf 30 Min gedrosselt -> Cache leer auf Zwischen-Zyklen)
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("""
+            SELECT gold_local, gold_local_bid, gold_usd_oz, bid_usd_oz, premium_pct, bid_premium_pct, ts
+            FROM price_history
+            WHERE market='chinagold' AND ts >= datetime('now', '-12 hours')
+              AND gold_local IS NOT NULL
+            ORDER BY ts DESC LIMIT 1
+        """)
+        row = c.fetchone()
+        conn.close()
+        if row:
+            data["chinagold"] = {
+                "gold_cny_gram_ask": row[0],
+                "gold_cny_gram_bid": row[1],
+                "gold_usd_oz":       row[2],
+                "gold_usd_oz_bid":   row[3],
+                "premium_pct":       row[4],
+                "bid_premium_pct":   row[5],
+                "ts":                row[6],
+                "source":            "chnau99999.com",
+                "is_calculated":     False,
+            }
+    except Exception as e:
+        print(f"ChinaGold DB error: {e}")
     return jsonify({"data": data, "last_updated": cache["last_updated"], "status": "ok"})
 
 @app.route("/api/history/<market>")
