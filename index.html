@@ -688,7 +688,7 @@ let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
 let tradeDir = 'buy'; // 'buy' or 'sell'
 const KGFACTOR = 1000/G;
-let spot = null, fx = null, hkgxLive = null, russiaDealer = null, istanbul = null, gjcLive = null, mumbaiLive = null, ibjaLive = null, hkLive = null, japanLive = null, germanyLive = null, philoroLive = null, russiaLive = null, dubaiLive = null, usaLive = null, lbmaLive = null, shanghaiLive = null, ccbLive = null, canadaLive = null, australiaLive = null, royalmintLive = null, chinagoldLive = null;
+let spot = null, fx = null, hkgxLive = null, russiaDealer = null, istanbul = null, gjcLive = null, mumbaiLive = null, ibjaLive = null, hkLive = null, japanLive = null, germanyLive = null, philoroLive = null, russiaLive = null, dubaiLive = null, usaLive = null, lbmaLive = null, shanghaiLive = null, canadaLive = null, australiaLive = null, royalmintLive = null, chinagoldLive = null;
 let displayCurrency = 'USD';
 const CURRENCIES = {USD:{sym:'$',name:'USD'},EUR:{sym:'€',name:'EUR'},GBP:{sym:'£',name:'GBP'},JPY:{sym:'JP¥',name:'JPY'},CNY:{sym:'CN¥',name:'CNY'},TRY:{sym:'₺',name:'TRY'},AED:{sym:'د.إ',name:'AED'},INR:{sym:'₹',name:'INR'},RUB:{sym:'₽',name:'RUB'},AUD:{sym:'A$',name:'AUD'},HKD:{sym:'HK$',name:'HKD'},CHF:{sym:'Fr.',name:'CHF'}};
 let histData = []; // historical spot prices
@@ -725,7 +725,6 @@ const MARKETS = [
   {id:'germany', name:'Degussa · Germany', city:'Frankfurt / München', flag:'🇩🇪', currency:'EUR', unitLabel:'EUR/oz', calcPremium:0.015},
   {id:'switzerland', name:'Philoro · Switzerland', city:'Zürich / Wien / München', flag:'🇨🇭', currency:'CHF', unitLabel:'CHF/oz', calcPremium:0.02},
   {id:'uk_royalmint', name:'Royal Mint · UK', city:'Llantrisant · Wales', flag:'🇬🇧', currency:'GBP', unitLabel:'GBP/oz', calcPremium:0.005},
-  {id:'ccb', name:'CCB · China', city:'建设银行 · Paper Gold (账户黄金)', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/gram', calcPremium:0},
   {id:'chinagold', name:'China Gold · 中国黄金', city:'中国黄金 · Investment Bar (投资金条)', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/gram', calcPremium:0},
 ];
 
@@ -869,8 +868,6 @@ function calcMarket(m){
                    sBid: japanLive?.silver_bid ? (japanLive.silver_bid/(fx.JPY||150))*G : null },
     shanghai:    { g: shanghaiLive?.cny_gram ? (shanghaiLive.cny_gram/(fx.CNY||7.2))*G : null,
                    s: shanghaiLive?.silver_cny_gram ? (shanghaiLive.silver_cny_gram/(fx.CNY||7.2))*G : null },
-    ccb:         { g: ccbLive?.ask ? (ccbLive.ask/(fx.CNY||7.2))*G : null,
-                   gBid: ccbLive?.bid ? (ccbLive.bid/(fx.CNY||7.2))*G : null },
     chinagold:   { g: chinagoldLive?.ask ? (chinagoldLive.ask/(fx.CNY||7.2))*G : null,
                    gBid: chinagoldLive?.bid ? (chinagoldLive.bid/(fx.CNY||7.2))*G : null },
   };
@@ -1058,12 +1055,6 @@ async function load(){
       if(sh && sh.gold_cny_gram && !sh.is_calculated){
         shanghaiLive = {cny_gram: sh.gold_cny_gram, silver_cny_gram: sh.silver_cny_kg ? sh.silver_cny_kg/1000 : (sh.silver_cny_gram||null), date: sh.date, source: sh.source};
       } else { shanghaiLive = null; }
-
-      // CCB 建设银行 Paper Gold
-      const cb = vps?.ccb;
-      if(cb && cb.gold_cny_gram && !cb.is_calculated){
-        ccbLive = {ask: cb.gold_cny_gram, bid: cb.gold_cny_gram_bid||null, ts: cb.ts, source: cb.source};
-      } else { ccbLive = null; }
 
       // China Gold 中国黄金 Investment Bar (Bright Data)
       const cgd = vps?.chinagold;
@@ -1926,7 +1917,6 @@ function render(){
     else if(r.id==='japan'    && (japanLive?.bid||japanLive?.silver_ask)) srcBadge='<span class="badge live">🟢 LIVE · tanaka.co.jp</span>';
     else if(r.id==='hongkong' && hkLive?.bid && metal==='XAU') srcBadge='<span class="badge live">🟢 LIVE · hangseng.com</span>';
     else if(r.id==='shanghai' && shanghaiLive?.cny_gram)     srcBadge='<span class="badge live">🟢 DAILY · sge.com.cn</span>';
-    else if(r.id==='ccb'     && ccbLive?.ask)               srcBadge='<span class="badge live">🟢 LIVE · gold1.ccb.com</span>';
     else if(r.id==='chinagold' && chinagoldLive?.ask)       srcBadge='<span class="badge live">🟢 LIVE · chnau99999.com</span>';
     else srcBadge='<span class="badge calc">🟠 CALC</span>';
 
@@ -1969,10 +1959,6 @@ function render(){
         const bidLine = gjcLive.silver_inr_kg_bid ? `<div class="plocal sv">₹ ${fmt(gjcLive.silver_inr_kg_bid,0)}</div><div class="punit">Bid (INR/kg)</div>` : '';
         priceCell = `${bidLine}<div class="plocal sv" style="${gjcLive.silver_inr_kg_bid?'margin-top:4px':''}">₹ ${fmt(gjcLive.silver_inr_kg_ask,0)}</div><div class="punit">Ask (INR/kg)</div>`;
       }
-    } else if(r.id==='ccb' && ccbLive?.ask){
-      priceCell = ccbLive.bid
-        ? `<div class="plocal">¥ ${fmt(ccbLive.bid,0)}</div><div class="punit">Bid (CNY/g)</div><div class="plocal" style="margin-top:4px">¥ ${fmt(ccbLive.ask,0)}</div><div class="punit">Ask (CNY/g)</div>`
-        : `<div class="plocal">¥ ${fmt(ccbLive.ask,0)}</div><div class="punit">CNY/g</div>`;
     } else if(r.id==='chinagold' && chinagoldLive?.ask){
       priceCell = chinagoldLive.bid
         ? `<div class="plocal">¥ ${fmt(chinagoldLive.bid,0)}</div><div class="punit">Bid (CNY/g)</div><div class="plocal" style="margin-top:4px">¥ ${fmt(chinagoldLive.ask,0)}</div><div class="punit">Ask (CNY/g)</div>`

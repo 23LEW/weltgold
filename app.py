@@ -2006,32 +2006,6 @@ def get_prices():
             data["spot"] = spot
     except Exception as e:
         print(f"High/Low DB error: {e}")
-    try:
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("""
-            SELECT gold_local, gold_local_bid, gold_usd_oz, bid_usd_oz, premium_pct, bid_premium_pct, ts
-            FROM price_history
-            WHERE market='ccb' AND ts >= datetime('now', '-4 hours')
-              AND gold_local IS NOT NULL
-            ORDER BY ts DESC LIMIT 1
-        """)
-        row = c.fetchone()
-        conn.close()
-        if row:
-            data["ccb"] = {
-                "gold_cny_gram":     row[0],
-                "gold_cny_gram_bid": row[1],
-                "gold_usd_oz":       row[2],
-                "bid_usd_oz":        row[3],
-                "premium_pct":       row[4],
-                "bid_premium_pct":   row[5],
-                "ts":                row[6],
-                "source":            "gold1.ccb.com",
-                "is_calculated":     False,
-            }
-    except Exception as e:
-        print(f"CCB DB error: {e}")
     # China Gold: letzter Wert aus DB (Fetch ist auf 30 Min gedrosselt -> Cache leer auf Zwischen-Zyklen)
     try:
         conn = sqlite3.connect(DB_PATH)
@@ -2250,7 +2224,7 @@ def index():
     return jsonify({"name": "goldpremium API", "last_updated": cache["last_updated"]})
 
 INGEST_API_KEY  = os.environ.get("INGEST_API_KEY", "GP_BEIJING_INGEST_2026")
-INGEST_MARKETS  = {"shanghai", "ccb"}
+INGEST_MARKETS  = {"shanghai"}
 
 @app.route("/ingest", methods=["POST"])
 def ingest_price():
