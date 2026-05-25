@@ -221,7 +221,7 @@ footer a:hover{text-decoration:underline}
 <header style="flex-direction:column;align-items:center;text-align:center;gap:8px">
   <div style="width:100%">
     <h1 class="site-title" style="display:flex;align-items:center;justify-content:center;gap:14px;width:100%">
-      <img src="goldpremium_logo_dark.svg" alt="GoldPremium.org" style="height:75px;width:auto;flex-shrink:0">
+      <img src="goldpremium_logo_dark.svg?v=2" alt="GoldPremium.org" style="height:75px;width:auto;flex-shrink:0">
     </h1>
     <p class="site-subtitle" data-i18n="siteSubtitle">Compare physical gold &amp; silver prices across the world's markets</p>
   </div>
@@ -2547,7 +2547,7 @@ function positionRatioForDevice(){
   if(window.innerWidth<=768){
     if(ratio&&slot&&ratio.parentNode!==slot) slot.appendChild(ratio);
     if(sp500&&sp500Slot&&sp500.parentNode!==sp500Slot) sp500Slot.appendChild(sp500);
-    if(langContainer&&togglesCol&&langContainer.parentNode!==togglesCol) togglesCol.appendChild(langContainer);
+    if(langContainer&&currencyRow&&langContainer.parentNode!==currencyRow) currencyRow.insertBefore(langContainer,currencyRow.firstChild);
     if(sUsd&&mobileCardsRow&&sUsd.parentNode!==mobileCardsRow) mobileCardsRow.appendChild(sUsd);
     if(sEur&&mobileCardsRow&&sEur.parentNode!==mobileCardsRow) mobileCardsRow.appendChild(sEur);
     if(togglesCol&&mobileTogglesRow&&togglesCol.parentNode!==mobileTogglesRow) mobileTogglesRow.appendChild(togglesCol);
@@ -2555,7 +2555,7 @@ function positionRatioForDevice(){
   } else {
     if(ratio&&logoInner&&ratio.parentNode!==logoInner.parentNode) logoInner.parentNode.insertBefore(ratio,logoInner);
     if(sp500&&logoInner&&sp500.parentNode!==logoInner.parentNode) logoInner.parentNode.insertBefore(sp500,logoInner);
-    if(langContainer&&togglesCol&&langContainer.parentNode!==togglesCol) togglesCol.insertBefore(langContainer,togglesCol.firstChild);
+    if(langContainer&&currencyRow&&langContainer.parentNode!==currencyRow) currencyRow.insertBefore(langContainer,currencyRow.firstChild);
     if(sUsd&&leftGroup&&sUsd.parentNode!==leftGroup) leftGroup.insertBefore(sUsd,leftGroup.firstChild);
     if(togglesCol&&leftGroup&&togglesCol.parentNode!==leftGroup) leftGroup.appendChild(togglesCol);
     if(currencyRow&&rightGroup&&currencyRow.parentNode!==rightGroup) rightGroup.insertBefore(currencyRow,rightGroup.firstChild);
