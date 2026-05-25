@@ -2825,8 +2825,9 @@ loadSp500LiveRatio();
 setInterval(loadSp500LiveRatio, 5*60*1000);
 
 // ── Market Compare ────────────────────────────────────────────
-const COMPARE_COLORS={comex:'#E85A5A',lbma:'#5B8DEF',hongkong:'#F0A500',russia:'#CC4444',shanghai:'#EE4B2B',japan:'#4A90D9',dubai:'#C67BD4',germany:'#5BAD7A',switzerland:'#E63946',uk_royalmint:'#C8102E',istanbul:'#D4AF5A',usa:'#00A693'};
+const COMPARE_COLORS={comex:'#E85A5A',lbma:'#5B8DEF',shanghai:'#F0A500',hkgx:'#2ECC71',india_ibja:'#C879E0',hongkong:'#FF8C42',istanbul:'#D4AF5A',india_mumbai:'#EC4899',india_gjc:'#22D3EE',japan:'#4A90D9',dubai:'#C67BD4',usa:'#00A693',canada:'#F4D03F',russia_dealer:'#94A3B8',australia:'#A3E635',germany:'#5BAD7A',switzerland:'#D946EF',uk_royalmint:'#38BDF8',chinagold:'#FCD34D'};
 const COMPARE_LABELS=Object.fromEntries([...EXCHANGES,...MARKETS].map(r=>[r.id,r.flag+' '+r.name]));
+const COMPARE_HISTID=Object.fromEntries([...EXCHANGES,...MARKETS].map(r=>[r.id,r.historyId||r.id]));
 const selectedMarkets=new Set();
 let chartCompare=null, compareRange='1d';
 
@@ -3049,7 +3050,7 @@ async function loadCompareData(range){
   const hours={'1d':24,'5d':120,'30d':720,'1y':8760}[range]||24;
   try{
     const results=await Promise.all([...selectedMarkets].map(m=>
-      fetch(`https://api.goldpremium.org/api/history/${m}?hours=${hours}`)
+      fetch(`https://api.goldpremium.org/api/history/${COMPARE_HISTID[m]||m}?hours=${hours}`)
         .then(r=>r.json()).then(resp=>({market:m,data:downsampleData(resp.data||[],range)})).catch(()=>({market:m,data:[]}))
     ));
     renderCompareChart(results,range);
