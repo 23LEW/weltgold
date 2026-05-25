@@ -51,7 +51,7 @@ body{background:var(--bg);color:var(--text);font-family:'Open Sans',sans-serif;f
 header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
 .site-title{font-size:36px;font-weight:700;color:var(--text);letter-spacing:-.5px;text-align:center;width:100%}
 .site-title strong{color:var(--gold-p)}
-.site-subtitle{font-size:17px;color:var(--text1);font-weight:500;margin-top:6px;text-align:center;width:100%;max-width:680px;margin-left:auto;margin-right:auto}
+.site-subtitle{font-size:17px;color:var(--text);font-weight:500;margin-top:6px;text-align:center;width:100%;max-width:680px;margin-left:auto;margin-right:auto}
 .header-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text2)}
 .live-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;background:var(--green-bg);border-radius:20px;color:var(--green);font-size:11px;font-weight:600}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
@@ -320,7 +320,7 @@ footer a:hover{text-decoration:underline}
   </div>
   <div id="right-group" style="flex:1;display:flex;align-items:stretch;gap:20px;justify-content:flex-end">
   <div id="currency-row" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;align-self:center;padding:0">
-    <label for="currency-select" data-i18n="currencyLabel" style="font-size:12px;color:var(--text3);letter-spacing:0.3px">Show prices in</label>
+    <label for="currency-select" data-i18n="currencyLabel" style="font-size:14px;color:#fff;letter-spacing:0.3px">Show prices in</label>
     <select id="currency-select" onchange="setCurrency(this.value)" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:15px;color:var(--gold-p);font-weight:600;cursor:pointer;min-width:120px">
       <option value="USD" selected>USD</option>
       <option value="EUR">EUR</option>
@@ -335,7 +335,7 @@ footer a:hover{text-decoration:underline}
       <option value="HKD">HKD</option>
       <option value="CHF">CHF</option>
     </select>
-    <div id="currency-fx" style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;min-height:14px"></div>
+    <div id="currency-fx" style="font-size:13px;color:#fff;font-family:'DM Mono',monospace;min-height:16px"></div>
   </div>
   <div class="spot show" id="s-eur" style="display:flex;flex-direction:column;height:auto;flex:1;min-width:0;text-align:center;align-items:center;padding:8px 0">
     <div class="spot-label" id="lbl-eur">Spot Price · USD / Troy Oz</div>
