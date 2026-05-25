@@ -335,6 +335,7 @@ footer a:hover{text-decoration:underline}
       <option value="HKD">HKD</option>
       <option value="CHF">CHF</option>
     </select>
+    <div id="currency-fx" style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;min-height:14px"></div>
   </div>
   <div class="spot show" id="s-eur" style="display:flex;flex-direction:column;height:auto;flex:1;min-width:0;text-align:center;align-items:center;padding:8px 0">
     <div class="spot-label" id="lbl-eur">Spot Price · USD / Troy Oz</div>
@@ -1747,13 +1748,10 @@ function render(){
   document.getElementById('lbl-eur').textContent = `${_t.lblEur} · ${displayCurrency} / ${unit==='oz'?_t.unitOz:_t.unitKilo}`;
   const fxRateEl = document.getElementById('v-fx-rate');
   const eurSourceEl = document.getElementById('v-eur-source');
-  if(fxRateEl){
-    if(displayCurrency !== 'USD' && fx && fx[displayCurrency]){
-      fxRateEl.textContent = `1 USD = ${fmt(fx[displayCurrency], fx[displayCurrency]>10 ? 2 : 4)} ${displayCurrency}`;
-    } else {
-      fxRateEl.textContent = '';
-    }
-  }
+  const curFxEl = document.getElementById('currency-fx');
+  const _fxText = (displayCurrency !== 'USD' && fx && fx[displayCurrency]) ? `1 USD = ${fmt(fx[displayCurrency], fx[displayCurrency]>10 ? 2 : 4)} ${displayCurrency}` : '';
+  if(fxRateEl) fxRateEl.textContent = _fxText;
+  if(curFxEl) curFxEl.textContent = _fxText;
   const symEl = document.getElementById('sym-eur'); if(symEl) symEl.textContent = getCurrencySym();
 
   // Bid/Ask + source for spot cards
