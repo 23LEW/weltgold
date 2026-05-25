@@ -1255,6 +1255,36 @@ def fetch_lbma():
         return None
 
 
+def _fetch_sge_au_fixing():
+    """Fallback fuer SGE-Gold: offizielles 上海金/SHAU Au-Fixing von sge.com.cn
+    (zweimal taeglich). Liefert den letzten Fixing-Wert in CNY/Gramm oder None.
+    Wird nur genutzt, wenn die Primaerquelle metalcharts.org ausfaellt."""
+    try:
+        import requests
+        from bs4 import BeautifulSoup
+        from datetime import date, timedelta
+        headers = {"User-Agent": "Mozilla/5.0", "Referer": "https://www.sge.com.cn/sjzx/mrhqsj"}
+        for d in [date.today().isoformat()] + [(date.today()-timedelta(days=i)).isoformat() for i in range(1, 6)]:
+            url = f"https://www.sge.com.cn/sjzx/shanghaiAuAuto?start_date={d}&end_date={d}"
+            r = requests.get(url, timeout=(5, 10), headers=headers)
+            soup = BeautifulSoup(r.text, 'html.parser')
+            last_price = None
+            for row in soup.find_all('tr'):
+                cells = [c.get_text(strip=True) for c in row.find_all('td')]
+                if len(cells) >= 6 and 'SHAU' in cells[2]:
+                    try:
+                        p = float(cells[5].replace(',', ''))
+                        if p > 100:
+                            last_price = p
+                    except: pass
+            if last_price:
+                print(f"SGE Au-Fixing Fallback ({d}): {last_price} CNY/gram")
+                return last_price
+    except Exception as e:
+        print(f"SGE Au-Fixing Fallback error: {e}")
+    return None
+
+
 def fetch_shanghai():
     try:
         from playwright.sync_api import sync_playwright
@@ -1287,11 +1317,23 @@ def fetch_shanghai():
         silver_cny_kg = None  # Silber kommt von shanghaiAgAuto (separate Quelle)
 
         if gold_cny_gram and gold_cny_gram > 100:
+            sge_source = "metalcharts.org/sge"
             print(f"SGE Gold (metalcharts): {gold_cny_gram} CNY/gram = {gold_usd_oz} USD/oz")
+        else:
+            # Fallback: offizielles SGE Au-Fixing (sge.com.cn/shanghaiAuAuto), wenn metalcharts ausfaellt
+            print("SGE Gold (metalcharts) leer -> Fallback auf sge.com.cn Au-Fixing")
+            _fix = _fetch_sge_au_fixing()
+            if _fix:
+                gold_cny_gram = _fix
+                gold_usd_oz = None  # wird downstream aus gold_cny_gram per FX berechnet
+                sge_source = "sge.com.cn/Au-Fixing"
+
+        if gold_cny_gram and gold_cny_gram > 100:
+            print(f"SGE Gold ({sge_source}): {gold_cny_gram} CNY/gram")
             result = {
                 "gold_cny_gram": round(gold_cny_gram, 4),
                 "gold_usd_oz": round(gold_usd_oz, 4) if gold_usd_oz else None,
-                "source": "metalcharts.org/sge",
+                "source": sge_source,
                 "is_calculated": False
             }
             # Silber via shanghaiAgAuto
