@@ -2224,7 +2224,7 @@ def index():
     return jsonify({"name": "goldpremium API", "last_updated": cache["last_updated"]})
 
 INGEST_API_KEY  = os.environ.get("INGEST_API_KEY", "GP_BEIJING_INGEST_2026")
-INGEST_MARKETS  = {"shanghai"}
+INGEST_MARKETS  = set()  # Peking-VPS 2026-05-25 stillgelegt; /ingest nimmt nichts mehr an
 
 @app.route("/ingest", methods=["POST"])
 def ingest_price():
