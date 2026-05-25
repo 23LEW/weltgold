@@ -355,10 +355,6 @@ footer a:hover{text-decoration:underline}
 </div>
 <div id="spots-spacer"></div>
 
-<div class="sec">
-  <div class="sec-title" data-i18n="secExchanges">Exchange &amp; Benchmark Prices</div>
-  <div class="sec-note" id="sec-note-ex">🟢 Live &nbsp;|&nbsp; 🟠 Calculated &nbsp;|&nbsp; COMEX is the default reference</div>
-</div>
 
 <div id="loading" class="loading" style="display: none;">Loading market data…</div>
 <div class="tscroll" id="tbl-exchanges" style="">
@@ -2503,7 +2499,6 @@ function setLang(code){
   document.getElementById('btn-sell').textContent=t.sell;
   const hint=document.getElementById('compare-hint');if(hint)hint.textContent=t.compareHint;
   const cmp=document.getElementById('compare-btn-open');if(cmp)cmp.textContent=t.compareBtn;
-  const snEx=document.getElementById('sec-note-ex');if(snEx)snEx.textContent=t.secNoteEx;
   const snDl=document.getElementById('sec-note-dl');if(snDl)snDl.textContent=t.secNoteDl;
   const dlLang=document.getElementById('disclaimer-lang');
   const dlGrid=document.getElementById('disclaimer-grid');
