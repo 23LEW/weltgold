@@ -2581,7 +2581,9 @@ function positionRatioForDevice(){
 }
 window.addEventListener('resize',()=>{positionRatioForDevice();fitUsdPrice();fitEurPrice();});
 positionRatioForDevice();
-// (Mobile-Auto-Sprung zur Preis-Leiste entfernt — Seite startet oben bei Logo & Untertitel)
+// Seite startet beim Reload oben (keine Scroll-Wiederherstellung des Browsers)
+if('scrollRestoration' in history) history.scrollRestoration='manual';
+window.scrollTo(0,0);
 function updateStickyTop(){
   const bar=document.getElementById('spots-sticky');
   if(bar) document.documentElement.style.setProperty('--spots-bar-h', bar.offsetHeight+'px');
