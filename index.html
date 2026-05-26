@@ -2581,12 +2581,7 @@ function positionRatioForDevice(){
 }
 window.addEventListener('resize',()=>{positionRatioForDevice();fitUsdPrice();fitEurPrice();});
 positionRatioForDevice();
-if(window.innerWidth<=768){
-  requestAnimationFrame(function(){
-    const bar=document.getElementById('spots-sticky');
-    if(bar) window.scrollTo({top:bar.offsetTop,behavior:'instant'});
-  });
-}
+// (Mobile-Auto-Sprung zur Preis-Leiste entfernt — Seite startet oben bei Logo & Untertitel)
 function updateStickyTop(){
   const bar=document.getElementById('spots-sticky');
   if(bar) document.documentElement.style.setProperty('--spots-bar-h', bar.offsetHeight+'px');
