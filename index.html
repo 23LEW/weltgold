@@ -307,7 +307,7 @@ footer a:hover{text-decoration:underline}
       </div>
     </div>
     <div id="logo-inner" style="display:flex;flex-direction:column;align-items:center;gap:4px;visibility:hidden;opacity:0;transition:opacity 0.2s;position:absolute">
-      <img src="goldpremium_icon.svg?v=3" alt="GoldPremium" style="width:44px;height:44px">
+      <img src="goldpremium_icon.svg?v=4" alt="GoldPremium" style="width:44px;height:44px">
       <span style="font-size:12px;font-weight:700;letter-spacing:0.3px;color:var(--text);white-space:nowrap"><strong>Gold</strong>Premium<span style="color:var(--text3);font-weight:400">.org</span></span>
     </div>
   </div>
@@ -351,7 +351,7 @@ footer a:hover{text-decoration:underline}
 <div id="mobile-controls-row" style="display:none;flex-direction:column;gap:8px;padding:10px 8px 14px;align-items:center"></div>
 <div id="mobile-sticky-bar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:var(--bg);border-bottom:1px solid var(--border);padding:5px 8px 7px;flex-direction:column;align-items:center;gap:4px">
   <div id="sticky-bidask" style="font-family:'DM Mono',monospace;color:#F0F0F0;font-size:15px;line-height:1.2;text-align:center"></div>
-  <img id="sticky-logo-ls" src="goldpremium_icon.svg?v=3" alt="" style="height:18px;width:auto;display:none">
+  <img id="sticky-logo-ls" src="goldpremium_icon.svg?v=4" alt="" style="height:18px;width:auto;display:none">
   <div style="display:flex;gap:6px;align-items:center;justify-content:center;width:100%">
     <div class="ctrl-group" style="padding:2px;gap:1px">
       <button class="ctrl-btn on" id="btn-gold-s" onclick="setMetal('XAU')" style="padding:4px 10px;font-size:12px">Gold</button>
@@ -1786,7 +1786,7 @@ function render(){
     const dAskDisp = toDisplay(dAsk * dispRate);
     document.getElementById('v-eur-bidask').innerHTML = `<span class="ba-bid">Bid ${getCurrencySym()}${fmt(dBidDisp,dec)}</span><span class="ba-sep">  ·  </span><span class="ba-ask">Ask ${getCurrencySym()}${fmt(dAskDisp,dec)}</span>`;
     const _sba = document.getElementById('sticky-bidask');
-    if(_sba) _sba.innerHTML = `Bid ${getCurrencySym()}${fmt(dBidDisp,dec)}<img class="ba-logo" src="goldpremium_icon.svg?v=3" alt="" style="height:18px;width:auto;vertical-align:middle;margin:0 9px"><span class="ba-dot" style="display:none"> · </span>Ask ${getCurrencySym()}${fmt(dAskDisp,dec)}`;
+    if(_sba) _sba.innerHTML = `Bid ${getCurrencySym()}${fmt(dBidDisp,dec)}<img class="ba-logo" src="goldpremium_icon.svg?v=4" alt="" style="height:18px;width:auto;vertical-align:middle;margin:0 9px"><span class="ba-dot" style="display:none"> · </span>Ask ${getCurrencySym()}${fmt(dAskDisp,dec)}`;
   }
   document.getElementById('v-usd-source').textContent = 'Source: kitco.com';
   // v-eur-source wird dynamisch in setCurrency gesetzt
