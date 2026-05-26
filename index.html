@@ -349,6 +349,23 @@ footer a:hover{text-decoration:underline}
 </div>
 <div id="spots-spacer"></div>
 <div id="mobile-controls-row" style="display:none;flex-direction:column;gap:8px;padding:10px 8px 14px;align-items:center"></div>
+<div id="mobile-sticky-bar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:var(--bg);border-bottom:1px solid var(--border);padding:6px 10px;align-items:center;justify-content:space-between;gap:8px">
+  <div id="sticky-bidask" style="font-family:'DM Mono',monospace;color:#F0F0F0;font-size:12px;line-height:1.3;white-space:nowrap;text-align:left;flex:0 0 auto"></div>
+  <div style="display:flex;gap:5px;align-items:center;flex:0 0 auto">
+    <div class="ctrl-group" style="padding:2px;gap:1px">
+      <button class="ctrl-btn on" id="btn-gold-s" onclick="setMetal('XAU')" style="padding:3px 7px;font-size:11px">Gold</button>
+      <button class="ctrl-btn silver" id="btn-silver-s" onclick="setMetal('XAG')" style="padding:3px 7px;font-size:11px">Silver</button>
+    </div>
+    <div class="ctrl-group" style="padding:2px;gap:1px">
+      <button class="ctrl-btn on" id="btn-oz-s" onclick="setUnit('oz')" style="padding:3px 7px;font-size:11px">1 oz</button>
+      <button class="ctrl-btn" id="btn-gram-s" onclick="setUnit('gram')" style="padding:3px 7px;font-size:11px">Kilo</button>
+    </div>
+    <div class="ctrl-group" style="padding:2px;gap:1px">
+      <button class="ctrl-btn on" id="btn-buy-s" onclick="setTradeDir('buy')" style="padding:3px 7px;font-size:11px">Buy</button>
+      <button class="ctrl-btn" id="btn-sell-s" onclick="setTradeDir('sell')" style="padding:3px 7px;font-size:11px">Sell</button>
+    </div>
+  </div>
+</div>
 
 
 <div id="loading" class="loading" style="display: none;">Loading market data…</div>
@@ -1767,6 +1784,8 @@ function render(){
     const dBidDisp = toDisplay(dBid * dispRate);
     const dAskDisp = toDisplay(dAsk * dispRate);
     document.getElementById('v-eur-bidask').innerHTML = `<span class="ba-bid">Bid ${getCurrencySym()}${fmt(dBidDisp,dec)}</span><span class="ba-sep">  ·  </span><span class="ba-ask">Ask ${getCurrencySym()}${fmt(dAskDisp,dec)}</span>`;
+    const _sba = document.getElementById('sticky-bidask');
+    if(_sba) _sba.innerHTML = `<div>Bid ${getCurrencySym()}${fmt(dBidDisp,dec)}</div><div>Ask ${getCurrencySym()}${fmt(dAskDisp,dec)}</div>`;
   }
   document.getElementById('v-usd-source').textContent = 'Source: kitco.com';
   // v-eur-source wird dynamisch in setCurrency gesetzt
@@ -2096,6 +2115,7 @@ function setMetal(m){
   const isG=m==='XAU';
   document.getElementById('btn-gold').className='ctrl-btn'+(isG?' on':'');
   document.getElementById('btn-silver').className='ctrl-btn silver'+(!isG?' on':'');
+  {const a=document.getElementById('btn-gold-s');if(a)a.className='ctrl-btn'+(isG?' on':'');const b=document.getElementById('btn-silver-s');if(b)b.className='ctrl-btn silver'+(!isG?' on':'');}
   const wg=document.getElementById('wrap-gold-premium');
   const ws=document.getElementById('wrap-silver-premium');
   if(wg) wg.style.display=isG?'block':'none';
@@ -2372,6 +2392,7 @@ function setUnit(u){
   unit=u;
   document.getElementById('btn-oz').className='ctrl-btn'+(u==='oz'?' on':'');
   document.getElementById('btn-gram').className='ctrl-btn'+(u==='gram'?' on':'')
+  {const a=document.getElementById('btn-oz-s');if(a)a.className='ctrl-btn'+(u==='oz'?' on':'');const b=document.getElementById('btn-gram-s');if(b)b.className='ctrl-btn'+(u==='gram'?' on':'');}
   render();
   applyTradeDir();
   // Re-render after async calls complete
@@ -2382,6 +2403,7 @@ function setTradeDir(d){
   tradeDir=d;
   document.getElementById('btn-buy').className='ctrl-btn'+(d==='buy'?' on':'');
   document.getElementById('btn-sell').className='ctrl-btn'+(d==='sell'?' on':'');
+  {const a=document.getElementById('btn-buy-s');if(a)a.className='ctrl-btn'+(d==='buy'?' on':'');const b=document.getElementById('btn-sell-s');if(b)b.className='ctrl-btn'+(d==='sell'?' on':'');}
   render();
   applyTradeDir();
   const modal = document.getElementById('chart-modal');
@@ -2450,6 +2472,21 @@ setInterval(load,5*60*1000);
   window.addEventListener('scroll', onScroll, {passive:true});
 })();
 
+// Mobile Sticky-Bar: einblenden, sobald das 2x2-Raster nach oben raus ist
+(function(){
+  const bar=document.getElementById('mobile-sticky-bar');
+  const grid=document.getElementById('mobile-controls-row');
+  if(!bar||!grid) return;
+  function upd(){
+    if(window.innerWidth>768){ bar.style.display='none'; return; }
+    const gb=grid.getBoundingClientRect().bottom;
+    bar.style.display = (gb<0) ? 'flex' : 'none';
+  }
+  window.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd);
+  upd();
+})();
+
 
 // Cookie consent
 (function(){
@@ -2507,6 +2544,7 @@ function setLang(code){
   document.getElementById('btn-gram').textContent=t.kilo;
   document.getElementById('btn-buy').textContent=t.buy;
   document.getElementById('btn-sell').textContent=t.sell;
+  {const S=(id,txt)=>{const e=document.getElementById(id);if(e)e.textContent=txt;};S('btn-gold-s',t.gold);S('btn-silver-s',t.silver);S('btn-oz-s',t.oz);S('btn-gram-s',t.kilo);S('btn-buy-s',t.buy);S('btn-sell-s',t.sell);}
   const hint=document.getElementById('compare-hint');if(hint)hint.textContent=t.compareHint;
   const cmp=document.getElementById('compare-btn-open');if(cmp)cmp.textContent=t.compareBtn;
   const snDl=document.getElementById('sec-note-dl');if(snDl)snDl.textContent=t.secNoteDl;
