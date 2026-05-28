@@ -356,6 +356,14 @@ def save_prices(prices):
             c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
                 (ts, 'usa', gold, gold, silver, calc_premium(gold), 'USD', 'kg', 'kg'))
 
+        # USA SD Bullion (zweiter US-Haendler)
+        us_sd = prices.get("us_sdbullion")
+        if us_sd and not us_sd.get("is_calculated"):
+            gold = us_sd.get("gold_usd_oz_ask")
+            silver = us_sd.get("silver_usd_kg_ask")  # USD/kg
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
+                (ts, 'us_sdbullion', gold, gold, silver, calc_premium(gold), 'USD', 'kg', 'kg'))
+
         # Canada CB Metals
         ca = prices.get("canada")
         if ca and not ca.get("is_calculated"):
@@ -1592,6 +1600,96 @@ def fetch_usa():
         print(f"USA error: {e}")
         return None
 
+def fetch_us_sdbullion():
+    """SD Bullion (zweiter US-Haendler): 1kg Gold + 1kg Silber von den Kategorieseiten,
+    Silber-Bid von /sell. Robuster Min-Ansatz: guenstigster in-stock 1-kg-Barren
+    (Muenzen und 'Notify Me / back in stock' werden ausgeschlossen). Ergaenzt BGASC,
+    ersetzt ihn nicht."""
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto("https://sdbullion.com/gold/gold-bars/1-kilo-gold-bars", timeout=45000)
+            page.wait_for_timeout(6000)
+            gold_content = page.inner_text("body")
+            page.goto("https://sdbullion.com/silver/silver-bars/kilo-silver-bars", timeout=45000)
+            page.wait_for_timeout(6000)
+            silver_content = page.inner_text("body")
+            page.goto("https://sdbullion.com/sell", timeout=45000)
+            page.wait_for_timeout(6000)
+            sell_content = page.inner_text("body")
+            browser.close()
+        import re as _re
+        def cheapest_kg_bar(content, low, high, metal_kw):
+            lines = [l.strip() for l in content.split(chr(10)) if l.strip()]
+            best = None
+            n = len(lines)
+            for i, line in enumerate(lines):
+                low_l = line.lower()
+                if ("kilo" not in low_l) or ("bar" not in low_l):
+                    continue
+                if "coin" in low_l:
+                    continue
+                if metal_kw not in low_l:
+                    continue
+                block = "\n".join(lines[i:i+25]).lower()
+                if "back in stock" in block or "notify me" in block:
+                    continue
+                m = _re.search(r"\$\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?)", "\n".join(lines[i:i+15]))
+                if m:
+                    try:
+                        val = float(m.group(1).replace(",", ""))
+                        if low < val < high:
+                            if best is None or val < best:
+                                best = val
+                    except: pass
+            return best
+        gold_usd_kg_ask = cheapest_kg_bar(gold_content, 80000, 300000, "gold")
+        silver_usd_kg_ask = cheapest_kg_bar(silver_content, 800, 6000, "silver")
+        silver_usd_kg_bid = None
+        sl = sell_content.split(chr(10))
+        for i, line in enumerate(sl):
+            if "KILO SILVER BARS" in line.upper():
+                for j in range(i+1, min(i+10, len(sl))):
+                    m = _re.search(r"Bid Price:\s*\$\s*([0-9,]+\.?\d*)", sl[j])
+                    if m:
+                        try:
+                            val = float(m.group(1).replace(",", ""))
+                            if 500 < val < 10000:
+                                silver_usd_kg_bid = val
+                                break
+                        except: pass
+                if silver_usd_kg_bid:
+                    break
+        if gold_usd_kg_ask:
+            G = 31.1035
+            ask_oz = gold_usd_kg_ask / 1000 * G
+            bid_kg = round(gold_usd_kg_ask * 0.98, 2)
+            bid_oz = bid_kg / 1000 * G
+            print(f"SD Bullion USA: gold_ask={gold_usd_kg_ask} silver_ask={silver_usd_kg_ask} silver_bid={silver_usd_kg_bid} USD/kg")
+            result = {
+                "gold_usd_oz_ask": round(ask_oz, 2),
+                "gold_usd_oz_bid": round(bid_oz, 2),
+                "gold_usd_kg_ask": gold_usd_kg_ask,
+                "gold_usd_kg_bid": bid_kg,
+                "source": "sdbullion.com",
+                "is_calculated": False,
+            }
+            if silver_usd_kg_ask:
+                silver_oz = silver_usd_kg_ask / 1000 * G
+                result["silver_usd_kg_ask"] = silver_usd_kg_ask
+                result["silver_usd_oz_ask"] = round(silver_oz, 2)
+            if silver_usd_kg_bid:
+                silver_bid_oz = silver_usd_kg_bid / 1000 * G
+                result["silver_usd_kg_bid"] = silver_usd_kg_bid
+                result["silver_usd_oz_bid"] = round(silver_bid_oz, 2)
+            return result
+        return None
+    except Exception as e:
+        print(f"SD Bullion USA error: {e}")
+        return None
+
 
 def fetch_canada():
     try:
@@ -1686,6 +1784,7 @@ def update():
     hkgx = fetch_hkgx()
     australia = fetch_australia()
     usa = fetch_usa()
+    us_sdbullion = fetch_us_sdbullion()
     canada = fetch_canada()
     japan = fetch_japan()
     philoro = fetch_philoro()
@@ -1768,6 +1867,8 @@ def update():
         prices["australia"] = australia
     if usa:
         prices["usa"] = usa
+    if us_sdbullion:
+        prices["us_sdbullion"] = us_sdbullion
     if canada:
         prices["canada"] = canada
     elif spot and fx:
@@ -1869,6 +1970,7 @@ def update():
         "hkgx":          ("gold_usd_oz_ask",   "USD", "oz",   None,                 None,  None),
         "australia":     ("gold_aud_kg_ask",   "AUD", "kg",   "silver_aud_kg",      "AUD", "kg"),
         "usa":           ("gold_usd_oz_ask",   "USD", "oz",   "silver_usd_kg_ask",  "USD", "kg"),
+        "us_sdbullion":  ("gold_usd_oz_ask",   "USD", "oz",   "silver_usd_kg_ask",  "USD", "kg"),
         "canada":        ("gold_cad_kg_ask",   "CAD", "kg",   "silver_cad_kg_ask",  "CAD", "kg"),
         "switzerland":   ("gold_chf_oz_ask",   "CHF", "oz",   "silver_chf_kg_ask",  "CHF", "kg"),
         "germany":       ("gold_eur_oz_ask",   "EUR", "oz",   "silver_eur_kg_ask",  "EUR", "kg"),

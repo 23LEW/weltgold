@@ -462,6 +462,12 @@ footer a:hover{text-decoration:underline}
       <td class="r"><div class="pusd">$4,495.04</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$88.14</span><span class="badge neg">+2.00%</span></td>
       <td class="chart-td" onclick="openChartModal('usa','🇺🇸 USA · BGASC')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-usa" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+    </tr><tr class="" data-market="us_sdbullion">
+      <td><div class="mkt"><span class="flag">🇺🇸</span><div><div class="mname">USA · SD Bullion</div><div class="mcity">Online Bullion Dealer</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
+      <td><div class="plocal">$ 145</div><div class="punit">USD/oz</div></td>
+      <td class="r"><div class="pusd">$4,495.04</div></td>
+      <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$88.14</span><span class="badge neg">+2.00%</span></td>
+      <td class="chart-td" onclick="openChartModal('us_sdbullion','🇺🇸 USA · SD Bullion')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-us_sdbullion" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
     </tr></tbody>
 </table>
 </div>
@@ -702,7 +708,7 @@ let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
 let tradeDir = 'buy'; // 'buy' or 'sell'
 const KGFACTOR = 1000/G;
-let spot = null, fx = null, hkgxLive = null, russiaDealer = null, istanbul = null, gjcLive = null, mumbaiLive = null, ibjaLive = null, hkLive = null, japanLive = null, germanyLive = null, philoroLive = null, russiaLive = null, dubaiLive = null, usaLive = null, lbmaLive = null, shanghaiLive = null, canadaLive = null, australiaLive = null, royalmintLive = null, chinagoldLive = null;
+let spot = null, fx = null, hkgxLive = null, russiaDealer = null, istanbul = null, gjcLive = null, mumbaiLive = null, ibjaLive = null, hkLive = null, japanLive = null, germanyLive = null, philoroLive = null, russiaLive = null, dubaiLive = null, usaLive = null, sdbullionLive = null, lbmaLive = null, shanghaiLive = null, canadaLive = null, australiaLive = null, royalmintLive = null, chinagoldLive = null;
 let displayCurrency = 'USD';
 const CURRENCIES = {USD:{sym:'$',name:'USD'},EUR:{sym:'€',name:'EUR'},GBP:{sym:'£',name:'GBP'},JPY:{sym:'JP¥',name:'JPY'},CNY:{sym:'CN¥',name:'CNY'},TRY:{sym:'₺',name:'TRY'},AED:{sym:'د.إ',name:'AED'},INR:{sym:'₹',name:'INR'},RUB:{sym:'₽',name:'RUB'},AUD:{sym:'A$',name:'AUD'},HKD:{sym:'HK$',name:'HKD'},CHF:{sym:'Fr.',name:'CHF'}};
 let histData = []; // historical spot prices
@@ -733,6 +739,7 @@ const MARKETS = [
   {id:'japan', name:'Tanaka · Japan', city:'Tokyo · Precious Metals', flag:'🇯🇵', currency:'JPY', unitLabel:'JPY/g', calcPremium:0.005},
   {id:'dubai', name:'GVS Trading · Dubai', city:'Gold & Diamond Park', flag:'🇦🇪', currency:'AED', unitLabel:'AED/kg', calcPremium:0.005},
   {id:'usa', name:'BGASC · USA', city:'Online Bullion Dealer', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0.02},
+  {id:'us_sdbullion', name:'SD Bullion · USA', city:'Online Bullion Dealer', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0.02},
   {id:'canada', name:'CB Metals · Canada', city:'Toronto · Online Dealer', flag:'🇨🇦', currency:'CAD', unitLabel:'CAD/kg', calcPremium:0.02, noBid:true},
   {id:'russia_dealer', name:'Region Zoloto · Russia', city:'Moscow · Online Dealer', flag:'🇷🇺', currency:'RUB', unitLabel:'RUB/g', calcPremium:0.02, noBid:true},
   {id:'australia', name:'Perth Mint · Australia', city:'Perth · Government Mint', flag:'🇦🇺', currency:'AUD', unitLabel:'AUD/kg', calcPremium:0.01},
@@ -851,6 +858,8 @@ function calcMarket(m){
                    gBid: ibjaLive?.oz || null, sBid: ibjaLive?.silver_oz || null },
     usa:         { g: usaLive?.oz_ask || null, s: usaLive?.silver_oz_ask || null,
                    gBid: usaLive?.oz_bid || null, sBid: usaLive?.silver_oz_bid || null },
+    us_sdbullion:{ g: sdbullionLive?.oz_ask || null, s: sdbullionLive?.silver_oz_ask || null,
+                   gBid: sdbullionLive?.oz_bid || null, sBid: sdbullionLive?.silver_oz_bid || null },
     australia:   { g: australiaLive?.ask ? australiaLive.ask/(fx.AUD||1.55) : null,
                    s: australiaLive?.silver_ask ? australiaLive.silver_ask/(fx.AUD||1.55) : null,
                    gBid: australiaLive?.bid ? australiaLive.bid/(fx.AUD||1.55) : null,
@@ -1063,6 +1072,12 @@ async function load(){
       if(us && us.gold_usd_kg_ask && !us.is_calculated){
         usaLive = {kg_ask: us.gold_usd_kg_ask, kg_bid: us.gold_usd_kg_bid, oz_ask: us.gold_usd_oz_ask, oz_bid: us.gold_usd_oz_bid, silver_oz_ask: us.silver_usd_oz_ask, silver_oz_bid: us.silver_usd_oz_bid, silver_kg_ask: us.silver_usd_kg_ask, source: us.source};
       } else { usaLive = null; }
+
+      // USA SD Bullion
+      const usSd = vps?.us_sdbullion;
+      if(usSd && usSd.gold_usd_kg_ask && !usSd.is_calculated){
+        sdbullionLive = {kg_ask: usSd.gold_usd_kg_ask, kg_bid: usSd.gold_usd_kg_bid, oz_ask: usSd.gold_usd_oz_ask, oz_bid: usSd.gold_usd_oz_bid, silver_oz_ask: usSd.silver_usd_oz_ask, silver_oz_bid: usSd.silver_usd_oz_bid, silver_kg_ask: usSd.silver_usd_kg_ask, source: usSd.source};
+      } else { sdbullionLive = null; }
 
       // Shanghai SGE
       const sh = vps?.shanghai;
@@ -1585,7 +1600,7 @@ function renderSilverPremiumChart(){ try {
   fetch('https://api.goldpremium.org/api/premium-history?metal=XAG&days=30')
     .then(r=>r.json())
     .then(data=>{
-      const MKTNAMES={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',hongkong:'CGSE',japan:'Tanaka',lbma:'LBMA',comex:'COMEX'};
+      const MKTNAMES={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',us_sdbullion:'SD Bullion',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',hongkong:'CGSE',japan:'Tanaka',lbma:'LBMA',comex:'COMEX'};
       const datasets = Object.entries(data).map(([market, points])=>({
         label: MKTNAMES[market]||market.charAt(0).toUpperCase()+market.slice(1),
         data: points.map(p=>({x:p.date, y:p.premium})),
@@ -1633,7 +1648,7 @@ function renderGlobalPremiumChart(){ try {
         germany:'#5BAD7A', switzerland:'#E63946', dubai:'#C67BD4', usa:'#E85A5A',
         hongkong:'#F0A500', australia:'#00A693', canada:'#D4003F', shanghai:'#EE4B2B'
       };
-      const MKTNAMES2={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',hongkong:'CGSE',japan:'Tanaka',lbma:'LBMA',comex:'COMEX'};
+      const MKTNAMES2={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',us_sdbullion:'SD Bullion',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',hongkong:'CGSE',japan:'Tanaka',lbma:'LBMA',comex:'COMEX'};
       const datasets = Object.entries(data).map(([market, points])=>({
         label: MKTNAMES2[market]||market.charAt(0).toUpperCase()+market.slice(1),
         data: points.map(p=>({x:p.date, y:p.premium})),
@@ -1925,6 +1940,7 @@ function render(){
     else if(r.id==='india_mumbai' && mumbaiLive?.oz_ask)        srcBadge='<span class="badge live">🟢 LIVE · spot.augmont.com</span>';
     else if(r.id==='india_ibja'  && ibjaLive?.oz)              srcBadge='<span class="badge live">🟢 DAILY · ibjarates.com</span>';
     else if(r.id==='usa'      && usaLive?.kg_ask)            srcBadge='<span class="badge live">🟢 LIVE · bgasc.com</span>';
+    else if(r.id==='us_sdbullion' && sdbullionLive?.kg_ask)   srcBadge='<span class="badge live">🟢 LIVE · sdbullion.com</span>';
     else if(r.id==='australia'&& australiaLive?.ask)         srcBadge='<span class="badge live">🟢 LIVE · perthmint.com</span>';
     else if(r.id==='canada'   && canadaLive?.cad_kg_ask)     srcBadge='<span class="badge live">🟢 LIVE · canadianbullion.ca</span>';
     else if(r.id==='dubai'    && (dubaiLive?.ask_aed_kg||dubaiLive?.bid_aed_kg)) srcBadge='<span class="badge live">🟢 LIVE · gvs-trading.ae</span>';
