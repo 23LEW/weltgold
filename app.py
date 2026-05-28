@@ -1423,31 +1423,50 @@ def fetch_chinagold():
         return None
 
 def fetch_hkgx():
+    """HKGX (Hong Kong Gold & Silver Exchange) via Bright Data Scraping Browser.
+    Die HKGX-Seite hat seit ~2026-05-28 Cloudflare-Bot-Schutz + JS-AJAX-Daten-Render —
+    daher braucht es den Cloud-Browser (Zone mcp_browser), der Cloudflare loest und
+    auf die nachgeladenen Preise wartet. Aufruf nur waehrend HK-Handelszeiten + alle
+    30 Min (Sparlogik im update()-Aufrufer)."""
     try:
+        ws = os.environ.get("BRIGHTDATA_BROWSER_WS")
+        if not ws:
+            print("HKGX skip: BRIGHTDATA_BROWSER_WS env not set")
+            return None
         from playwright.sync_api import sync_playwright
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
-            page.goto("https://hkgx.com.hk/en/marketdata/latestquotes", timeout=30000)
-            page.wait_for_timeout(5000)
-            content = page.inner_text("body")
-            browser.close()
-        lines = [l.strip() for l in content.split("\n") if l.strip()]
-        for line in lines:
+        import re as _re
+        content = ""
+        with sync_playwright() as pw:
+            browser = pw.chromium.connect_over_cdp(ws)
+            try:
+                ctx = browser.contexts[0] if browser.contexts else browser.new_context()
+                page = ctx.pages[0] if ctx.pages else ctx.new_page()
+                try:
+                    page.goto("https://hkgx.com.hk/en/marketdata/latestquotes", timeout=90000, wait_until="domcontentloaded")
+                except Exception:
+                    pass  # Navigation kann durch Cloudflare-/Tracking-Scripte hängen, irrelevant
+                page.wait_for_selector("text=Loco London Gold 100 Ounces", timeout=60000)
+                page.wait_for_timeout(3000)
+                content = page.inner_text("body")
+            finally:
+                browser.close()
+        for line in content.split(chr(10)):
             if "Loco London Gold 100 Ounces" in line:
-                parts = [p.strip() for p in line.split("\t")]
-                if len(parts) >= 3:
+                # Nur Dezimalzahlen (mit Punkt) - schliesst die "100" aus "100 Ounces" aus
+                nums = _re.findall(r"[0-9]+\.[0-9]+", line)
+                if len(nums) >= 2:
                     try:
-                        bid = float(parts[1].replace(",",""))
-                        ask = float(parts[2].replace(",",""))
+                        bid = float(nums[0])
+                        ask = float(nums[1])
                         if 1000 < bid < 20000 and 1000 < ask < 20000:
-                            print(f"HKGX: bid={bid} ask={ask} USD/oz")
+                            print(f"HKGX (BrightData): bid={bid} ask={ask} USD/oz")
                             return {"gold_usd_oz_bid": bid, "gold_usd_oz_ask": ask,
                                     "source": "hkgx.com.hk", "is_calculated": False}
                     except: pass
+        print(f"HKGX: Loco-Zeile nicht parsbar (content_len={len(content)})")
         return None
     except Exception as e:
-        print(f"HKGX error: {e}")
+        print(f"HKGX BrightData error: {e}")
         return None
 
 
@@ -1787,7 +1806,20 @@ def update():
         chinagold = fetch_chinagold()
         if chinagold:
             cache["chinagold_last_ts"] = datetime.now().timestamp()
-    hkgx = fetch_hkgx()
+    # HKGX: Sparlogik - nur waehrend HK-Handelszeiten (Mo-Fr 9:00-12:00 + 14:00-16:30 HKT)
+    # und max alle 30 Min (Bright Data Scraping Browser kostet pro Aufruf)
+    hkgx = None
+    from datetime import timedelta as _td_hk
+    _hkt = datetime.utcnow() + _td_hk(hours=8)
+    _in_hk_session = (_hkt.weekday() < 5 and (
+        (9 <= _hkt.hour < 12) or
+        (_hkt.hour in (14, 15)) or
+        (_hkt.hour == 16 and _hkt.minute < 30)
+    ))
+    if _in_hk_session and datetime.now().timestamp() - cache.get("hkgx_last_ts", 0) >= 1800:
+        hkgx = fetch_hkgx()
+        if hkgx:
+            cache["hkgx_last_ts"] = datetime.now().timestamp()
     australia = fetch_australia()
     usa = fetch_usa()
     us_sdbullion = fetch_us_sdbullion()
