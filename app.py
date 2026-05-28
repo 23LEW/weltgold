@@ -1621,22 +1621,27 @@ def fetch_us_sdbullion():
             sell_content = page.inner_text("body")
             browser.close()
         import re as _re
+        print(f"SD Bullion fetch: gold_len={len(gold_content)} silver_len={len(silver_content)} sell_len={len(sell_content)}")
         def cheapest_kg_bar(content, low, high, metal_kw):
             lines = [l.strip() for l in content.split(chr(10)) if l.strip()]
-            best = None
             n = len(lines)
+            def is_title(s):
+                sl = s.lower()
+                return ("kilo" in sl and "bar" in sl and "coin" not in sl and metal_kw in sl)
+            best = None
             for i, line in enumerate(lines):
-                low_l = line.lower()
-                if ("kilo" not in low_l) or ("bar" not in low_l):
+                if not is_title(line):
                     continue
-                if "coin" in low_l:
+                end = n
+                for k in range(i+1, n):
+                    if is_title(lines[k]):
+                        end = k
+                        break
+                block_lines = lines[i+1:end]
+                block_text = "\n".join(block_lines).lower()
+                if "back in stock" in block_text or "notify me" in block_text:
                     continue
-                if metal_kw not in low_l:
-                    continue
-                block = "\n".join(lines[i:i+25]).lower()
-                if "back in stock" in block or "notify me" in block:
-                    continue
-                m = _re.search(r"\$\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?)", "\n".join(lines[i:i+15]))
+                m = _re.search(r"\$\s*([0-9]{1,3}(?:,[0-9]{3})+(?:\.[0-9]+)?)", "\n".join(block_lines))
                 if m:
                     try:
                         val = float(m.group(1).replace(",", ""))
@@ -1647,6 +1652,7 @@ def fetch_us_sdbullion():
             return best
         gold_usd_kg_ask = cheapest_kg_bar(gold_content, 80000, 300000, "gold")
         silver_usd_kg_ask = cheapest_kg_bar(silver_content, 800, 6000, "silver")
+        print(f"SD Bullion parse: gold_ask={gold_usd_kg_ask} silver_ask={silver_usd_kg_ask}")
         silver_usd_kg_bid = None
         sl = sell_content.split(chr(10))
         for i, line in enumerate(sl):
