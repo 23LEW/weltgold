@@ -1807,19 +1807,26 @@ def update():
         if chinagold:
             cache["chinagold_last_ts"] = datetime.now().timestamp()
     # HKGX: Sparlogik - nur waehrend HK-Handelszeiten (Mo-Fr 9:00-12:00 + 14:00-16:30 HKT)
-    # und max alle 30 Min (Bright Data Scraping Browser kostet pro Aufruf)
-    hkgx = None
+    # und max alle 30 Min (Bright Data Scraping Browser kostet pro Aufruf).
+    # WICHTIG: Den letzten Live-Wert zwischen Fetches persistieren, sonst zeigt das
+    # Frontend in den ~28 Min Pausen ein leeres hkgx -> CALC-Fallback.
     from datetime import timedelta as _td_hk
+    _now_ts_hk = datetime.now().timestamp()
+    _last_ts_hk = cache.get("hkgx_last_ts", 0)
+    # Cached letzten Wert bis 24h alt weiterverwenden (Wochenende/Nacht ok, danach lieber leer)
+    hkgx = cache.get("hkgx_last_value") if (_last_ts_hk and _now_ts_hk - _last_ts_hk < 86400) else None
     _hkt = datetime.utcnow() + _td_hk(hours=8)
     _in_hk_session = (_hkt.weekday() < 5 and (
         (9 <= _hkt.hour < 12) or
         (_hkt.hour in (14, 15)) or
         (_hkt.hour == 16 and _hkt.minute < 30)
     ))
-    if _in_hk_session and datetime.now().timestamp() - cache.get("hkgx_last_ts", 0) >= 1800:
-        hkgx = fetch_hkgx()
-        if hkgx:
-            cache["hkgx_last_ts"] = datetime.now().timestamp()
+    if _in_hk_session and _now_ts_hk - _last_ts_hk >= 1800:
+        _fresh_hkgx = fetch_hkgx()
+        if _fresh_hkgx:
+            cache["hkgx_last_ts"] = _now_ts_hk
+            cache["hkgx_last_value"] = _fresh_hkgx
+            hkgx = _fresh_hkgx
     australia = fetch_australia()
     usa = fetch_usa()
     us_sdbullion = fetch_us_sdbullion()
