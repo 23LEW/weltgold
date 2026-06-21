@@ -1407,14 +1407,14 @@ let miniHistCache = {};
 let modalGridIndices = [];
 
 async function loadMiniHistory(){
-  const markets = ['comex','lbma','istanbul','india_gjc','india_mumbai','india','japan','germany','switzerland','uk_royalmint','russia_dealer','dubai','hongkong','usa','canada','australia','shanghai','hkgx','chinagold'];
+  const markets = ['comex','lbma','istanbul','india_gjc','india_mumbai','india','japan','germany','switzerland','uk_royalmint','russia_dealer','dubai','hongkong','usa','us_sdbullion','canada','australia','shanghai','hkgx','chinagold'];
   const hours = {'1d':24,'5d':120,'30d':720,'1y':8760}[modalRange] || 24;
   for(const m of markets){
     try{
       const r = await fetch(`https://api.goldpremium.org/api/history/${m}?hours=${hours}`);
       const j = await r.json();
       // Filter weekends and duplicate prices
-      const raw = (j.data || []).filter(d=>{
+      let raw = (j.data || []).filter(d=>{
         const dt = new Date(d.ts);
         const dow = dt.getUTCDay();
         const h = dt.getUTCHours();
@@ -1425,6 +1425,9 @@ async function loadMiniHistory(){
         // Filter inactive hours (price unchanged for long time)
         return true;
       });
+      // Wochenend-Fallback: wenn der Filter alles killt (z.B. 24h-Anfrage am Sonntag),
+      // nimm die ungefilterten Rohdaten - sonst bleibt der Chart leer.
+      if(raw.length < 2 && (j.data || []).length >= 2){ raw = j.data || []; }
       const absPriceMarkets = ['comex','lbma','hkgx','shanghai'];
       const hasSilverData = raw.some(d=>(d.silver_usd_oz!=null&&d.silver_usd_oz>0)||(d.silver_local!=null&&d.silver_local>0));
       const filtered_raw = m==='lbma' ? raw : raw.filter((d,i)=>{ if(i===0) return true; if(metal==='XAG'&&hasSilverData) return (d.silver_usd_oz||d.silver_local)!==(raw[i-1].silver_usd_oz||raw[i-1].silver_local); if(absPriceMarkets.includes(m)) return d.gold_usd_oz!==raw[i-1].gold_usd_oz; return d.premium_pct!==raw[i-1].premium_pct; });
