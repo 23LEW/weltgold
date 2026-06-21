@@ -1902,6 +1902,14 @@ def update():
 
     if hk:
         prices["hongkong"] = hk
+    elif spot and fx:
+        TAEL = 37.429
+        prices["hongkong"] = {
+            "gold_hkd_tael_bid": round((spot["XAU"] / GRAM) * TAEL * fx["HKD"], 2) if fx.get("HKD") else None,
+            "gold_hkd_tael_ask": round((spot["XAU"] / GRAM) * TAEL * fx["HKD"], 2) if fx.get("HKD") else None,
+            "source": "calculated",
+            "is_calculated": True
+        }
     if lbma:
         prices["lbma"] = lbma
     if sge:
@@ -1918,14 +1926,6 @@ def update():
         prices["us_sdbullion"] = us_sdbullion
     if canada:
         prices["canada"] = canada
-    elif spot and fx:
-        TAEL = 37.429
-        prices["hongkong"] = {
-            "gold_hkd_tael_bid": round((spot["XAU"] / GRAM) * TAEL * fx["HKD"], 2) if fx.get("HKD") else None,
-            "gold_hkd_tael_ask": round((spot["XAU"] / GRAM) * TAEL * fx["HKD"], 2) if fx.get("HKD") else None,
-            "source": "calculated",
-            "is_calculated": True
-        }
 
     if japan:
         prices["japan"] = japan
