@@ -142,6 +142,11 @@ def save_prices(prices):
                 return round((local_usd_oz - spot_xau) / spot_xau * 100, 4)
             return None
 
+        def calc_silver_premium(local_usd_oz):
+            if local_usd_oz and spot_xag:
+                return round((local_usd_oz - spot_xag) / spot_xag * 100, 4)
+            return None
+
         # COMEX Futures Front Month (GC/SI from stooq/CME)
         gc = prices.get("spot", {}).get("GC") or spot_xau
         si = prices.get("spot", {}).get("SI") or spot_xag
@@ -156,8 +161,10 @@ def save_prices(prices):
             silver = ist.get("silver_try_gram")
             silver_bid = ist.get("silver_try_gram_buy")
             usd_oz = (gold / fx.get("TRY",1)) * GRAM if gold else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_local_bid) VALUES (?,?,?,?,?,?,?,?,?,?)",
-                (ts, 'istanbul', usd_oz, gold, silver, calc_premium(usd_oz), 'TRY', 'gram', 'gram', silver_bid))
+            silver_usd = (silver / fx.get("TRY",1)) * GRAM if silver else None
+            silver_bid_usd = (silver_bid / fx.get("TRY",1)) * GRAM if silver_bid else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_local_bid,silver_premium_pct,silver_bid_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'istanbul', usd_oz, gold, silver, silver_usd, calc_premium(usd_oz), 'TRY', 'gram', 'gram', silver_bid, calc_silver_premium(silver_usd), calc_silver_premium(silver_bid_usd)))
 
         # India GJC
         gjc = prices.get("india_gjc")
@@ -169,17 +176,20 @@ def save_prices(prices):
             usd_oz_ask = (gold_ask / fx.get("INR", 83)) * GRAM if gold_ask else None
             usd_oz_bid = (gold_bid / fx.get("INR", 83)) * GRAM if gold_bid else None
             silver_usd = (silv_ask / 32.1507 / fx.get("INR", 83)) if silv_ask else None
+            silver_bid_usd = (silv_bid / 32.1507 / fx.get("INR", 83)) if silv_bid else None
             c.execute(
                 "INSERT INTO price_history "
                 "(ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,"
                 "premium_pct,local_currency,gold_local_unit,silver_local_unit,"
-                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid) "
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid,"
+                "silver_premium_pct,silver_bid_premium_pct) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (ts, 'india_gjc',
                  usd_oz_ask, gold_ask, silv_ask, silver_usd,
                  calc_premium(usd_oz_ask), 'INR', 'gram', 'kg',
                  usd_oz_bid, calc_premium(usd_oz_bid),
-                 gold_bid, silv_bid)
+                 gold_bid, silv_bid,
+                 calc_silver_premium(silver_usd), calc_silver_premium(silver_bid_usd))
             )
 
         # India Mumbai (Augmont) — mit Bid/Ask
@@ -192,17 +202,20 @@ def save_prices(prices):
             usd_oz_ask = indm.get("gold_usd_oz_ask")
             usd_oz_bid = indm.get("gold_usd_oz_bid")
             silv_usd_oz_ask = indm.get("silver_usd_oz_ask")
+            silv_usd_oz_bid = indm.get("silver_usd_oz_bid")
             c.execute(
                 "INSERT INTO price_history "
                 "(ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,"
                 "premium_pct,local_currency,gold_local_unit,silver_local_unit,"
-                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid) "
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid,"
+                "silver_premium_pct,silver_bid_premium_pct) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (ts, 'india_mumbai',
                  usd_oz_ask, gold_ask, silv_ask, silv_usd_oz_ask,
                  calc_premium(usd_oz_ask), 'INR', '10g', 'kg',
                  usd_oz_bid, calc_premium(usd_oz_bid),
-                 gold_bid, silv_bid))
+                 gold_bid, silv_bid,
+                 calc_silver_premium(silv_usd_oz_ask), calc_silver_premium(silv_usd_oz_bid)))
 
         # Japan
         jpn = prices.get("japan")
@@ -218,8 +231,9 @@ def save_prices(prices):
             gold = swi.get("gold_chf_oz_ask")
             usd_oz = (gold / fx.get("CHF", 0.89)) if gold else None
             silver_kg = swi.get("silver_chf_kg_ask")
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
-                (ts, 'switzerland', usd_oz, gold, silver_kg, calc_premium(usd_oz), 'CHF', 'oz', 'kg'))
+            silver_usd = (silver_kg / 32.1507 / fx.get("CHF", 0.89)) if silver_kg else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'switzerland', usd_oz, gold, silver_kg, silver_usd, calc_premium(usd_oz), 'CHF', 'oz', 'kg', calc_silver_premium(silver_usd)))
 
         # Germany
         deu = prices.get("germany")
@@ -227,8 +241,9 @@ def save_prices(prices):
             gold = deu.get("gold_eur_oz_ask")
             usd_oz = (gold / fx.get("EUR",0.92)) if gold else None
             silver_kg = deu.get("silver_eur_kg_ask")
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
-                (ts, 'germany', usd_oz, gold, silver_kg, calc_premium(usd_oz), 'EUR', 'oz', 'kg'))
+            silver_usd = (silver_kg / 32.1507 / fx.get("EUR", 0.92)) if silver_kg else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'germany', usd_oz, gold, silver_kg, silver_usd, calc_premium(usd_oz), 'EUR', 'oz', 'kg', calc_silver_premium(silver_usd)))
 
         # Dubai
         dub = prices.get("dubai")
@@ -241,17 +256,20 @@ def save_prices(prices):
             usd_oz_ask = (gold_ask / 32.1507 / eur_rate) if gold_ask else None
             usd_oz_bid = (gold_bid  / 32.1507 / eur_rate) if gold_bid  else None
             silver_usd = (silver / 32.1507 / eur_rate) if silver else None
+            silver_bid_usd = (silver_bid / 32.1507 / eur_rate) if silver_bid else None
             c.execute(
                 "INSERT INTO price_history "
                 "(ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,"
                 "premium_pct,local_currency,gold_local_unit,silver_local_unit,"
-                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid) "
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid,"
+                "silver_premium_pct,silver_bid_premium_pct) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (ts, 'dubai',
                  usd_oz_ask, gold_ask, silver, silver_usd,
                  calc_premium(usd_oz_ask), 'EUR', 'kg', 'kg',
                  usd_oz_bid, calc_premium(usd_oz_bid),
-                 gold_bid, silver_bid)
+                 gold_bid, silver_bid,
+                 calc_silver_premium(silver_usd), calc_silver_premium(silver_bid_usd))
             )
 
         # Russia
@@ -260,8 +278,9 @@ def save_prices(prices):
             gold = rus.get("gold_rub_gram")
             silver = rus.get("silver_rub_gram")
             usd_oz = (gold / fx.get("RUB",90)) * GRAM if gold else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
-                (ts, 'russia', usd_oz, gold, silver, calc_premium(usd_oz), 'RUB', 'gram', 'gram'))
+            silver_usd = (silver / fx.get("RUB",90)) * GRAM if silver else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'russia', usd_oz, gold, silver, silver_usd, calc_premium(usd_oz), 'RUB', 'gram', 'gram', calc_silver_premium(silver_usd)))
 
         # Hong Kong Hang Seng
         hk = prices.get("hongkong")
@@ -278,16 +297,17 @@ def save_prices(prices):
             gold = rd.get("gold_rub_gram")
             silver = rd.get("silver_rub_gram")
             usd_oz = (gold / fx.get("RUB",90)) * GRAM if gold else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
-                (ts, 'russia_dealer', usd_oz, gold, silver, calc_premium(usd_oz), 'RUB', 'gram', 'gram'))
+            silver_usd = (silver / fx.get("RUB",90)) * GRAM if silver else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'russia_dealer', usd_oz, gold, silver, silver_usd, calc_premium(usd_oz), 'RUB', 'gram', 'gram', calc_silver_premium(silver_usd)))
 
         # LBMA
         lbma = prices.get("lbma")
         if lbma and not lbma.get("is_calculated"):
             gold = lbma.get("gold_usd_oz")
             silver = lbma.get("silver_usd_oz")
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?,?)",
-                (ts, 'lbma', gold, gold, silver, silver, calc_premium(gold), 'USD', 'oz', 'oz'))
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'lbma', gold, gold, silver, silver, calc_premium(gold), 'USD', 'oz', 'oz', calc_silver_premium(silver)))
 
         # HKGX
         hkgx = prices.get("hkgx")
@@ -303,8 +323,8 @@ def save_prices(prices):
             silver_cny_kg = sge.get("silver_cny_kg")
             usd_oz = (gold_cny_gram / fx.get("CNY",7.1)) * GRAM if gold_cny_gram else None
             silver_usd = (silver_cny_kg / 32.1507 / fx.get("CNY", 7.1)) if silver_cny_kg else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?,?)",
-                (ts, 'shanghai', usd_oz, gold_cny_gram, silver_cny_kg, silver_usd, calc_premium(usd_oz), 'CNY', 'gram', 'kg'))
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'shanghai', usd_oz, gold_cny_gram, silver_cny_kg, silver_usd, calc_premium(usd_oz), 'CNY', 'gram', 'kg', calc_silver_premium(silver_usd)))
 
         # China Gold (中国黄金) — Investment-Barren mit Bid/Ask (CNY/gram)
         cg = prices.get("chinagold")
@@ -336,17 +356,20 @@ def save_prices(prices):
             usd_oz_ask = (gold_ask / 32.1507 / aud_rate) if gold_ask else None
             usd_oz_bid = (gold_bid / 32.1507 / aud_rate) if gold_bid else None
             silver_usd = (silver / 32.1507 / aud_rate) if silver else None
+            silver_bid_usd = (silver_bid / 32.1507 / aud_rate) if silver_bid else None
             c.execute(
                 "INSERT INTO price_history "
                 "(ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,"
                 "premium_pct,local_currency,gold_local_unit,silver_local_unit,"
-                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid) "
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid,"
+                "silver_premium_pct,silver_bid_premium_pct) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (ts, 'australia',
                  usd_oz_ask, gold_ask, silver, silver_usd,
                  calc_premium(usd_oz_ask), 'AUD', 'kg', 'kg',
                  usd_oz_bid, calc_premium(usd_oz_bid),
-                 gold_bid, silver_bid)
+                 gold_bid, silver_bid,
+                 calc_silver_premium(silver_usd), calc_silver_premium(silver_bid_usd))
             )
 
         # USA BGASC
@@ -354,16 +377,18 @@ def save_prices(prices):
         if usa and not usa.get("is_calculated"):
             gold = usa.get("gold_usd_oz_ask")
             silver = usa.get("silver_usd_kg_ask")  # USD/kg
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
-                (ts, 'usa', gold, gold, silver, calc_premium(gold), 'USD', 'kg', 'kg'))
+            silver_usd = (silver / 32.1507) if silver else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'usa', gold, gold, silver, silver_usd, calc_premium(gold), 'USD', 'kg', 'kg', calc_silver_premium(silver_usd)))
 
         # USA SD Bullion (zweiter US-Haendler)
         us_sd = prices.get("us_sdbullion")
         if us_sd and not us_sd.get("is_calculated"):
             gold = us_sd.get("gold_usd_oz_ask")
             silver = us_sd.get("silver_usd_kg_ask")  # USD/kg
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
-                (ts, 'us_sdbullion', gold, gold, silver, calc_premium(gold), 'USD', 'kg', 'kg'))
+            silver_usd = (silver / 32.1507) if silver else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'us_sdbullion', gold, gold, silver, silver_usd, calc_premium(gold), 'USD', 'kg', 'kg', calc_silver_premium(silver_usd)))
 
         # Canada CB Metals
         ca = prices.get("canada")
@@ -371,9 +396,9 @@ def save_prices(prices):
             gold_cad_kg = ca.get("gold_cad_kg_ask")
             gold = (gold_cad_kg / 32.1507) / fx.get("CAD", 1.36) if gold_cad_kg else None
             silver_cad_kg = ca.get("silver_cad_kg_ask")
-            silver = (silver_cad_kg / 32.1507) / fx.get("CAD", 1.36) if silver_cad_kg else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
-                (ts, 'canada', gold, gold_cad_kg, silver_cad_kg, calc_premium(gold), 'CAD', 'kg', 'kg'))
+            silver = (silver_cad_kg / 32.1507) / fx.get("CAD", 1.36) if silver_cad_kg else None  # USD/oz
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'canada', gold, gold_cad_kg, silver_cad_kg, silver, calc_premium(gold), 'CAD', 'kg', 'kg', calc_silver_premium(silver)))
 
         # UK Royal Mint
         ukrm = prices.get("uk_royalmint")
@@ -386,17 +411,20 @@ def save_prices(prices):
             usd_oz_ask = round(gold_ask / gbp_rate, 4) if gold_ask and gbp_rate else None
             usd_oz_bid = round(gold_bid / gbp_rate, 4) if gold_bid and gbp_rate else None
             silv_usd   = round(silv_ask / gbp_rate, 4) if silv_ask and gbp_rate else None
+            silv_bid_usd = round(silv_bid / gbp_rate, 4) if silv_bid and gbp_rate else None
             c.execute(
                 "INSERT INTO price_history "
                 "(ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,"
                 "premium_pct,local_currency,gold_local_unit,silver_local_unit,"
-                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid) "
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid,"
+                "silver_premium_pct,silver_bid_premium_pct) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (ts, 'uk_royalmint',
                  usd_oz_ask, gold_ask, silv_ask, silv_usd,
                  calc_premium(usd_oz_ask), 'GBP', 'oz', 'oz',
                  usd_oz_bid, calc_premium(usd_oz_bid),
-                 gold_bid, silv_bid))
+                 gold_bid, silv_bid,
+                 calc_silver_premium(silv_usd), calc_silver_premium(silv_bid_usd)))
 
         # India IBJA
         ibja = prices.get("india")
@@ -405,8 +433,8 @@ def save_prices(prices):
             silver = ibja.get("silver_inr_kg")
             usd_oz = (gold / fx.get("INR", 83)) * GRAM if gold else None
             silver_usd = (silver / 32.1507 / fx.get("INR", 83)) if silver else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?,?)",
-                (ts, 'india', usd_oz, gold, silver, silver_usd, calc_premium(usd_oz), 'INR', 'gram', 'kg'))
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'india', usd_oz, gold, silver, silver_usd, calc_premium(usd_oz), 'INR', 'gram', 'kg', calc_silver_premium(silver_usd)))
 
         conn.commit()
         conn.close()
@@ -2235,7 +2263,8 @@ def get_history(market):
         c = conn.cursor()
         c.execute("""
             SELECT ts, gold_usd_oz, gold_local, silver_local, silver_usd_oz, premium_pct, local_currency, silver_local_unit,
-                   bid_usd_oz, gold_local_bid, silver_local_bid, bid_premium_pct
+                   bid_usd_oz, gold_local_bid, silver_local_bid, bid_premium_pct,
+                   silver_premium_pct, silver_bid_premium_pct
             FROM price_history
             WHERE market = ? AND ts >= datetime('now', ? || ' hours')
             ORDER BY ts ASC
@@ -2244,7 +2273,8 @@ def get_history(market):
         conn.close()
         data = [{"ts": r[0], "gold_usd_oz": r[1], "gold_local": r[2],
                  "silver_local": r[3], "silver_usd_oz": r[4], "premium_pct": r[5], "currency": r[6], "silver_unit": r[7],
-                 "bid_usd_oz": r[8], "gold_local_bid": r[9], "silver_local_bid": r[10], "bid_premium_pct": r[11]} for r in rows]
+                 "bid_usd_oz": r[8], "gold_local_bid": r[9], "silver_local_bid": r[10], "bid_premium_pct": r[11],
+                 "silver_premium_pct": r[12], "silver_bid_premium_pct": r[13]} for r in rows]
         return jsonify({"market": market, "data": data, "count": len(data)})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

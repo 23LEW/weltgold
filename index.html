@@ -2197,7 +2197,7 @@ function downsampleData(data, range){
   const keyFn = range === '30d' ? d => d.ts.slice(0,13) : d => d.ts.slice(0,10);
   const groups = new Map();
   data.forEach(d => { const k=keyFn(d); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(d); });
-  const numFields = ['gold_usd_oz','silver_usd_oz','premium_pct','bid_premium_pct','bid_usd_oz','gold_local','silver_local'];
+  const numFields = ['gold_usd_oz','silver_usd_oz','premium_pct','bid_premium_pct','bid_usd_oz','gold_local','silver_local','silver_premium_pct','silver_bid_premium_pct'];
   return Array.from(groups.values()).map(group => {
     const out = {...group[Math.floor(group.length/2)]};
     numFields.forEach(f => {
@@ -2307,23 +2307,35 @@ function renderModalChart(data, range){
   if(modalMetal === 'silver' && hasSilver){
     const silverUnit = data.find(d => d.silver_unit)?.silver_unit || 'oz';
     unitLabel = `${currency}/${silverUnit}`;
-    premVals = [];
     if(isSellMode){
       localVals = data.map(d => d.silver_local_bid ?? null);
+      premVals  = data.map(d => d.silver_bid_premium_pct ?? null);
       lineColor = '#8080B0'; lineColorAlpha = 'rgba(128,128,176,0.08)';
     } else {
       localVals = data.map(d => d.silver_local);
+      premVals  = data.map(d => d.silver_premium_pct ?? null);
       lineColor = '#A0A0C0'; lineColorAlpha = 'rgba(160,160,192,0.08)';
     }
+    const hasPrem = premVals.some(v => v != null);
     const priceLabel = isSellMode ? 'Bid' : 'Ask';
     const legend = document.getElementById('modal-legend');
-    if(legend) legend.innerHTML = `<span><span style="display:inline-block;width:16px;height:4px;background:${lineColor};border-radius:2px;vertical-align:middle"></span> Silver price ${priceLabel} (${currency}/${silverUnit})</span>`;
-    chartDatasets = [{
-      type:'line', label:`Silver ${priceLabel} (${currency})`,
-      data:localVals,
-      borderColor:lineColor, backgroundColor:lineColorAlpha,
-      borderWidth:2, pointRadius:0, fill:true, tension:0.3, yAxisID:'y1'
-    }];
+    if(legend) legend.innerHTML = `<span><span style="display:inline-block;width:16px;height:4px;background:${lineColor};border-radius:2px;vertical-align:middle"></span> Silver price ${priceLabel} (${currency}/${silverUnit})</span>`
+      + (hasPrem ? `<span style="margin-left:16px"><span style="display:inline-block;width:16px;height:4px;background:#5B8DEF;border-radius:2px;vertical-align:middle"></span> Premium vs COMEX %</span>` : '');
+    chartDatasets = [
+      {
+        type:'line', label:`Silver ${priceLabel} (${currency})`,
+        data:localVals,
+        borderColor:lineColor, backgroundColor:lineColorAlpha,
+        borderWidth:2, pointRadius:0, fill:true, tension:0.3, yAxisID:'y1'
+      },
+      ...(hasPrem ? [{
+        type:'line', label:'Silver Premium %',
+        data:premVals,
+        borderColor:'#5B8DEF', backgroundColor:'rgba(91,141,239,0.05)',
+        borderWidth:2, pointRadius:0, fill:false, tension:0.3,
+        borderDash:[4,3], yAxisID:'y2'
+      }] : [])
+    ];
   } else {
     // Gold mode
     const ozCurrencies = ['EUR', 'USD', 'GBP'];
