@@ -615,25 +615,12 @@ def fetch_spot():
         return None
 
 def fetch_comex_futures():
-    """COMEX front month futures: stooq.com (CME data), Yahoo Finance fallback."""
-    def _stooq(symbol):
-        r = requests.get(f"https://stooq.com/q/l/?s={symbol}&f=sd2t2ohlcv",
-                         headers={"User-Agent": "Mozilla/5.0"}, timeout=(5, 10))
-        parts = r.text.strip().split(',')
-        # format: symbol,date,time,open,high,low,close,volume
-        return float(parts[6]) if len(parts) >= 7 and parts[6] else None
-
-    try:
-        gc_price = _stooq("gc.f")
-        si_raw = _stooq("si.f")
-        # COMEX silver is quoted in cents/troy oz — convert to USD/oz
-        si_price = round(si_raw / 100, 4) if si_raw and si_raw > 1000 else si_raw
-        if gc_price and gc_price > 100:
-            print(f"COMEX Futures (stooq/CME): GC={gc_price} SI={si_price}")
-            return {"GC": round(gc_price, 2), "SI": si_price, "source": "cmegroup.com"}
-        return None
-    except Exception as e:
-        print(f"COMEX stooq error: {e} — trying Yahoo Finance fallback")
+    """COMEX front month futures: Yahoo Finance (primaer), Stooq als Reserve.
+    Hinweis: Stooq hat seinen /q/l/-Endpoint im Juni 2026 entfernt -> Yahoo ist
+    jetzt primaer. Stooq bleibt drin, falls die API zurueckkommt."""
+    gc_price = None
+    si_price = None
+    # Primaer: Yahoo Finance
     try:
         r = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m&range=1d",
                          headers={"User-Agent": "Mozilla/5.0"}, timeout=(5, 10))
@@ -642,12 +629,27 @@ def fetch_comex_futures():
                           headers={"User-Agent": "Mozilla/5.0"}, timeout=(5, 10))
         si_price = r2.json()['chart']['result'][0]['meta'].get('regularMarketPrice')
         if gc_price and gc_price > 100:
-            print(f"COMEX Futures (Yahoo fallback): GC={gc_price} SI={si_price}")
+            print(f"COMEX Futures (Yahoo): GC={gc_price} SI={si_price}")
             return {"GC": round(gc_price, 2), "SI": round(si_price, 4) if si_price else None, "source": "cmegroup.com"}
-        return None
-    except Exception as e2:
-        print(f"COMEX Futures error: {e2}")
-        return None
+    except Exception as e:
+        print(f"COMEX Yahoo error: {e} - trying Stooq fallback")
+    # Reserve: Stooq (Endpunkt im Juni 2026 down, koennte zurueckkommen)
+    try:
+        def _stooq(symbol):
+            r = requests.get(f"https://stooq.com/q/l/?s={symbol}&f=sd2t2ohlcv",
+                             headers={"User-Agent": "Mozilla/5.0"}, timeout=(5, 10))
+            parts = r.text.strip().split(',')
+            return float(parts[6]) if len(parts) >= 7 and parts[6] else None
+        gc_price = _stooq("gc.f")
+        si_raw = _stooq("si.f")
+        si_price = round(si_raw / 100, 4) if si_raw and si_raw > 1000 else si_raw
+        if gc_price and gc_price > 100:
+            print(f"COMEX Futures (Stooq fallback): GC={gc_price} SI={si_price}")
+            return {"GC": round(gc_price, 2), "SI": si_price, "source": "cmegroup.com"}
+    except Exception as e:
+        print(f"COMEX Stooq fallback error: {e}")
+    print(f"COMEX Futures: alle Quellen fehlgeschlagen")
+    return None
 
 def fetch_sp500():
     """S&P 500 current index value via Yahoo Finance.
