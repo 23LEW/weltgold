@@ -331,6 +331,7 @@ def save_prices(prices):
             gold_ask = au.get("gold_aud_kg_ask")
             gold_bid = au.get("gold_aud_kg_bid")
             silver = au.get("silver_aud_kg")
+            silver_bid = au.get("silver_aud_kg_bid")
             aud_rate = fx.get("AUD", 1.55)
             usd_oz_ask = (gold_ask / 32.1507 / aud_rate) if gold_ask else None
             usd_oz_bid = (gold_bid / 32.1507 / aud_rate) if gold_bid else None
@@ -339,13 +340,13 @@ def save_prices(prices):
                 "INSERT INTO price_history "
                 "(ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,"
                 "premium_pct,local_currency,gold_local_unit,silver_local_unit,"
-                "bid_usd_oz,bid_premium_pct,gold_local_bid) "
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (ts, 'australia',
                  usd_oz_ask, gold_ask, silver, silver_usd,
                  calc_premium(usd_oz_ask), 'AUD', 'kg', 'kg',
                  usd_oz_bid, calc_premium(usd_oz_bid),
-                 gold_bid)
+                 gold_bid, silver_bid)
             )
 
         # USA BGASC
