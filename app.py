@@ -398,10 +398,14 @@ def save_prices(prices):
         us_sd = prices.get("us_sdbullion")
         if us_sd and not us_sd.get("is_calculated"):
             gold = us_sd.get("gold_usd_oz_ask")
+            gold_bid_kg = us_sd.get("gold_usd_kg_bid")
+            usd_oz_bid = (gold_bid_kg / 32.1507) if gold_bid_kg else None
             silver = us_sd.get("silver_usd_kg_ask")  # USD/kg
+            silver_bid = us_sd.get("silver_usd_kg_bid")  # USD/kg
             silver_usd = (silver / 32.1507) if silver else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                (ts, 'us_sdbullion', gold, gold, silver, silver_usd, calc_premium(gold), 'USD', 'kg', 'kg', calc_silver_premium(silver_usd)))
+            silver_bid_usd = (silver_bid / 32.1507) if silver_bid else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct,gold_local_bid,bid_usd_oz,bid_premium_pct,silver_local_bid,silver_bid_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'us_sdbullion', gold, gold, silver, silver_usd, calc_premium(gold), 'USD', 'kg', 'kg', calc_silver_premium(silver_usd), gold_bid_kg, usd_oz_bid, calc_premium(usd_oz_bid), silver_bid, calc_silver_premium(silver_bid_usd)))
 
         # Canada CB Metals
         ca = prices.get("canada")
