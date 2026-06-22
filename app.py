@@ -157,14 +157,16 @@ def save_prices(prices):
         # Istanbul
         ist = prices.get("istanbul")
         if ist and not ist.get("is_calculated"):
-            gold = ist.get("gold_try_gram_buy") or ist.get("gold_try_gram")
+            gold_ask = ist.get("gold_try_gram_sell")
+            gold_bid = ist.get("gold_try_gram_buy") or ist.get("gold_try_gram")
             silver = ist.get("silver_try_gram")
             silver_bid = ist.get("silver_try_gram_buy")
-            usd_oz = (gold / fx.get("TRY",1)) * GRAM if gold else None
+            usd_oz = (gold_ask / fx.get("TRY",1)) * GRAM if gold_ask else None
+            usd_oz_bid = (gold_bid / fx.get("TRY",1)) * GRAM if gold_bid else None
             silver_usd = (silver / fx.get("TRY",1)) * GRAM if silver else None
             silver_bid_usd = (silver_bid / fx.get("TRY",1)) * GRAM if silver_bid else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_local_bid,silver_premium_pct,silver_bid_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                (ts, 'istanbul', usd_oz, gold, silver, silver_usd, calc_premium(usd_oz), 'TRY', 'gram', 'gram', silver_bid, calc_silver_premium(silver_usd), calc_silver_premium(silver_bid_usd)))
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_local_bid,silver_premium_pct,silver_bid_premium_pct,gold_local_bid,bid_usd_oz,bid_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'istanbul', usd_oz, gold_ask, silver, silver_usd, calc_premium(usd_oz), 'TRY', 'gram', 'gram', silver_bid, calc_silver_premium(silver_usd), calc_silver_premium(silver_bid_usd), gold_bid, usd_oz_bid, calc_premium(usd_oz_bid)))
 
         # India GJC
         gjc = prices.get("india_gjc")
