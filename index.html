@@ -2663,8 +2663,22 @@ function positionRatioForDevice(){
   }
   if(typeof updateStickyTop==='function') updateStickyTop();
 }
-window.addEventListener('resize',()=>{positionRatioForDevice();fitUsdPrice();fitEurPrice();});
+function syncCardHeights(){
+  if(window.innerWidth<=768) return;
+  const cards=[
+    document.getElementById('ratio-display'),
+    document.getElementById('sp500-display'),
+    document.getElementById('lang-card'),
+    document.getElementById('currency-row')
+  ];
+  if(cards.some(c=>!c)) return;
+  cards.forEach(c=>c.style.height='');
+  const h=Math.max(...cards.map(c=>c.offsetHeight));
+  cards.forEach(c=>c.style.height=h+'px');
+}
+window.addEventListener('resize',()=>{positionRatioForDevice();fitUsdPrice();fitEurPrice();syncCardHeights();});
 positionRatioForDevice();
+syncCardHeights();
 // Seite startet beim Reload oben (keine Scroll-Wiederherstellung des Browsers)
 if('scrollRestoration' in history) history.scrollRestoration='manual';
 window.scrollTo(0,0);
