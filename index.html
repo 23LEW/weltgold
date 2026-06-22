@@ -2665,20 +2665,19 @@ function positionRatioForDevice(){
 }
 function syncCardHeights(){
   if(window.innerWidth<=768) return;
-  const cards=[
-    document.getElementById('ratio-display'),
-    document.getElementById('sp500-display'),
-    document.getElementById('lang-card'),
-    document.getElementById('currency-row')
-  ];
+  const ids=['ratio-display','sp500-display','lang-card','currency-row'];
+  const cards=ids.map(id=>document.getElementById(id));
   if(cards.some(c=>!c)) return;
-  cards.forEach(c=>c.style.height='');
-  const h=Math.max(...cards.map(c=>c.offsetHeight));
-  cards.forEach(c=>c.style.height=h+'px');
+  cards.forEach(c=>{c.style.height='';c.style.minHeight='';});
+  requestAnimationFrame(()=>{
+    const h=Math.max(...cards.map(c=>c.getBoundingClientRect().height));
+    if(h>0) cards.forEach(c=>c.style.height=h+'px');
+  });
 }
+window.addEventListener('load', syncCardHeights);
 window.addEventListener('resize',()=>{positionRatioForDevice();fitUsdPrice();fitEurPrice();syncCardHeights();});
 positionRatioForDevice();
-syncCardHeights();
+requestAnimationFrame(syncCardHeights);
 // Seite startet beim Reload oben (keine Scroll-Wiederherstellung des Browsers)
 if('scrollRestoration' in history) history.scrollRestoration='manual';
 window.scrollTo(0,0);
