@@ -220,10 +220,12 @@ def save_prices(prices):
         # Japan
         jpn = prices.get("japan")
         if jpn and not jpn.get("is_calculated"):
-            gold = jpn.get("gold_jpy_gram_bid")
-            usd_oz = (gold / fx.get("JPY",150)) * GRAM if gold else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?)",
-                (ts, 'japan', usd_oz, gold, None, calc_premium(usd_oz), 'JPY', 'gram', None))
+            gold_ask = jpn.get("gold_jpy_gram_ask")
+            gold_bid = jpn.get("gold_jpy_gram_bid")
+            usd_oz = (gold_ask / fx.get("JPY",150)) * GRAM if gold_ask else None
+            usd_oz_bid = (gold_bid / fx.get("JPY",150)) * GRAM if gold_bid else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit,gold_local_bid,bid_usd_oz,bid_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'japan', usd_oz, gold_ask, None, calc_premium(usd_oz), 'JPY', 'gram', None, gold_bid, usd_oz_bid, calc_premium(usd_oz_bid)))
 
         # Switzerland Philoro
         swi = prices.get("switzerland")
