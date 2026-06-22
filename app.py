@@ -247,11 +247,15 @@ def save_prices(prices):
         deu = prices.get("germany")
         if deu and not deu.get("is_calculated"):
             gold = deu.get("gold_eur_oz_ask")
+            gold_bid = deu.get("gold_eur_oz_bid")
             usd_oz = (gold / fx.get("EUR",0.92)) if gold else None
+            usd_oz_bid = (gold_bid / fx.get("EUR",0.92)) if gold_bid else None
             silver_kg = deu.get("silver_eur_kg_ask")
+            silver_bid_kg = deu.get("silver_eur_kg_bid")
             silver_usd = (silver_kg / 32.1507 / fx.get("EUR", 0.92)) if silver_kg else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                (ts, 'germany', usd_oz, gold, silver_kg, silver_usd, calc_premium(usd_oz), 'EUR', 'oz', 'kg', calc_silver_premium(silver_usd)))
+            silver_bid_usd = (silver_bid_kg / 32.1507 / fx.get("EUR", 0.92)) if silver_bid_kg else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct,gold_local_bid,bid_usd_oz,bid_premium_pct,silver_local_bid,silver_bid_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'germany', usd_oz, gold, silver_kg, silver_usd, calc_premium(usd_oz), 'EUR', 'oz', 'kg', calc_silver_premium(silver_usd), gold_bid, usd_oz_bid, calc_premium(usd_oz_bid), silver_bid_kg, calc_silver_premium(silver_bid_usd)))
 
         # Dubai
         dub = prices.get("dubai")
