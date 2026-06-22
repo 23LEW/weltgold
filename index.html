@@ -312,23 +312,27 @@ footer a:hover{text-decoration:underline}
     </div>
   </div>
   <div id="right-group" style="flex:1;display:flex;align-items:stretch;gap:20px;justify-content:flex-end">
-  <div id="currency-row" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;align-self:center;background:#1C2028;border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:12px 18px">
-    <label for="currency-select" data-i18n="currencyLabel" style="font-size:14px;color:#fff;letter-spacing:0.3px;margin-top:32px">Currency</label>
-    <select id="currency-select" autocomplete="off" onchange="setCurrency(this.value)" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:15px;color:var(--gold-p);font-weight:600;cursor:pointer;min-width:120px">
-      <option value="USD" selected>USD</option>
-      <option value="EUR">EUR</option>
-      <option value="GBP">GBP</option>
-      <option value="JPY">JPY</option>
-      <option value="CNY">CNY</option>
-      <option value="TRY">TRY</option>
-      <option value="AED">AED</option>
-      <option value="INR">INR</option>
-      <option value="RUB">RUB</option>
-      <option value="AUD">AUD</option>
-      <option value="HKD">HKD</option>
-      <option value="CHF">CHF</option>
-    </select>
-    <div id="currency-fx" style="font-size:13px;color:#fff;font-family:'DM Mono',monospace;min-height:16px"></div>
+  <div id="lang-currency-col" style="display:flex;flex-direction:column;gap:6px">
+    <div id="lang-card" style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#1C2028;border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:12px 18px">
+    </div>
+    <div id="currency-row" style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;background:#1C2028;border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:12px 18px">
+      <label for="currency-select" data-i18n="currencyLabel" style="font-size:14px;color:#fff;letter-spacing:0.3px">Currency</label>
+      <select id="currency-select" autocomplete="off" onchange="setCurrency(this.value)" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:15px;color:var(--gold-p);font-weight:600;cursor:pointer;min-width:120px">
+        <option value="USD" selected>USD</option>
+        <option value="EUR">EUR</option>
+        <option value="GBP">GBP</option>
+        <option value="JPY">JPY</option>
+        <option value="CNY">CNY</option>
+        <option value="TRY">TRY</option>
+        <option value="AED">AED</option>
+        <option value="INR">INR</option>
+        <option value="RUB">RUB</option>
+        <option value="AUD">AUD</option>
+        <option value="HKD">HKD</option>
+        <option value="CHF">CHF</option>
+      </select>
+      <div id="currency-fx" style="font-size:13px;color:#fff;font-family:'DM Mono',monospace;min-height:16px"></div>
+    </div>
   </div>
   <div class="spot show" id="s-eur" style="display:flex;flex-direction:column;height:auto;flex:1;min-width:0;text-align:center;align-items:center;padding:8px 0">
     <div class="spot-label" id="lbl-eur">Spot Price · USD / Troy Oz</div>
@@ -2633,6 +2637,8 @@ function positionRatioForDevice(){
   const sUsd=document.getElementById('s-usd');
   const sEur=document.getElementById('s-eur');
   const currencyRow=document.getElementById('currency-row');
+  const langCard=document.getElementById('lang-card');
+  const langCurrencyCol=document.getElementById('lang-currency-col');
   const leftGroup=document.getElementById('left-group');
   const rightGroup=document.getElementById('right-group');
   const mobileCardsRow=document.getElementById('mobile-cards-row');
@@ -2649,10 +2655,10 @@ function positionRatioForDevice(){
   } else {
     if(ratio&&logoInner&&ratio.parentNode!==logoInner.parentNode) logoInner.parentNode.insertBefore(ratio,logoInner);
     if(sp500&&logoInner&&sp500.parentNode!==logoInner.parentNode) logoInner.parentNode.insertBefore(sp500,logoInner);
-    if(langContainer&&currencyRow&&langContainer.parentNode!==currencyRow) currencyRow.insertBefore(langContainer,currencyRow.firstChild);
+    if(langContainer&&langCard&&langContainer.parentNode!==langCard) langCard.appendChild(langContainer);
     if(sUsd&&leftGroup&&sUsd.parentNode!==leftGroup) leftGroup.insertBefore(sUsd,leftGroup.firstChild);
     if(togglesCol&&leftGroup&&togglesCol.parentNode!==leftGroup) leftGroup.appendChild(togglesCol);
-    if(currencyRow&&rightGroup&&currencyRow.parentNode!==rightGroup) rightGroup.insertBefore(currencyRow,rightGroup.firstChild);
+    if(langCurrencyCol&&rightGroup&&langCurrencyCol.parentNode!==rightGroup) rightGroup.insertBefore(langCurrencyCol,rightGroup.firstChild);
     if(sEur&&rightGroup&&sEur.parentNode!==rightGroup) rightGroup.appendChild(sEur);
   }
   if(typeof updateStickyTop==='function') updateStickyTop();
