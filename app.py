@@ -288,8 +288,9 @@ def save_prices(prices):
             gold = hk.get("gold_hkd_oz_ask") or hk.get("gold_hkd_oz_bid")
             gold_bid = hk.get("gold_hkd_oz_bid")
             usd_oz = (gold / fx.get("HKD",7.83)) if gold else None
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit,gold_local_bid) VALUES (?,?,?,?,?,?,?,?,?,?)",
-                (ts, 'hongkong', usd_oz, gold, None, calc_premium(usd_oz), 'HKD', 'oz', None, gold_bid))
+            usd_oz_bid = (gold_bid / fx.get("HKD",7.83)) if gold_bid else None
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,premium_pct,local_currency,gold_local_unit,silver_local_unit,gold_local_bid,bid_usd_oz,bid_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'hongkong', usd_oz, gold, None, calc_premium(usd_oz), 'HKD', 'oz', None, gold_bid, usd_oz_bid, calc_premium(usd_oz_bid)))
 
         # Russia Dealer
         rd = prices.get("russia_dealer")
