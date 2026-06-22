@@ -1845,7 +1845,7 @@ function render(){
     const color = chp >= 0 ? 'var(--green)' : 'var(--red)';
     const ch = isGold ? spot.XAU_ch : spot.XAG_ch;
     const absStr = ch != null ? `${sign}$${fmt(Math.abs(ch),2)}` : '';
-    chpEl.innerHTML = `${absStr}&ensp;${sign}${chp.toFixed(2)}%`;
+    chpEl.innerHTML = `${absStr}<br>${sign}${chp.toFixed(2)}%`;
     chpEl.style.color = color;
 
     // EUR/currency chp: use VPS calculated value (available after 22:00 UTC)
@@ -1862,7 +1862,7 @@ function render(){
       const signEur = chpEur >= 0 ? '+' : '';
       const chAbs = isGold ? spot.XAU_ch : spot.XAG_ch;
       const absEurStr = chAbs != null ? `${signEur}${getCurrencySym()}${fmt(Math.abs(chAbs * getCurrencyRate()),2)}` : '';
-      chpEurEl.innerHTML = `${absEurStr}&ensp;${signEur}${chpEur.toFixed(2)}%`;
+      chpEurEl.innerHTML = `${absEurStr}<br>${signEur}${chpEur.toFixed(2)}%`;
       chpEurEl.style.color = chpEur >= 0 ? 'var(--green)' : 'var(--red)';
     } else {
       chpEurEl.textContent = '';
