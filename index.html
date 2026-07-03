@@ -2618,6 +2618,8 @@ function setLang(code){
   document.querySelectorAll('.lang-opt').forEach(b=>b.classList.toggle('active',b.dataset.lang===code));
   document.documentElement.dir=code==='ar'?'rtl':'ltr';
   document.getElementById('lang-menu').style.display='none';
+  const rtEl=document.querySelector('[data-i18n="ratioTitle"]');
+  if(rtEl) rtEl.style.fontSize={de:'10px',ru:'8px'}[code]||'13px';
   if(typeof render==='function') render();
 }
 function toggleLangMenu(e){
