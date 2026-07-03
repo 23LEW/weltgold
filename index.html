@@ -290,7 +290,7 @@ footer a:hover{text-decoration:underline}
     <div id="ratio-display" style="cursor:pointer;transition:opacity 0.2s;background:#1C2028;border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:12px 18px 10px;min-width:200px;flex:1;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between">
       <div style="text-align:center">
         <div data-i18n="ratioTitle" style="font-size:13px;color:var(--gold-p);letter-spacing:0.8px;text-transform:uppercase;font-weight:600">Gold · Silver · Ratio</div>
-        <div data-i18n="ratioExpand" style="font-size:13px;color:var(--silver-b);margin-top:3px">Click to expand</div>
+        <div data-i18n="ratioExpand" style="font-size:13px;color:var(--silver-b);margin-top:3px">Tap to expand</div>
       </div>
       <div style="display:flex;align-items:baseline;justify-content:center">
         <div id="v-ratio" style="font-family:'DM Mono',monospace;font-size:34px;font-weight:700;color:var(--gold-p);letter-spacing:-1px;line-height:1">—</div>
@@ -299,7 +299,7 @@ footer a:hover{text-decoration:underline}
     <div id="sp500-display" style="cursor:pointer;transition:opacity 0.2s;background:#1C2028;border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:12px 18px 10px;min-width:200px;flex:1;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between">
       <div style="text-align:center">
         <div style="font-size:13px;color:var(--gold-p);letter-spacing:0.8px;text-transform:uppercase;font-weight:600">Gold · S&amp;P 500 · Ratio</div>
-        <div style="font-size:13px;color:var(--silver-b);margin-top:3px">Click to expand</div>
+        <div style="font-size:13px;color:var(--silver-b);margin-top:3px">Tap to expand</div>
       </div>
       <div style="display:flex;align-items:baseline;justify-content:center;gap:5px">
         <div id="v-sp500-ratio" style="font-family:'DM Mono',monospace;font-size:34px;font-weight:700;color:var(--gold-p);letter-spacing:-1px;line-height:1">—</div>
@@ -390,31 +390,31 @@ footer a:hover{text-decoration:underline}
       <td><div class="plocal">$4,406.90</div><div class="punit">USD/oz · Spot</div></td>
       <td class="r"><div class="pusd">$4,406.90</div><div class="punit">Ref</div></td>
       <td class="r"><span class="badge neu">—</span></td>
-      <td class="chart-td" onclick="openChartModal('comex','🇺🇸 COMEX · New York')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-comex" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('comex','🇺🇸 COMEX · New York')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-comex" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="" data-market="lbma">
       <td><div class="mkt"><span class="flag">🇬🇧</span><div><div class="mname">LBMA · London</div><div class="mcity">London Bullion Market Assoc.</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
       <td><div class="plocal">$ 141.69</div><div class="punit">USD/oz</div></td>
       <td class="r"><div class="pusd">$4,406.90</div></td>
       <td class="r"><span class="badge neu" style="display:block;margin-bottom:3px">$0.00</span><span class="badge neu">0.00%</span></td>
-      <td class="chart-td" onclick="openChartModal('lbma','🇬🇧 LBMA · London')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-lbma" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('lbma','🇬🇧 LBMA · London')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-lbma" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="" data-market="hongkong">
       <td><div class="mkt"><span class="flag">🇭🇰</span><div><div class="mname">Hong Kong · CGSE</div><div class="mcity">Chinese Gold &amp; Silver Exchange</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
       <td><div class="plocal">HK$ 34,548.54</div><div class="punit">HKD/tael</div></td>
       <td class="r"><div class="pusd">$4,415.71</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$8.81</span><span class="badge neg">+0.20%</span></td>
-      <td class="chart-td" onclick="openChartModal('hongkong','🇭🇰 Hong Kong · Hang Seng')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-hongkong" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('hongkong','🇭🇰 Hong Kong · Hang Seng')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-hongkong" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="" data-market="russia">
       <td><div class="mkt"><span class="flag">🇷🇺</span><div><div class="mname">Russia · CBR</div><div class="mcity">Central Bank of Russia</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
       <td><div class="plocal">RUB 143.10</div><div class="punit">RUB/g</div></td>
       <td class="r"><div class="pusd">$4,450.97</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$44.07</span><span class="badge neg">+1.00%</span></td>
-      <td class="chart-td" onclick="openChartModal('russia','🇷🇺 Russia · CBR')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-russia" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('russia','🇷🇺 Russia · CBR')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-russia" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="" data-market="shanghai">
       <td><div class="mkt"><span class="flag">🇨🇳</span><div><div class="mname">Shanghai · SGE</div><div class="mcity">Shanghai Gold Exchange</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
       <td><div class="plocal">¥ 988.86</div><div class="punit">CNY/g</div></td>
       <td class="r"><div class="pusd">$4,450.97</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$44.07</span><span class="badge neg">+1.00%</span></td>
-      <td class="chart-td" onclick="openChartModal('shanghai','🇨🇳 Shanghai · SGE')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-shanghai" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('shanghai','🇨🇳 Shanghai · SGE')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-shanghai" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr></tbody>
 <tbody id="tbl-dealers">
   <tr>
@@ -429,49 +429,49 @@ footer a:hover{text-decoration:underline}
       <td><div class="plocal">¥ 22,729</div><div class="punit">JPY/g</div></td>
       <td class="r"><div class="pusd">$4,428.93</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$22.03</span><span class="badge neg">+0.50%</span></td>
-      <td class="chart-td" onclick="openChartModal('japan','🇯🇵 Tokyo · Japan')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-japan" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('japan','🇯🇵 Tokyo · Japan')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-japan" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="lo" data-market="dubai">
       <td><div class="mkt"><span class="flag">🇦🇪</span><div><div class="mname">Dubai · GVS Trading</div><div class="mcity">Gold & Diamond Park</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
       <td><div class="plocal">د.إ 142</div><div class="punit">AED/g</div></td>
       <td class="r"><div class="pusd">$4,428.93</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$22.03</span><span class="badge neg">+0.50%</span></td>
-      <td class="chart-td" onclick="openChartModal('dubai','🇦🇪 Dubai · GVS Trading')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-dubai" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('dubai','🇦🇪 Dubai · GVS Trading')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-dubai" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="" data-market="germany">
       <td><div class="mkt"><span class="flag">🇩🇪</span><div><div class="mname">Germany · Degussa</div><div class="mcity">Frankfurt / München</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
       <td><div class="plocal">€ 125</div><div class="punit">EUR/oz</div></td>
       <td class="r"><div class="pusd">$4,473.00</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$66.10</span><span class="badge neg">+1.50%</span></td>
-      <td class="chart-td" onclick="openChartModal('germany','🇩🇪 Germany · Degussa')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-germany" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('germany','🇩🇪 Germany · Degussa')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-germany" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="" data-market="switzerland">
       <td><div class="mkt"><span class="flag">🇨🇭</span><div><div class="mname">Switzerland · Philoro</div><div class="mcity">Zürich / Wien / München</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
       <td><div class="plocal">Fr. 125</div><div class="punit">CHF/oz</div></td>
       <td class="r"><div class="pusd">$4,473.00</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$66.10</span><span class="badge neg">+1.50%</span></td>
-      <td class="chart-td" onclick="openChartModal('switzerland','🇨🇭 Switzerland · Philoro')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-switzerland" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('switzerland','🇨🇭 Switzerland · Philoro')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-switzerland" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="" data-market="uk_royalmint">
       <td><div class="mkt"><span class="flag">🇬🇧</span><div><div class="mname">Royal Mint · UK</div><div class="mcity">Llantrisant · Wales</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
       <td><div class="plocal">£ 125</div><div class="punit">GBP/oz</div></td>
       <td class="r"><div class="pusd">$4,473.00</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$66.10</span><span class="badge neg">+1.50%</span></td>
-      <td class="chart-td" onclick="openChartModal('uk_royalmint','🇬🇧 Royal Mint · UK')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-uk_royalmint" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('uk_royalmint','🇬🇧 Royal Mint · UK')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-uk_royalmint" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="" data-market="istanbul">
       <td><div class="mkt"><span class="flag">🇹🇷</span><div><div class="mname">Istanbul · Turkey</div><div class="mcity">Grand Bazaar / Kapalı Çarşı</div><div style="margin-top:4px"><span class="badge closed">⚫ CLOSED</span></div></div></div></td>
       <td><div class="plocal">₺ 6,412</div><div class="punit">TRY/g</div></td>
       <td class="r"><div class="pusd">$4,495.04</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$88.14</span><span class="badge neg">+2.00%</span></td>
-      <td class="chart-td" onclick="openChartModal('istanbul','🇹🇷 Istanbul · Turkey')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-istanbul" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('istanbul','🇹🇷 Istanbul · Turkey')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-istanbul" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="" data-market="usa">
       <td><div class="mkt"><span class="flag">🇺🇸</span><div><div class="mname">USA · BGASC</div><div class="mcity">Online Bullion Dealer</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
       <td><div class="plocal">$ 145</div><div class="punit">USD/oz</div></td>
       <td class="r"><div class="pusd">$4,495.04</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$88.14</span><span class="badge neg">+2.00%</span></td>
-      <td class="chart-td" onclick="openChartModal('usa','🇺🇸 USA · BGASC')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-usa" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('usa','🇺🇸 USA · BGASC')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-usa" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="" data-market="us_sdbullion">
       <td><div class="mkt"><span class="flag">🇺🇸</span><div><div class="mname">USA · SD Bullion</div><div class="mcity">Online Bullion Dealer</div><div style="margin-top:4px"><span class="badge calc">🟠 CALC</span></div></div></div></td>
       <td><div class="plocal">$ 145</div><div class="punit">USD/oz</div></td>
       <td class="r"><div class="pusd">$4,495.04</div></td>
       <td class="r"><span class="badge neg" style="display:block;margin-bottom:3px">+$88.14</span><span class="badge neg">+2.00%</span></td>
-      <td class="chart-td" onclick="openChartModal('us_sdbullion','🇺🇸 USA · SD Bullion')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="mini-us_sdbullion" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('us_sdbullion','🇺🇸 USA · SD Bullion')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-us_sdbullion" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr></tbody>
 </table>
 </div>
@@ -2052,7 +2052,7 @@ function render(){
       return `<tr class="${rowCls}" data-market="${r.id}">
         <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div><div style="margin-top:4px">${srcBadge}</div></div></div></td>
         <td colspan="3" style="text-align:center;color:var(--text3);font-size:12px;font-style:italic;vertical-align:middle">No Bid price listed</td>
-        <td class="chart-td" onclick="openChartModal('${r.id}','${r.flag} ${r.name}')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="${chartId}" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+        <td class="chart-td" onclick="openChartModal('${r.id}','${r.flag} ${r.name}')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="${chartId}" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
       </tr>`;
     }
     return `<tr class="${rowCls}" data-market="${r.id}">
@@ -2060,7 +2060,7 @@ function render(){
       <td>${priceCell}<div class="usd-mob">${usdCell}</div></td>
       <td class="r td-usd">${usdCell}</td>
       <td class="r">${usdPremCell}</td>
-      <td class="chart-td" onclick="openChartModal('${r.id}','${r.flag} ${r.name}')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="${chartId}" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('${r.id}','${r.flag} ${r.name}')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="${chartId}" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr>`;
   }).filter(Boolean).join('');
 
@@ -2114,7 +2114,7 @@ function render(){
       <td>${priceCell}<div class="usd-mob">${usdCell2}</div></td>
       <td class="r td-usd">${usdCell2}</td>
       <td class="r">${premCell}</td>
-      <td class="chart-td" onclick="openChartModal('${r.historyId||r.id}','${r.flag} ${r.name}')" style="cursor:pointer" title="Click to expand"><div class="mini-chart-wrap"><canvas id="${chartId}" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">tap to expand</div></td>
+      <td class="chart-td" onclick="openChartModal('${r.historyId||r.id}','${r.flag} ${r.name}')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="${chartId}" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr>`;
   }).join('');
 
@@ -2545,7 +2545,7 @@ function cookieDecline(){
 
 // ── Language / i18n ───────────────────────────────────────────
 const TRANSLATIONS={
-  en:{ratioTitle:'Gold · Silver · Ratio',ratioExpand:'Click to expand',spotSub:'World Spot Price · Global Benchmark',calculated:'Calculated',secExchanges:'Exchange & Benchmark Prices',secDealers:'Physical Dealer Prices',secCharts:'Price Charts',compareHint:'Click at least two markets to compare them',compareBtn:'Compare →',gold:'Gold',silver:'Silver',oz:'1 oz',kilo:'Kilo',buy:'Buy',sell:'Sell',unitOz:'Troy Oz',unitKilo:'Kilo',analytics:'Analytics cookies',thExchange:'Exchange',thDealer:'Dealer',thLocalPrice:'Local Price',thVsComex:'vs. COMEX',th1dChart:'1D Chart',secNoteEx:'🟢 Live · 🟠 Calculated · COMEX is the default reference',secNoteDl:'🟢 Live · 🟠 Calculated (Spot × FX + known premium)',siteSubtitle:'Compare physical gold & silver prices across the world\'s markets',currencyLabel:'Currency',displayOptionsLabel:'Settings',languageLabel:'Language',chartGoldSub:'LBMA PM Fix · London / COMEX Intraday',chartSilverSub:'LBMA Silver Price · London / COMEX Intraday',lblUsd:'World Spot Price',lblEur:'Spot Price',spotPrice:'Spot Price',cookieAccept:'Accept',cookieDecline:'Decline',footerImpressum:'Legal Notice & Privacy',aboutBtnLabel:'About GoldPremium.org',aboutHtml:'<h2>About GoldPremium.org</h2><p>GoldPremium.org tracks physical gold and silver prices across major global markets and compares them to the international LBMA/COMEX spot price. The <strong>gold premium</strong> measures how much more buyers pay for physical metal vs. the global benchmark.</p><p>All data for informational purposes only — not financial advice.</p>'},
+  en:{ratioTitle:'Gold · Silver · Ratio',ratioExpand:'Tap to expand',spotSub:'World Spot Price · Global Benchmark',calculated:'Calculated',secExchanges:'Exchange & Benchmark Prices',secDealers:'Physical Dealer Prices',secCharts:'Price Charts',compareHint:'Click at least two markets to compare them',compareBtn:'Compare →',gold:'Gold',silver:'Silver',oz:'1 oz',kilo:'Kilo',buy:'Buy',sell:'Sell',unitOz:'Troy Oz',unitKilo:'Kilo',analytics:'Analytics cookies',thExchange:'Exchange',thDealer:'Dealer',thLocalPrice:'Local Price',thVsComex:'vs. COMEX',th1dChart:'1D Chart',secNoteEx:'🟢 Live · 🟠 Calculated · COMEX is the default reference',secNoteDl:'🟢 Live · 🟠 Calculated (Spot × FX + known premium)',siteSubtitle:'Compare physical gold & silver prices across the world\'s markets',currencyLabel:'Currency',displayOptionsLabel:'Settings',languageLabel:'Language',chartGoldSub:'LBMA PM Fix · London / COMEX Intraday',chartSilverSub:'LBMA Silver Price · London / COMEX Intraday',lblUsd:'World Spot Price',lblEur:'Spot Price',spotPrice:'Spot Price',cookieAccept:'Accept',cookieDecline:'Decline',footerImpressum:'Legal Notice & Privacy',aboutBtnLabel:'About GoldPremium.org',aboutHtml:'<h2>About GoldPremium.org</h2><p>GoldPremium.org tracks physical gold and silver prices across major global markets and compares them to the international LBMA/COMEX spot price. The <strong>gold premium</strong> measures how much more buyers pay for physical metal vs. the global benchmark.</p><p>All data for informational purposes only — not financial advice.</p>'},
   de:{ratioTitle:'Gold · Silber · Verhältnis',ratioExpand:'Klicken zum Erweitern',spotSub:'Weltspot · Globaler Referenzpreis',calculated:'Berechnet',secExchanges:'Börsen & Referenzpreise',secDealers:'Händlerpreise',secCharts:'Preischarts',compareHint:'Mindestens zwei Märkte zum Vergleich anklicken',compareBtn:'Vergleichen →',gold:'Gold',silver:'Silber',oz:'1 Unze',kilo:'Kilo',buy:'Kaufen',sell:'Verkaufen',unitOz:'Unze',unitKilo:'Kilo',analytics:'Analyse-Cookies',thExchange:'Börse',thDealer:'Händler',thLocalPrice:'Lokalpreis',thVsComex:'vs. COMEX',th1dChart:'1T-Chart',secNoteEx:'🟢 Live · 🟠 Berechnet · COMEX ist der Referenzpreis',secNoteDl:'🟢 Live · 🟠 Berechnet (Spot × Wechselkurs + Aufschlag)',siteSubtitle:'Physische Gold- & Silberpreise weltweit vergleichen',currencyLabel:'Währung',displayOptionsLabel:'Einstellungen',languageLabel:'Sprache',chartGoldSub:'LBMA PM-Fix · London / COMEX Intraday',chartSilverSub:'LBMA Silberpreis · London / COMEX Intraday',lblUsd:'Internationaler Spotpreis',lblEur:'Spotpreis',spotPrice:'Spotpreis',cookieAccept:'Akzeptieren',cookieDecline:'Ablehnen',footerImpressum:'Impressum & Datenschutz',aboutBtnLabel:'Über GoldPremium.org',aboutHtml:'<h2>Über GoldPremium.org</h2><p>GoldPremium.org verfolgt physische Gold- und Silberpreise auf den wichtigsten Weltmärkten und vergleicht sie mit dem internationalen LBMA/COMEX-Spotpreis. Das <strong>Gold-Premium</strong> zeigt, wie viel mehr Käufer für physisches Metall gegenüber dem globalen Referenzpreis zahlen.</p><p>Alle Daten dienen ausschließlich Informationszwecken — keine Anlageberatung.</p>'},
   tw:{ratioTitle:'金銀比價',ratioExpand:'點擊展開',spotSub:'全球現貨價格基準',calculated:'計算值',secExchanges:'交易所與基準價格',secDealers:'實體金商價格',secCharts:'價格圖表',compareHint:'點擊至少兩個市場進行比較',compareBtn:'比較 →',gold:'黃金',silver:'白銀',oz:'1盎司',kilo:'千克',buy:'買入',sell:'賣出',unitOz:'盎司',unitKilo:'千克',analytics:'分析 Cookie',thExchange:'交易所',thDealer:'經銷商',thLocalPrice:'本地價格',thVsComex:'vs. COMEX',th1dChart:'日線圖',secNoteEx:'🟢 即時 · 🟠 計算值 · COMEX為參考價',secNoteDl:'🟢 即時 · 🟠 計算值 (現貨×匯率+溢價)',siteSubtitle:'比較全球市場的實體黃金與白銀價格',currencyLabel:'貨幣',displayOptionsLabel:'設定',languageLabel:'語言',chartGoldSub:'LBMA PM定盤價 · 倫敦 / COMEX盤中',chartSilverSub:'LBMA銀價 · 倫敦 / COMEX盤中',lblUsd:'國際現貨價格',lblEur:'現貨價格',spotPrice:'現貨價',cookieAccept:'接受',cookieDecline:'拒絕',footerImpressum:'法律聲明 & 隱私政策',aboutBtnLabel:'關於 GoldPremium.org',aboutSectionHtml:'<strong style="font-size:13px;color:var(--text);letter-spacing:.3px">關於 GoldPremium.org</strong><br><br>2025年底至2026年1月，實體貴金屬市場承受了異常壓力。黃金屢創紀錄——LBMA自1980年以來最強勁的1月——白銀則出現了實實在在的實體短缺，各地區溢價大幅分化：上海的實體白銀較LBMA與COMEX高出約12–13%。有一段時間，同一根1公斤金條因購買地點不同而價格明顯不同。<br><br>這樣的時刻很容易被單一的「世界現貨價」所掩蓋——而實體黃金與白銀真正的故事正在於此。GoldPremium.org 正是為了讓這些差異可見而打造：它收集全球主要市場——法蘭克福、伊斯坦堡、上海、紐約等——的實體買入與賣出價格，並將其並排呈現，讓任何人都能看到各市場相對國際基準價高出或低於多少。<br><br>為使比較具有意義，我們盡可能採用1公斤鑄造金條／銀條作為基準——同一產品，以相同方式計量。在無法做到時（標準、單位或數據存在差異），我們採用最接近的可比基礎，並標明來源。<br><br>我們歡迎黃金及貴金屬交易商向我們提供1公斤金銀產品的價格數據（API Ask/Bid）；參與的交易商將被列出並附上其網站連結，完全免費。<br><br>聯絡方式：<a href="mailto:contact@goldpremium.org" style="color:var(--gold-p)">contact@goldpremium.org</a>',disclaimerHtml:'<strong style="font-size:13px;letter-spacing:.3px">免責聲明（Disclaimer）</strong><br><br>GoldPremium.org 提供全球黃金與白銀實物價格資訊，並將其與國際公認的基準現貨價格（包括 LBMA 與 COMEX 參考價格）進行比較。<br><br>所有資訊僅供參考，不構成任何金融、投資、稅務或交易建議，亦不構成任何購買或出售貴金屬或金融工具之要約或邀請。<br><br>儘管我們盡力確保所提供資料之準確性、完整性與即時性，但不對相關資訊作出任何形式之保證或擔保。市場數據可能存在延遲、不完整，或在未經通知的情況下變更。<br><br>使用者在進行任何投資或財務決策前，應自行核實所有資訊。貴金屬市場具有風險，價格可能出現大幅波動。<br><br>GoldPremium.org 可能顯示來自第三方之資料來源（例如交易商、交易所或 API）。我們不對此類外部資料之準確性或可靠性承擔責任。<br><br>如需更正、更新或回饋，請聯絡：<br><a href="mailto:contact@goldpremium.org" style="color:var(--gold-p)">contact@goldpremium.org</a><br><br>如不同語言版本之間存在差異，以英文版本為準。'},
   zh:{ratioTitle:'金银比价',ratioExpand:'点击展开',spotSub:'全球现货价格基准',calculated:'计算值',secExchanges:'交易所与基准价格',secDealers:'实体金商价格',secCharts:'价格图表',compareHint:'点击至少两个市场进行比较',compareBtn:'比较 →',gold:'黄金',silver:'白银',oz:'1盎司',kilo:'千克',buy:'买入',sell:'卖出',unitOz:'盎司',unitKilo:'千克',analytics:'分析 Cookie',thExchange:'交易所',thDealer:'经销商',thLocalPrice:'本地价格',thVsComex:'vs. COMEX',th1dChart:'日线图',secNoteEx:'🟢 实时 · 🟠 计算值 · COMEX为参考价',secNoteDl:'🟢 实时 · 🟠 计算值 (现货×汇率+溢价)',siteSubtitle:'比较全球市场的实物黄金与白银价格',currencyLabel:'货币',displayOptionsLabel:'设置',languageLabel:'语言',chartGoldSub:'LBMA PM定盘价 · 伦敦 / COMEX盘中',chartSilverSub:'LBMA银价 · 伦敦 / COMEX盘中',lblUsd:'国际现货价格',lblEur:'现货价格',spotPrice:'现货价',cookieAccept:'接受',cookieDecline:'拒绝',footerImpressum:'法律声明 & 隐私政策',aboutBtnLabel:'关于 GoldPremium.org',aboutSectionHtml:'<strong style="font-size:13px;color:var(--text);letter-spacing:.3px">关于 GoldPremium.org</strong><br><br>2025年底至2026年1月，实物贵金属市场承受了异常压力。黄金屡创纪录——LBMA自1980年以来最强劲的1月——白银则出现了实实在在的实物短缺，各地区溢价大幅分化：上海的实物白银较LBMA和COMEX高出约12–13%。一段时间里，同一根1公斤金条因购买地点不同而价格明显不同。<br><br>这样的时刻很容易被单一的“世界现货价”所掩盖——而实物黄金与白银真正的故事恰恰就在其中。GoldPremium.org 正是为让这些差异可见而打造：它收集全球主要市场——法兰克福、伊斯坦布尔、上海、纽约等——的实物买入与卖出价格，并将它们并排呈现，让任何人都能看到各市场相对国际基准价高出或低于多少。<br><br>为使比较有意义，我们尽可能采用1公斤铸造金条／银条作为基准——同一产品，以相同方式计量。在无法做到时（标准、单位或数据存在差异），我们采用最接近的可比基础，并标明来源。<br><br>我们欢迎黄金及贵金属交易商向我们提供1公斤金银产品的价格数据（API Ask/Bid）；参与的交易商将被列出并附上其网站链接，完全免费。<br><br>联系方式：<a href="mailto:contact@goldpremium.org" style="color:var(--gold-p)">contact@goldpremium.org</a>',disclaimerHtml:'<strong style="font-size:13px;letter-spacing:.3px">免责声明（Disclaimer）</strong><br><br>GoldPremium.org 提供全球黄金和白银实物价格信息，并将其与国际公认的基准现货价格（包括 LBMA 和 COMEX 参考价格）进行比较。<br><br>所有信息仅供参考，不构成任何金融、投资、税务或交易建议，也不构成任何购买或出售贵金属或金融工具的要约或邀请。<br><br>尽管我们尽力确保所提供数据的准确性、完整性和及时性，但不对相关信息作出任何形式的保证或担保。市场数据可能存在延迟、不完整，或在未提前通知的情况下发生变化。<br><br>用户在进行任何投资或金融决策前，应自行核实所有信息。贵金属市场具有风险，价格可能会大幅波动。<br><br>GoldPremium.org 可能展示来自第三方的数据来源（例如交易商、交易所或 API）。我们不对这些外部数据的准确性或可靠性承担责任。<br><br>如需更正、更新或反馈，请联系：<br><a href="mailto:contact@goldpremium.org" style="color:var(--gold-p)">contact@goldpremium.org</a><br><br>如不同语言版本之间存在差异，以英文版本为准。',aboutHtml:'<h2>关于 GoldPremium.org</h2><p>GoldPremium.org 追踪全球主要市场的实物黄金和白银价格，并与国际 LBMA/COMEX 现货价格进行比较。<strong>黄金溢价</strong>衡量买家为实物金属支付的价格高于全球基准的程度。</p><p>所有数据仅供参考，不构成投资建议。</p>'},
