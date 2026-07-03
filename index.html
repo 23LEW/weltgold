@@ -803,10 +803,10 @@ Chart.register(verticalGridPlugin);
 
 const CHART_OPTS = {
   responsive:true, maintainAspectRatio:false,
-  plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'rgba(20,22,26,0.95)',titleColor:'var(--gold)',bodyColor:'#D0CCC4',borderColor:'rgba(184,151,58,0.3)',borderWidth:1}},
+  plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,backgroundColor:'rgba(20,22,26,0.95)',titleColor:'#F5C842',bodyColor:'#D0CCC4',borderColor:'rgba(184,151,58,0.3)',borderWidth:1}},
   scales:{
-    x:{ticks:{color:'var(--text3)',font:{family:'DM Mono',size:10},maxTicksLimit:8}},
-    y:{ticks:{color:'var(--text3)',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.03)'}}
+    x:{ticks:{color:'#666C78',font:{family:'DM Mono',size:10},maxTicksLimit:8}},
+    y:{ticks:{color:'#666C78',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.03)'}}
   }
 };
 
@@ -1328,7 +1328,7 @@ function renderMiniCharts(rows, spotUSD){
       const ctx2 = canvas.getContext('2d');
       ctx2.fillStyle = 'rgba(128,128,128,0.3)';
       ctx2.fillRect(0, 0, canvas.width, canvas.height);
-      ctx2.fillStyle = 'var(--text3)';
+      ctx2.fillStyle = '#666C78';
       ctx2.font = '9px sans-serif';
       ctx2.textAlign = 'center';
       ctx2.fillText('collecting...', canvas.width/2, canvas.height/2+3);
@@ -1346,7 +1346,7 @@ function renderMiniCharts(rows, spotUSD){
       if(!hasSilver){
         const ctx2 = canvas.getContext('2d');
         ctx2.clearRect(0,0,canvas.width,canvas.height);
-        ctx2.fillStyle = 'var(--text3)';
+        ctx2.fillStyle = '#666C78';
         ctx2.font = '9px sans-serif';
         ctx2.textAlign = 'center';
         ctx2.fillText('No Silver price available', canvas.width/2, canvas.height/2+3);
@@ -1358,7 +1358,7 @@ function renderMiniCharts(rows, spotUSD){
     } else {
       vals = mData.map(d=> tradeDir==="sell" && d.bid_premium_pct!=null ? d.bid_premium_pct : d.premium_pct);
     }
-    const color = (r.isSpot || r.isFutures) ? 'var(--gold)' : 'var(--blue)';
+    const color = (r.isSpot || r.isFutures) ? '#F5C842' : '#5B8DEF';
     if(canvas._chartInst) canvas._chartInst.destroy();
     const show1DAxis = true; // Mini-Charts zeigen immer 1D
     if(show1DAxis){ canvas.height = 80; canvas.style.height = '80px'; } else { canvas.height = 60; canvas.style.height = '60px'; }
@@ -1462,7 +1462,7 @@ function renderSpotChart(){ try {
 
   const filtered = getFilteredHistory();
   const isGold = metal==='XAU';
-  const color = isGold ? 'var(--gold)' : '#B8CCD8';
+  const color = isGold ? '#F5C842' : '#B8CCD8';
   const fillColor = isGold ? 'rgba(212,175,90,0.08)' : 'rgba(184,204,216,0.08)';
   const unitLabel = unit==='gram' ? 'USD/g' : 'USD/oz';
 
@@ -1553,7 +1553,7 @@ function renderSpotChart(){ try {
             displayFormats:{hour:'dd.MM HH:mm',day:'dd.MM',month:'MMM yyyy',year:'yyyy'},
             minUnit: currentRange==='1D'||currentRange==='5D'?'hour':'day'
           },
-          ticks:{color:'var(--text3)',maxTicksLimit:8,font:{size:11}},
+          ticks:{color:'#666C78',maxTicksLimit:8,font:{size:11}},
           max: labels.length>0 ? new Date(labels[labels.length-1]).getTime() : undefined
         },
         x:{...CHART_OPTS.scales.x,
@@ -1570,7 +1570,7 @@ function renderSpotChart(){ try {
           grid:{display:false}
         },
         y:{...CHART_OPTS.scales.y,
-          title:{display:true,text:unitLabel,color:'var(--text3)',font:{family:'DM Mono',size:10}}
+          title:{display:true,text:unitLabel,color:'#666C78',font:{family:'DM Mono',size:10}}
         }
       },
     }
@@ -1600,7 +1600,7 @@ function renderSilverPremiumChart(){ try {
   if(!ctx) return;
   if(chartSilverPremium){ chartSilverPremium.destroy(); chartSilverPremium = null; }
   const colors = {
-    istanbul:'var(--gold)', india_gjc:'#E87040', germany:'#5BAD7A',
+    istanbul:'#F5C842', india_gjc:'#E87040', germany:'#5BAD7A',
     switzerland:'#E63946', dubai:'#C67BD4', usa:'#E85A5A', australia:'#00A693',
     canada:'#D4003F', shanghai:'#EE4B2B', russia_dealer:'#CC4444'
   };
@@ -1611,7 +1611,7 @@ function renderSilverPremiumChart(){ try {
       const datasets = Object.entries(data).map(([market, points])=>({
         label: MKTNAMES[market]||market.charAt(0).toUpperCase()+market.slice(1),
         data: points.map(p=>({x:p.date, y:p.premium})),
-        borderColor: colors[market]||'var(--text3)',
+        borderColor: colors[market]||'#666C78',
         backgroundColor: 'transparent',
         borderWidth: 2,
         pointRadius: 0,
@@ -1629,12 +1629,12 @@ function renderSilverPremiumChart(){ try {
           responsive:true, maintainAspectRatio:false,
           interaction:{mode:'index',intersect:false},
           plugins:{
-            legend:{display:true, position:'right', align:'start', labels:{color:'var(--text3)', font:{size:10}, boxWidth:12, padding:8, usePointStyle:true, pointStyle:'line'}},
+            legend:{display:true, position:'right', align:'start', labels:{color:'#666C78', font:{size:10}, boxWidth:12, padding:8, usePointStyle:true, pointStyle:'line'}},
             tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y>0?'+':''}${ctx.parsed.y?.toFixed(2)}%`}}
           },
           scales:{
-            x:{type:'time', time:{unit:'day', displayFormats:{day:'dd MMM'}}, ticks:{color:'var(--text3)', maxTicksLimit:8}, grid:{display:false}},
-            y:{min:yMin-yPad, max:yMax+yPad, ticks:{color:'var(--text3)', callback:v=>v+'%'}, grid:{color:'rgba(128,128,128,0.1)'}, title:{display:true, text:tPrem()+' vs COMEX Spot', color:'var(--text3)'}}
+            x:{type:'time', time:{unit:'day', displayFormats:{day:'dd MMM'}}, ticks:{color:'#666C78', maxTicksLimit:8}, grid:{display:false}},
+            y:{min:yMin-yPad, max:yMax+yPad, ticks:{color:'#666C78', callback:v=>v+'%'}, grid:{color:'rgba(128,128,128,0.1)'}, title:{display:true, text:tPrem()+' vs COMEX Spot', color:'#666C78'}}
           }
         }
       });
@@ -1651,7 +1651,7 @@ function renderGlobalPremiumChart(){ try {
     .then(r=>r.json())
     .then(data=>{
       const colors = {
-        istanbul:'var(--gold)', india_gjc:'#E87040', japan:'#4A90D9',
+        istanbul:'#F5C842', india_gjc:'#E87040', japan:'#4A90D9',
         germany:'#5BAD7A', switzerland:'#E63946', dubai:'#C67BD4', usa:'#E85A5A',
         hongkong:'#F0A500', australia:'#00A693', canada:'#D4003F', shanghai:'#EE4B2B'
       };
@@ -1659,7 +1659,7 @@ function renderGlobalPremiumChart(){ try {
       const datasets = Object.entries(data).map(([market, points])=>({
         label: MKTNAMES2[market]||market.charAt(0).toUpperCase()+market.slice(1),
         data: points.map(p=>({x:p.date, y:p.premium})),
-        borderColor: colors[market]||'var(--text3)',
+        borderColor: colors[market]||'#666C78',
         backgroundColor: 'transparent',
         borderWidth: 2,
         pointRadius: 0,
@@ -1674,12 +1674,12 @@ function renderGlobalPremiumChart(){ try {
           responsive:true, maintainAspectRatio:false,
           interaction:{mode:'index',intersect:false},
           plugins:{
-            legend:{display:true, position:'right', align:'start', labels:{color:'var(--text3)', font:{size:10}, boxWidth:12, padding:8, usePointStyle:true, pointStyle:'line'}},
+            legend:{display:true, position:'right', align:'start', labels:{color:'#666C78', font:{size:10}, boxWidth:12, padding:8, usePointStyle:true, pointStyle:'line'}},
             tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y>0?'+':''}${ctx.parsed.y?.toFixed(2)}%`}}
           },
           scales:{
-            x:{type:'time', time:{unit:'day', displayFormats:{day:'dd MMM'}}, ticks:{color:'var(--text3)', maxTicksLimit:8}, grid:{display:false}},
-            y:{min:yMin2-yPad2, max:yMax2+yPad2, ticks:{color:'var(--text3)', callback:v=>v+'%'}, grid:{color:'rgba(128,128,128,0.1)'}, title:{display:true, text:tPrem(), color:'var(--text3)'}}
+            x:{type:'time', time:{unit:'day', displayFormats:{day:'dd MMM'}}, ticks:{color:'#666C78', maxTicksLimit:8}, grid:{display:false}},
+            y:{min:yMin2-yPad2, max:yMax2+yPad2, ticks:{color:'#666C78', callback:v=>v+'%'}, grid:{color:'rgba(128,128,128,0.1)'}, title:{display:true, text:tPrem(), color:'#666C78'}}
           }
         }
       });
@@ -1714,7 +1714,7 @@ function renderAllChart(rows, spotUSD){ try {
       scales:{
         ...CHART_OPTS.scales,
         y:{...CHART_OPTS.scales.y,
-          title:{display:true,text:'Premium USD/'+(unit==='gram'?'kg':'oz'),color:'var(--text3)',font:{family:'DM Mono',size:10}}
+          title:{display:true,text:'Premium USD/'+(unit==='gram'?'kg':'oz'),color:'#666C78',font:{family:'DM Mono',size:10}}
         }
       }
     }
@@ -2242,7 +2242,7 @@ function renderModalChart(data, range){
   if(data.length < 2){
     const c = ctx.getContext('2d');
     c.clearRect(0,0,ctx.width,ctx.height);
-    c.fillStyle = 'var(--text3)';
+    c.fillStyle = '#666C78';
     c.font = '14px sans-serif';
     c.textAlign = 'center';
     c.fillText('Not enough data yet — collecting...', ctx.width/2, 150);
@@ -2335,7 +2335,7 @@ function renderModalChart(data, range){
       ...(hasPrem ? [{
         type:'line', label:'Silver '+tPrem(),
         data:premVals,
-        borderColor:'var(--blue)', backgroundColor:'rgba(91,141,239,0.05)',
+        borderColor:'#5B8DEF', backgroundColor:'rgba(91,141,239,0.05)',
         borderWidth:2, pointRadius:0, fill:false, tension:0.3,
         borderDash:[4,3], yAxisID:'y2'
       }] : [])
@@ -2351,7 +2351,7 @@ function renderModalChart(data, range){
     });
     premVals = data.map(d => isSellMode ? (d.bid_premium_pct ?? null) : d.premium_pct);
     unitLabel = isKg ? `${currency}/kg` : `${currency}/oz`;
-    lineColor = isSellMode ? '#C07830' : 'var(--gold)';
+    lineColor = isSellMode ? '#C07830' : '#F5C842';
     lineColorAlpha = isSellMode ? 'rgba(192,120,48,0.08)' : 'rgba(212,175,90,0.08)';
     const priceLabel = isSellMode ? 'Bid' : 'Ask';
     const legend = document.getElementById('modal-legend');
@@ -2372,7 +2372,7 @@ function renderModalChart(data, range){
         {
           type:'line', label:tPrem(),
           data:premVals,
-          borderColor:'var(--blue)', backgroundColor:'rgba(91,141,239,0.05)',
+          borderColor:'#5B8DEF', backgroundColor:'rgba(91,141,239,0.05)',
           borderWidth:2, pointRadius:0, fill:false, tension:0.3,
           borderDash:[4,3], yAxisID:'y2'
         }
@@ -2400,14 +2400,14 @@ function renderModalChart(data, range){
       },
       scales:{
         x:{
-          ticks:{font:{size:11},color:'var(--text3)',maxRotation:0,
+          ticks:{font:{size:11},color:'#666C78',maxRotation:0,
             maxTicksLimit: (range==='1d'||range==='5d') ? 200 : 8,
             autoSkip: !(range==='1d'||range==='5d')
           },
           grid:{drawOnChartArea:true,offset:false,color:function(ctx){const lbl=ctx.chart.data.labels[ctx.index];return lbl&&lbl!==''?'rgba(180,180,180,0.3)':'transparent';}}
         },
                 y1:{position:'left',ticks:{font:{size:11},color:lineColor,maxTicksLimit:6},grid:{color:'rgba(128,128,128,0.08)'},title:{display:true,text:unitLabel,color:lineColor,font:{size:11}}},
-        y2:{position:'right',ticks:{font:{size:11},color:'var(--blue)',callback:v=>v?.toFixed(1)+'%'},grid:{display:false},title:{display:true,text:tPrem(),color:'var(--blue)',font:{size:11}}}
+        y2:{position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{display:false},title:{display:true,text:tPrem(),color:'#5B8DEF',font:{size:11}}}
       }
     }
   });
@@ -2776,7 +2776,7 @@ function renderRatioChart(data,range){
       labels:data.map(d=>d.ts),
       datasets:[{
         data:data.map(d=>d.ratio),
-        borderColor:'var(--gold)',
+        borderColor:'#F5C842',
         backgroundColor:'rgba(212,175,90,0.06)',
         borderWidth:1.5,
         pointRadius:0,
@@ -2802,8 +2802,8 @@ function renderRatioChart(data,range){
         }
       },
       scales:{
-        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy',year:'yyyy'}},ticks:{color:'var(--text3)',maxTicksLimit:10,font:{size:11}},grid:{display:false}},
-        y:{ticks:{color:'var(--text3)',font:{size:11},callback:v=>v.toFixed(0)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'oz Gold / oz Silver',color:'var(--text3)',font:{size:10}}}
+        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy',year:'yyyy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:{size:11}},grid:{display:false}},
+        y:{ticks:{color:'#666C78',font:{size:11},callback:v=>v.toFixed(0)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'oz Gold / oz Silver',color:'#666C78',font:{size:10}}}
       }
     }
   });
@@ -2880,7 +2880,7 @@ function renderSp500Chart(data,range){
       datasets:[{
         data:points,
         normalized:true,
-        borderColor:'var(--gold)',
+        borderColor:'#F5C842',
         backgroundColor:'rgba(212,175,90,0.06)',
         borderWidth:1.5,
         pointRadius:0,
@@ -2910,8 +2910,8 @@ function renderSp500Chart(data,range){
         }
       },
       scales:{
-        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy',year:'yyyy'}},ticks:{color:'var(--text3)',maxTicksLimit:10,font:{size:11}},grid:{display:false}},
-        y:{ticks:{color:'var(--text3)',font:{size:11},callback:v=>v.toFixed(2)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'oz Gold per S&P 500 point',color:'var(--text3)',font:{size:10}}}
+        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy',year:'yyyy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:{size:11}},grid:{display:false}},
+        y:{ticks:{color:'#666C78',font:{size:11},callback:v=>v.toFixed(2)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'oz Gold per S&P 500 point',color:'#666C78',font:{size:10}}}
       }
     }
   });
@@ -2922,7 +2922,7 @@ loadSp500LiveRatio();
 setInterval(loadSp500LiveRatio, 5*60*1000);
 
 // ── Market Compare ────────────────────────────────────────────
-const COMPARE_COLORS={comex:'#E85A5A',lbma:'var(--blue)',shanghai:'#F0A500',hkgx:'#2ECC71',india_ibja:'#C879E0',hongkong:'#FF8C42',istanbul:'var(--gold)',india_mumbai:'#EC4899',india_gjc:'#22D3EE',japan:'#4A90D9',dubai:'#C67BD4',usa:'#00A693',canada:'#F4D03F',russia_dealer:'#94A3B8',australia:'#A3E635',germany:'#5BAD7A',switzerland:'#D946EF',uk_royalmint:'#38BDF8',chinagold:'#FCD34D'};
+const COMPARE_COLORS={comex:'#E85A5A',lbma:'#5B8DEF',shanghai:'#F0A500',hkgx:'#2ECC71',india_ibja:'#C879E0',hongkong:'#FF8C42',istanbul:'#F5C842',india_mumbai:'#EC4899',india_gjc:'#22D3EE',japan:'#4A90D9',dubai:'#C67BD4',usa:'#00A693',canada:'#F4D03F',russia_dealer:'#94A3B8',australia:'#A3E635',germany:'#5BAD7A',switzerland:'#D946EF',uk_royalmint:'#38BDF8',chinagold:'#FCD34D'};
 const COMPARE_LABELS=Object.fromEntries([...EXCHANGES,...MARKETS].map(r=>[r.id,r.flag+' '+r.name]));
 const COMPARE_HISTID=Object.fromEntries([...EXCHANGES,...MARKETS].map(r=>[r.id,r.historyId||r.id]));
 const selectedMarkets=new Set();
@@ -2944,7 +2944,7 @@ function updateCompareBar(){
   const isSilver=metal==='XAG';
   const hint=document.getElementById('compare-hint');
   hint.style.display=n<2?'':'none';
-  hint.style.color=isSilver?'var(--silver-b)':'var(--gold)';
+  hint.style.color=isSilver?'#AAC8D8':'#F5C842';
   const chips=document.getElementById('compare-bar-chips');
   chips.innerHTML='';
   selectedMarkets.forEach(m=>{
@@ -3165,7 +3165,7 @@ function renderCompareChart(results,range){
   const datasets=results.filter(r=>r.data&&r.data.length).map(({market,data})=>({
     label:COMPARE_LABELS[market]||market,
     data:data.map(d=>({x:d.ts||d.date,y:d[yField]})).filter(p=>p.y!=null),
-    borderColor:COMPARE_COLORS[market]||'var(--text3)',
+    borderColor:COMPARE_COLORS[market]||'#666C78',
     backgroundColor:'transparent',
     borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:0
   }));
@@ -3174,7 +3174,7 @@ function renderCompareChart(results,range){
     type:'line',data:{datasets},
     options:{...CHART_OPTS,
       plugins:{...CHART_OPTS.plugins,
-        legend:{display:true,position:'right',align:'start',labels:{color:'var(--text3)',font:{size:22},boxWidth:20,padding:12,usePointStyle:true,pointStyle:'line'}},
+        legend:{display:true,position:'right',align:'start',labels:{color:'#666C78',font:{size:22},boxWidth:20,padding:12,usePointStyle:true,pointStyle:'line'}},
         zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
         verticalGrid:{enabled:isShort},
         tooltip:{...CHART_OPTS.plugins.tooltip,mode:'index',intersect:false,
@@ -3182,8 +3182,8 @@ function renderCompareChart(results,range){
         }
       },
       scales:{
-        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy'}},ticks:{color:'var(--text3)',maxTicksLimit:10,font:{size:11}},grid:{display:false}},
-        y:{ticks:{color:'var(--text3)',font:{size:11},callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'USD / oz',color:'var(--text3)',font:{size:10}}}
+        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:{size:11}},grid:{display:false}},
+        y:{ticks:{color:'#666C78',font:{size:11},callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'USD / oz',color:'#666C78',font:{size:10}}}
       }
     }
   });
