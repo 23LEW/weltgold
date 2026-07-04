@@ -1353,12 +1353,16 @@ function renderMiniCharts(rows, spotUSD){
         return;
       }
       vals = silverVals;
-    } else if(r.isSpot || ['comex','lbma','dubai','hkgx','shanghai'].includes(r.id)){
+    } else if(r.isSpot || r.id==='comex'){
       vals = mData.map(d=> d.gold_usd_oz!=null ? d.gold_usd_oz : null);
     } else {
       vals = mData.map(d=> tradeDir==="sell" && d.bid_premium_pct!=null ? d.bid_premium_pct : d.premium_pct);
     }
     const color = (r.isSpot || r.isFutures) ? '#F5C842' : '#5B8DEF';
+    const isPremiumChart = !(r.isSpot || r.id==='comex');
+    const validVals = isPremiumChart ? vals.filter(v=>v!=null&&isFinite(v)) : [];
+    let peakVal = null;
+    if(validVals.length){ const mx=Math.max(...validVals),mn=Math.min(...validVals); peakVal=Math.abs(mx)>=Math.abs(mn)?mx:mn; }
     if(canvas._chartInst) canvas._chartInst.destroy();
     const show1DAxis = true; // Mini-Charts zeigen immer 1D
     if(show1DAxis){ canvas.height = 80; canvas.style.height = '80px'; } else { canvas.height = 60; canvas.style.height = '60px'; }
@@ -1378,7 +1382,7 @@ function renderMiniCharts(rows, spotUSD){
                 if(modalRange==='1d'||modalRange==='5d') return d.ts.slice(0,16).replace('T',' ') + ' UTC';
                 return d.ts.slice(0,10);
               },
-              label: ctx => `${ctx.parsed.y>0?'+':''}${ctx.parsed.y?.toFixed(2)}%`
+              label: ctx => isPremiumChart ? `${ctx.parsed.y>0?'+':''}${ctx.parsed.y?.toFixed(2)}%` : `$${ctx.parsed.y?.toFixed(2)}`
             }
           }
         },
@@ -1402,7 +1406,43 @@ function renderMiniCharts(rows, spotUSD){
           },
           y:{display:false}
         }
-      }
+      },
+      plugins:[{
+        id:'miniRef',
+        afterDraw(chart){
+          if(!isPremiumChart||!validVals.length) return;
+          const {ctx,scales:{y},chartArea}=chart;
+          ctx.save();
+          const zeroY=y.getPixelForValue(0);
+          if(zeroY>=chartArea.top&&zeroY<=chartArea.bottom){
+            ctx.strokeStyle='rgba(255,255,255,0.2)';
+            ctx.setLineDash([3,3]);
+            ctx.lineWidth=1;
+            ctx.beginPath();
+            ctx.moveTo(chartArea.left,zeroY);
+            ctx.lineTo(chartArea.right,zeroY);
+            ctx.stroke();
+          }
+          if(peakVal!=null&&Math.abs(peakVal)>0.05){
+            const peakY=y.getPixelForValue(peakVal);
+            if(Math.abs(peakY-zeroY)>8){
+              ctx.strokeStyle='rgba(255,255,255,0.15)';
+              ctx.setLineDash([2,4]);
+              ctx.lineWidth=1;
+              ctx.beginPath();
+              ctx.moveTo(chartArea.left,peakY);
+              ctx.lineTo(chartArea.right,peakY);
+              ctx.stroke();
+              ctx.setLineDash([]);
+              ctx.fillStyle='rgba(255,255,255,0.35)';
+              ctx.font='7px sans-serif';
+              ctx.textAlign='right';
+              ctx.fillText(`${peakVal>0?'+':''}${peakVal.toFixed(1)}%`,chartArea.right-2,peakY-2);
+            }
+          }
+          ctx.restore();
+        }
+      }]
     });
   });
 }
@@ -1432,7 +1472,7 @@ async function loadMiniHistory(){
       // Wochenend-Fallback: wenn der Filter alles killt (z.B. 24h-Anfrage am Sonntag),
       // nimm die ungefilterten Rohdaten - sonst bleibt der Chart leer.
       if(raw.length < 2 && (j.data || []).length >= 2){ raw = j.data || []; }
-      const absPriceMarkets = ['comex','lbma','hkgx','shanghai'];
+      const absPriceMarkets = ['comex'];
       const hasSilverData = raw.some(d=>(d.silver_usd_oz!=null&&d.silver_usd_oz>0)||(d.silver_local!=null&&d.silver_local>0));
       const filtered_raw = m==='lbma' ? raw : raw.filter((d,i)=>{ if(i===0) return true; if(metal==='XAG'&&hasSilverData) return (d.silver_usd_oz||d.silver_local)!==(raw[i-1].silver_usd_oz||raw[i-1].silver_local); if(absPriceMarkets.includes(m)) return d.gold_usd_oz!==raw[i-1].gold_usd_oz; return d.premium_pct!==raw[i-1].premium_pct; });
       const toRender = downsampleData(filtered_raw, modalRange);
