@@ -1394,6 +1394,7 @@ function renderMiniCharts(rows, spotUSD){
     const validVals = isPremiumChart ? vals.filter(v=>v!=null&&isFinite(v)) : [];
     let peakVal = null;
     if(validVals.length){ const mx=Math.max(...validVals),mn=Math.min(...validVals); peakVal=Math.abs(mx)>=Math.abs(mn)?mx:mn; }
+    if(isPremiumChart) console.log('[miniRef]', r.id, 'vals.length:', vals.length, 'validVals.length:', validVals.length, 'sample:', vals.slice(0,3));
     canvas._miniRefData = isPremiumChart && validVals.length ? {peakVal, validVals} : null;
     if(canvas._chartInst) canvas._chartInst.destroy();
     const show1DAxis = true; // Mini-Charts zeigen immer 1D
