@@ -1319,6 +1319,36 @@ function getFilteredHistory(){
 
 function renderMiniCharts(rows, spotUSD){
   if(typeof Chart==='undefined') return;
+  // Global plugin für Referenzlinien (einmalig registrieren)
+  if(!window._miniRefRegistered){
+    window._miniRefRegistered=true;
+    Chart.register({
+      id:'miniRefGlobal',
+      afterDraw(chart){
+        const d=chart.canvas?._miniRefData;
+        if(!d||!d.validVals||!d.validVals.length) return;
+        const {peakVal,validVals}=d;
+        const {ctx,scales:{y},chartArea}=chart;
+        if(!y||!chartArea) return;
+        ctx.save();
+        const zeroY=y.getPixelForValue(0);
+        if(zeroY>=chartArea.top&&zeroY<=chartArea.bottom){
+          ctx.strokeStyle='rgba(255,255,255,0.22)';ctx.setLineDash([3,3]);ctx.lineWidth=1;
+          ctx.beginPath();ctx.moveTo(chartArea.left,zeroY);ctx.lineTo(chartArea.right,zeroY);ctx.stroke();
+        }
+        if(peakVal!=null&&Math.abs(peakVal)>0.05){
+          const peakY=y.getPixelForValue(peakVal);
+          if(Math.abs(peakY-zeroY)>6){
+            ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.setLineDash([2,4]);ctx.lineWidth=1;
+            ctx.beginPath();ctx.moveTo(chartArea.left,peakY);ctx.lineTo(chartArea.right,peakY);ctx.stroke();
+            ctx.setLineDash([]);ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='7px sans-serif';ctx.textAlign='right';
+            ctx.fillText(`${peakVal>0?'+':''}${Number(peakVal).toFixed(1)}%`,chartArea.right-2,peakY-2);
+          }
+        }
+        ctx.restore();
+      }
+    });
+  }
   rows.forEach(r=>{
     const canvas = document.getElementById(`mini-${r.id}`);
     if(!canvas) return;
@@ -1364,6 +1394,7 @@ function renderMiniCharts(rows, spotUSD){
     const validVals = isPremiumChart ? vals.filter(v=>v!=null&&isFinite(v)) : [];
     let peakVal = null;
     if(validVals.length){ const mx=Math.max(...validVals),mn=Math.min(...validVals); peakVal=Math.abs(mx)>=Math.abs(mn)?mx:mn; }
+    canvas._miniRefData = isPremiumChart && validVals.length ? {peakVal, validVals} : null;
     if(canvas._chartInst) canvas._chartInst.destroy();
     const show1DAxis = true; // Mini-Charts zeigen immer 1D
     if(show1DAxis){ canvas.height = 80; canvas.style.height = '80px'; } else { canvas.height = 60; canvas.style.height = '60px'; }
@@ -1407,42 +1438,7 @@ function renderMiniCharts(rows, spotUSD){
           },
           y:{display:false, suggestedMin: isPremiumChart ? 0 : undefined}
         }
-      },
-      plugins: isPremiumChart && validVals.length ? [{
-        id:'miniRef',
-        afterDraw(chart){
-          const {ctx,scales:{y},chartArea}=chart;
-          ctx.save();
-          const zeroY=y.getPixelForValue(0);
-          if(zeroY>=chartArea.top&&zeroY<=chartArea.bottom){
-            ctx.strokeStyle='rgba(255,255,255,0.22)';
-            ctx.setLineDash([3,3]);
-            ctx.lineWidth=1;
-            ctx.beginPath();
-            ctx.moveTo(chartArea.left,zeroY);
-            ctx.lineTo(chartArea.right,zeroY);
-            ctx.stroke();
-          }
-          if(peakVal!=null&&Math.abs(peakVal)>0.05){
-            const peakY=y.getPixelForValue(peakVal);
-            if(Math.abs(peakY-zeroY)>6){
-              ctx.strokeStyle='rgba(255,255,255,0.15)';
-              ctx.setLineDash([2,4]);
-              ctx.lineWidth=1;
-              ctx.beginPath();
-              ctx.moveTo(chartArea.left,peakY);
-              ctx.lineTo(chartArea.right,peakY);
-              ctx.stroke();
-              ctx.setLineDash([]);
-              ctx.fillStyle='rgba(255,255,255,0.4)';
-              ctx.font='7px sans-serif';
-              ctx.textAlign='right';
-              ctx.fillText(`${peakVal>0?'+':''}${Number(peakVal).toFixed(1)}%`,chartArea.right-2,peakY-2);
-            }
-          }
-          ctx.restore();
-        }
-      }] : []
+      }
     });
   });
 }
