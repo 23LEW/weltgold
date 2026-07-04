@@ -1405,45 +1405,33 @@ function renderMiniCharts(rows, spotUSD){
             },
             grid:{display:false}
           },
-          y:{display:false}
-        }
-      },
-      plugins:[{
-        id:'miniRef',
-        afterDraw(chart){
-          if(!isPremiumChart||!validVals.length) return;
-          const {ctx,scales:{y},chartArea}=chart;
-          ctx.save();
-          const zeroY=y.getPixelForValue(0);
-          if(zeroY>=chartArea.top&&zeroY<=chartArea.bottom){
-            ctx.strokeStyle='rgba(255,255,255,0.2)';
-            ctx.setLineDash([3,3]);
-            ctx.lineWidth=1;
-            ctx.beginPath();
-            ctx.moveTo(chartArea.left,zeroY);
-            ctx.lineTo(chartArea.right,zeroY);
-            ctx.stroke();
-          }
-          if(peakVal!=null&&Math.abs(peakVal)>0.05){
-            const peakY=y.getPixelForValue(peakVal);
-            if(Math.abs(peakY-zeroY)>8){
-              ctx.strokeStyle='rgba(255,255,255,0.15)';
-              ctx.setLineDash([2,4]);
-              ctx.lineWidth=1;
-              ctx.beginPath();
-              ctx.moveTo(chartArea.left,peakY);
-              ctx.lineTo(chartArea.right,peakY);
-              ctx.stroke();
-              ctx.setLineDash([]);
-              ctx.fillStyle='rgba(255,255,255,0.35)';
-              ctx.font='7px sans-serif';
-              ctx.textAlign='right';
-              ctx.fillText(`${peakVal>0?'+':''}${peakVal.toFixed(1)}%`,chartArea.right-2,peakY-2);
+          y:{display:false, suggestedMin: isPremiumChart ? Math.min(0, peakVal??0) : undefined}
+        },
+        plugins: isPremiumChart && validVals.length ? {
+          annotation:{
+            annotations:{
+              zeroLine:{
+                type:'line', yMin:0, yMax:0,
+                borderColor:'rgba(255,255,255,0.22)', borderWidth:1, borderDash:[3,3]
+              },
+              ...(peakVal!=null && Math.abs(peakVal)>0.05 ? {peakLine:{
+                type:'line', yMin:peakVal, yMax:peakVal,
+                borderColor:'rgba(255,255,255,0.15)', borderWidth:1, borderDash:[2,4],
+                label:{
+                  display:true,
+                  content:`${peakVal>0?'+':''}${peakVal.toFixed(1)}%`,
+                  position:'end',
+                  color:'rgba(255,255,255,0.4)',
+                  font:{size:7, family:'sans-serif'},
+                  backgroundColor:'transparent',
+                  padding:{top:0,bottom:0,left:2,right:2},
+                  yAdjust:-8
+                }
+              }} : {})
             }
           }
-          ctx.restore();
-        }
-      }]
+        } : {}
+      }
     });
   });
 }
