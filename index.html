@@ -381,10 +381,11 @@ footer a:hover{text-decoration:underline}
     <th data-i18n="thExchange">Exchange</th>
     <th id="th-local-ex" data-i18n="thLocalPrice" style="white-space:nowrap;width:1%;padding-right:12px">Local Price</th>
     <th class="r th-usd" id="th-usd-ex" data-i18n="thUsdPrice">Price (USD) / oz</th>
-    <th class="r" data-i18n="thPremium">Premium %</th>
+    <th class="r" data-i18n="thPremium">Premium %<div style="font-size:9px;font-weight:400;color:var(--text3);margin-top:1px;letter-spacing:0;text-transform:none">vs. COMEX spot</div></th>
     <th class="chart-th" data-i18n="th1dChart">1D Chart</th>
   </tr>
 </thead>
+<tbody id="tbody-legend-ex"><tr><td colspan="5" style="padding:4px 16px 8px;background:var(--bg)"><div style="font-size:10px;color:var(--text3)" data-i18n="secNoteEx">🟢 Live · 🟠 Calculated · COMEX is the default reference</div></td></tr></tbody>
 <tbody id="tbody-exchanges"><tr class="ref" data-market="comex">
       <td><div class="mkt"><span class="flag">🇺🇸</span><div><div class="mname">COMEX · New York</div><div class="mcity">CME Group / Futures Exchange</div><div style="margin-top:4px"><span class="badge ref" style="background:rgba(184,151,58,0.15);color:var(--gold)">⭐ REFERENCE · kitco.com</span></div></div></div></td>
       <td><div class="plocal">$4,406.90</div><div class="punit">USD/oz · Spot</div></td>
@@ -1827,7 +1828,7 @@ function render(){
   const displaySel = toDisplay(spotUSD && dispRate ? spotUSD * dispRate : null);
   document.getElementById('v-eur').textContent = fmt(isGram ? displaySel*KGFACTOR : displaySel, isGram?2:2);
   fitEurPrice();
-  document.getElementById('lbl-eur').textContent = `${_t.lblEur} · ${displayCurrency} / ${unit==='oz'?_t.unitOz:_t.unitKilo}`;
+  document.getElementById('lbl-eur').textContent = `Bid / Ask · ${displayCurrency} / ${unit==='oz'?_t.unitOz:_t.unitKilo}`;
   const fxRateEl = document.getElementById('v-fx-rate');
   const eurSourceEl = document.getElementById('v-eur-source');
   const curFxEl = document.getElementById('currency-fx');
