@@ -2230,8 +2230,18 @@ function openSpotChart(){
 
 async function openChartModal(marketId, title){
   if(window.innerWidth<=768&&window.innerHeight>window.innerWidth){
+    // Request fullscreen NOW while the tap gesture is still active, then show rotate hint
+    const dEl=document.documentElement;
+    if(dEl.requestFullscreen) dEl.requestFullscreen().catch(()=>{});
+    else if(dEl.webkitRequestFullscreen) dEl.webkitRequestFullscreen();
     _showRotateHint(()=>openChartModal(marketId,title));
     return;
+  }
+  // Direct landscape tap: also request fullscreen while gesture is active
+  if(window.innerWidth<=768&&!document.fullscreenElement&&!document.webkitFullscreenElement){
+    const dEl=document.documentElement;
+    if(dEl.requestFullscreen) dEl.requestFullscreen().catch(()=>{});
+    else if(dEl.webkitRequestFullscreen) dEl.webkitRequestFullscreen();
   }
   modalMarket = marketId;
   modalMetal = metal==='XAG' ? 'silver' : 'gold';
@@ -3062,6 +3072,9 @@ function clearCompare(){
 function openCompareModal(){
   if(selectedMarkets.size<2) return;
   if(window.innerWidth<=768&&window.innerHeight>window.innerWidth){
+    const dEl=document.documentElement;
+    if(dEl.requestFullscreen) dEl.requestFullscreen().catch(()=>{});
+    else if(dEl.webkitRequestFullscreen) dEl.webkitRequestFullscreen();
     _showRotateHint();
     return;
   }
@@ -3070,16 +3083,26 @@ function openCompareModal(){
 
 function _exitFS(){if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen();else if(document.webkitFullscreenElement&&document.webkitExitFullscreen)document.webkitExitFullscreen();}
 function _autoFsOnFirstTap(modalId){
-  if(window.innerWidth>768) return;
+  // Use shorter screen dimension so phone in landscape (e.g. 844×390) is detected correctly
+  if(Math.min(window.innerWidth,window.innerHeight)>600) return;
   const modal=document.getElementById(modalId);
   if(!modal) return;
+  // Show a brief "tap for fullscreen" hint — positioned fixed so it doesn't affect modal layout
+  const hint=document.createElement('div');
+  hint.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:10001;pointer-events:none;transition:opacity 0.5s';
+  hint.innerHTML='<div style="background:rgba(0,0,0,0.8);border:1px solid rgba(201,150,58,0.6);border-radius:14px;padding:14px 22px;display:flex;flex-direction:column;align-items:center;gap:7px"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C9963A" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span style="color:#fff;font-size:13px;font-weight:600;white-space:nowrap;letter-spacing:.3px">Tippen für Vollbild</span></div>';
+  document.body.appendChild(hint);
+  const fadeOut=()=>{ hint.style.opacity='0'; setTimeout(()=>{ if(hint.parentNode) hint.remove(); },500); };
+  const timer=setTimeout(fadeOut,2500);
   modal.addEventListener('touchstart',function h(){
     modal.removeEventListener('touchstart',h);
+    clearTimeout(timer);
+    if(hint.parentNode) hint.remove();
     if(!document.fullscreenElement&&!document.webkitFullscreenElement){
       const req=modal.requestFullscreen||modal.webkitRequestFullscreen;
       if(req) req.call(modal).catch(()=>{});
     }
-  },{once:true});
+  },{once:true,passive:true});
 }
 function _toggleModalFS(id){
   const el=document.getElementById(id);
@@ -3182,21 +3205,21 @@ function _showRotateHint(onLandscape){
   d.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:Open Sans,sans-serif;text-align:center;padding:24px;box-sizing:border-box';
   document.body.appendChild(d);
   const cb=onLandscape||_openCompareModalInner;
-  function check(){
-    if(window.innerWidth>window.innerHeight){ cleanup(); setTimeout(cb,200); }
-  }
   function cleanup(){
     const h=document.getElementById('rotate-hint');
     if(h) h.remove();
     window.removeEventListener('resize',check);
     _rotateCleanup=null;
   }
+  function check(){
+    if(window.innerWidth>window.innerHeight){ cleanup(); setTimeout(cb,200); }
+  }
   _rotateCleanup=cleanup;
   const cancelBtn=document.createElement('button');
   cancelBtn.textContent='Abbrechen';
   cancelBtn.style.cssText='margin-top:4px;padding:5px 14px;background:none;border:1px solid #555;border-radius:6px;color:#888;font-size:11px;cursor:pointer';
   cancelBtn.onclick=cleanup;
-  d.innerHTML='<div style="font-size:52px;line-height:1">↻</div><div style="font-size:15px;font-weight:600;color:#fff">Bitte Gerät drehen</div><div style="font-size:12px;color:#aaa;max-width:220px">Der Chart wird automatisch im Querformat geöffnet</div>';
+  d.innerHTML='<div style="font-size:52px;line-height:1">↻</div><div style="font-size:15px;font-weight:600;color:#fff">Bitte Gerät drehen</div><div style="font-size:12px;color:#aaa;max-width:220px">Der Chart wird im Querformat geöffnet</div>';
   d.appendChild(cancelBtn);
   window.addEventListener('resize',check);
 }
