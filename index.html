@@ -1454,7 +1454,7 @@ let modalGridIndices = [];
 
 async function loadMiniHistory(){
   const markets = ['comex','lbma','istanbul','india_gjc','india_mumbai','india','japan','germany','switzerland','uk_royalmint','russia_dealer','dubai','hongkong','usa','us_sdbullion','canada','australia','shanghai','hkgx','chinagold'];
-  const hours = {'1d':24,'5d':120,'30d':720,'1y':8760}[modalRange] || 24;
+  const hours = {'1d':24,'5d':120,'30d':720,'1y':8760}[modalRange]||24;
   for(const m of markets){
     try{
       const r = await fetch(`https://api.goldpremium.org/api/history/${m}?hours=${hours}`);
@@ -1471,9 +1471,22 @@ async function loadMiniHistory(){
         // Filter inactive hours (price unchanged for long time)
         return true;
       });
-      // Wochenend-Fallback: wenn der Filter alles killt (z.B. 24h-Anfrage am Sonntag),
-      // nimm die ungefilterten Rohdaten - sonst bleibt der Chart leer.
-      if(raw.length < 2 && (j.data || []).length >= 2){ raw = j.data || []; }
+      // Wochenend-Fallback: wenn 1D-Filter alles killt (Sa/So), Freitagsdaten via 72h-Retry holen
+      if(raw.length < 2 && modalRange==='1d'){
+        try{
+          const r2 = await fetch(`https://api.goldpremium.org/api/history/${m}?hours=72`);
+          const j2 = await r2.json();
+          const raw2 = (j2.data||[]).filter(d=>{
+            const dt=new Date(d.ts); const dow=dt.getUTCDay(); const h=dt.getUTCHours();
+            if(dow===6) return false;
+            if(dow===0&&h<23) return false;
+            if(dow===5&&h>=22) return false;
+            if(h===22) return false;
+            return true;
+          });
+          if(raw2.length>=2) raw=raw2;
+        }catch(e2){}
+      }
       const absPriceMarkets = ['comex'];
       const hasSilverData = raw.some(d=>(d.silver_usd_oz!=null&&d.silver_usd_oz>0)||(d.silver_local!=null&&d.silver_local>0));
       const filtered_raw = m==='lbma' ? raw : raw.filter((d,i)=>{ if(i===0) return true; if(metal==='XAG'&&hasSilverData) return (d.silver_usd_oz||d.silver_local)!==(raw[i-1].silver_usd_oz||raw[i-1].silver_local); if(absPriceMarkets.includes(m)) return d.gold_usd_oz!==raw[i-1].gold_usd_oz; return d.premium_pct!==raw[i-1].premium_pct; });
