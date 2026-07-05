@@ -384,7 +384,7 @@ footer a:hover{text-decoration:underline}
     <th data-i18n="thExchange">Exchange</th>
     <th id="th-local-ex" data-i18n="thLocalPrice" style="white-space:nowrap;width:1%;padding-right:12px">Local Price</th>
     <th class="r th-usd" id="th-usd-ex" data-i18n="thUsdPrice">Price (USD) / oz</th>
-    <th class="r" data-i18n="thPremium">Premium %<div style="font-size:9px;font-weight:400;color:var(--text3);margin-top:1px;letter-spacing:0;text-transform:none">vs. COMEX spot</div></th>
+    <th class="r" data-i18n="thPremium">Premium %</th>
     <th class="chart-th" data-i18n="th1dChart">1D Chart</th>
   </tr>
 </thead>
@@ -2777,7 +2777,10 @@ setTimeout(updateStickyTop,300);
   fixed.querySelector('thead').style.background='var(--bg3)';
   document.body.appendChild(fixed);
   function updateFixed(){
-    const barH=document.getElementById('spots-sticky').offsetHeight;
+    const spotsEl=document.getElementById('spots-sticky');
+    const mobBar=document.getElementById('mobile-sticky-bar');
+    let barH=spotsEl?spotsEl.offsetHeight:0;
+    if(mobBar&&mobBar.style.display!=='none'){barH=mobBar.getBoundingClientRect().bottom;}
     const tr=thead.getBoundingClientRect();
     const wb=tblWrap.getBoundingClientRect();
     if(tr.bottom<barH&&wb.bottom>barH){
