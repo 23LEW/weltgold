@@ -255,7 +255,7 @@ footer a:hover{text-decoration:underline}
 
 <div class="spots-sticky" id="spots-sticky"><div class="spots-inner" style="display:flex;align-items:stretch;gap:20px;padding:8px 0 6px">
   <div id="left-group" style="flex:1;display:flex;align-items:stretch;gap:20px">
-  <div class="spot show" id="s-usd" style="display:flex;flex-direction:column;height:auto;flex:1;min-width:0;text-align:center;align-items:center;padding:8px 0">
+  <div class="spot show" id="s-usd" style="display:flex;flex-direction:column;height:auto;flex:1;min-width:0;text-align:center;align-items:center;padding:8px 0;cursor:pointer" onclick="openSpotChart()" title="Click to expand chart">
     <div class="spot-label" id="lbl-usd">World Spot Price<br>USD / Troy Oz</div>
     <div class="spot-lh" style="display:flex;gap:12px;font-family:'DM Mono',monospace;font-size:11px;color:#F0F0F0;margin-bottom:4px">
       <span>Low <span id="v-usd-low" style="color:#F0F0F0">—</span></span>
@@ -334,7 +334,7 @@ footer a:hover{text-decoration:underline}
     </div>
   </div><!-- end lang-currency-col -->
   <div id="right-group" style="flex:1;display:flex;align-items:stretch;gap:20px;justify-content:flex-end">
-  <div class="spot show" id="s-eur" style="display:flex;flex-direction:column;height:auto;flex:1;min-width:0;text-align:center;align-items:center;padding:8px 0">
+  <div class="spot show" id="s-eur" style="display:flex;flex-direction:column;height:auto;flex:1;min-width:0;text-align:center;align-items:center;padding:8px 0;cursor:pointer" onclick="openSpotChart()" title="Click to expand chart">
     <div class="spot-label" id="lbl-eur">Spot Price · USD / Troy Oz</div>
     <div class="spot-lh" style="display:flex;gap:12px;font-family:'DM Mono',monospace;font-size:11px;color:#F0F0F0;margin-bottom:4px">
       <span>Low <span id="v-eur-low" style="color:#F0F0F0">—</span></span>
@@ -2211,6 +2211,16 @@ let modalMarket = null;
 let modalMetal = 'gold';
 let modalRange = '1d';
 let modalHistCache = {};
+
+function openSpotChart(){
+  modalRange = '1d';
+  ['1d','5d','30d','1y'].forEach(r=>{
+    const b=document.getElementById('modal-btn-'+r);
+    if(b) b.className='rbtn'+(r==='1d'?' on':'');
+  });
+  const title = metal==='XAG' ? '🌍 Silver Spot Price · COMEX' : '🌍 Gold Spot Price · COMEX';
+  openChartModal('comex', title);
+}
 
 async function openChartModal(marketId, title){
   if(window.innerWidth<=768&&window.innerHeight>window.innerWidth){
