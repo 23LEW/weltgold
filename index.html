@@ -577,11 +577,14 @@ footer a:hover{text-decoration:underline}
         <button onclick="closeChartModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
       </div>
     </div>
-    <div style="display:flex;gap:6px;margin-bottom:16px">
-      <button class="rbtn on" id="modal-btn-1d" onclick="setModalRange('1d')">1D</button>
-      <button class="rbtn" id="modal-btn-5d" onclick="setModalRange('5d')">5D</button>
-      <button class="rbtn" id="modal-btn-30d" onclick="setModalRange('30d')">30D</button>
-      <button class="rbtn" id="modal-btn-1y" onclick="setModalRange('1y')">1Y</button>
+    <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center;justify-content:space-between">
+      <div style="display:flex;gap:6px">
+        <button class="rbtn on" id="modal-btn-1d" onclick="setModalRange('1d')">1D</button>
+        <button class="rbtn" id="modal-btn-5d" onclick="setModalRange('5d')">5D</button>
+        <button class="rbtn" id="modal-btn-30d" onclick="setModalRange('30d')">30D</button>
+        <button class="rbtn" id="modal-btn-1y" onclick="setModalRange('1y')">1Y</button>
+      </div>
+      <span style="font-size:10px;color:var(--text3)">Drag to zoom · Double-click to reset</span>
     </div>
     <div id="modal-metal-toggle" style="display:none;gap:6px;margin-bottom:12px">
       <button class="rbtn on" id="modal-btn-gold" onclick="setModalMetal('gold')">Gold</button>
@@ -2245,6 +2248,7 @@ function closeChartModal(){
 }
 
 async function setModalRange(range){
+  if(modalChart) try{modalChart.resetZoom();}catch(e){}
   modalRange = range;
   ['1d','5d','30d','1y'].forEach(r=>{
     const btn = document.getElementById('modal-btn-'+r);
@@ -2449,6 +2453,7 @@ function renderModalChart(data, range){
       plugins:{
         legend:{display:false},
         annotation:{annotations: annotationConfig},
+        zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
         tooltip:{
           callbacks:{
             title: ctx => {
@@ -2478,6 +2483,9 @@ function renderModalChart(data, range){
   });
 
 }
+
+// Reset zoom on double-click
+(()=>{const mc=document.getElementById('modal-chart');if(mc&&!mc.dataset.dblclickBound){mc.addEventListener('dblclick',()=>{if(modalChart)modalChart.resetZoom();});mc.dataset.dblclickBound='1';}})();
 
 // Close modal on background click
 document.getElementById('chart-modal').addEventListener('click', function(e){
