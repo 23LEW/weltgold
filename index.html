@@ -1347,7 +1347,8 @@ function renderMiniCharts(rows, spotUSD){
             ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.setLineDash([2,4]);ctx.lineWidth=1;
             ctx.beginPath();ctx.moveTo(chartArea.left,peakY);ctx.lineTo(chartArea.right,peakY);ctx.stroke();
             ctx.setLineDash([]);ctx.fillStyle='rgba(255,255,255,0.45)';ctx.font='7px sans-serif';ctx.textAlign='right';
-            ctx.fillText(`${peakVal>0?'+':''}${Number(peakVal).toFixed(1)}%`,chartArea.right-2,peakY-2);
+            const peakLabelY=peakY<chartArea.top+9?peakY+9:peakY-2;
+            ctx.fillText(`${peakVal>0?'+':''}${Number(peakVal).toFixed(1)}%`,chartArea.right-2,peakLabelY);
           }
         }
         ctx.restore();
