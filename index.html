@@ -2735,7 +2735,7 @@ function positionRatioForDevice(){
   if(window.innerWidth<=768){
     if(ratio&&slot&&ratio.parentNode!==slot) slot.appendChild(ratio);
     if(sp500&&sp500Slot&&sp500.parentNode!==sp500Slot) sp500Slot.appendChild(sp500);
-    if(langContainer&&currencyRow&&langContainer.parentNode!==currencyRow) currencyRow.insertBefore(langContainer,currencyRow.firstChild);
+    if(langContainer&&currencyRow&&langContainer.parentNode!==currencyRow) currencyRow.appendChild(langContainer);
     if(sUsd&&mobileControlsRow&&sUsd.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(sUsd);
     if(sEur&&mobileControlsRow&&sEur.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(sEur);
     if(togglesCol&&mobileControlsRow&&togglesCol.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(togglesCol);
