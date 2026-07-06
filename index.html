@@ -2736,10 +2736,10 @@ function positionRatioForDevice(){
     if(ratio&&slot&&ratio.parentNode!==slot) slot.appendChild(ratio);
     if(sp500&&sp500Slot&&sp500.parentNode!==sp500Slot) sp500Slot.appendChild(sp500);
     if(langContainer&&currencyRow&&langContainer.parentNode!==currencyRow) currencyRow.insertBefore(langContainer,currencyRow.firstChild);
-    if(currencyRow&&mobileControlsRow&&currencyRow.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(currencyRow);
     if(sUsd&&mobileControlsRow&&sUsd.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(sUsd);
-    if(togglesCol&&mobileControlsRow&&togglesCol.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(togglesCol);
     if(sEur&&mobileControlsRow&&sEur.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(sEur);
+    if(togglesCol&&mobileControlsRow&&togglesCol.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(togglesCol);
+    if(currencyRow&&mobileControlsRow&&currencyRow.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(currencyRow);
   } else {
     if(ratio&&logoInner&&ratio.parentNode!==logoInner.parentNode) logoInner.parentNode.insertBefore(ratio,logoInner);
     if(sp500&&logoInner&&sp500.parentNode!==logoInner.parentNode) logoInner.parentNode.insertBefore(sp500,logoInner);
