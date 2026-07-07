@@ -514,9 +514,6 @@ footer a:hover{text-decoration:underline}
   <div class="chart-wrap" onclick="if(window.innerWidth<=768&&window.innerHeight>window.innerWidth)_spotChartFullscreen()"><canvas id="chart-spot" style="display: block; box-sizing: border-box; height: 220px; width: 1222px;" width="2444" height="440"></canvas></div>
 </div>
 
-<div id="ratio-mobile-slot" style="display:none;margin:16px 0"></div>
-<div id="sp500-mobile-slot" style="display:none;margin:16px 0"></div>
-
 <div style="margin-top:12px">
   <div class="ctrl-group" style="display:inline-flex">
     <button id="about-gp-btn" class="ctrl-btn" style="background:var(--gold);color:#0E1015" onclick="(function(b,c){const o=c.style.display==='none';c.style.display=o?'block':'none';const lbl=(TRANSLATIONS[currentLang]||TRANSLATIONS.en).aboutBtnLabel||'About GoldPremium.org';b.textContent=lbl+(o?' ▴':' ▾');b.classList.toggle('on',o)})(this,document.getElementById('about-gp'))">Über GoldPremium.org ▾</button>
