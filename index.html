@@ -2491,7 +2491,7 @@ function renderModalChart(data, range){
           grid:{drawOnChartArea:true,offset:false,color:function(ctx){const lbl=ctx.chart.data.labels[ctx.index];return lbl&&lbl!==''?'rgba(180,180,180,0.3)':'transparent';}}
         },
                 y1:{position:'left',ticks:{font:{size:11},color:lineColor,maxTicksLimit:6},grid:{display:false},title:{display:true,text:unitLabel,color:lineColor,font:{size:11}}},
-        y2:{position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{color:'rgba(91,141,239,0.2)',lineWidth:1},title:{display:true,text:tPrem(),color:'#5B8DEF',font:{size:11}}}
+        y2:{position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{color:'rgba(91,141,239,0.35)',lineWidth:1},title:{display:true,text:tPrem(),color:'#5B8DEF',font:{size:11}}}
       }
     }
   });
@@ -2895,7 +2895,7 @@ function renderRatioChart(data,range){
       },
       scales:{
         x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy',year:'yyyy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:{size:11}},grid:{display:false}},
-        y:{ticks:{color:'#666C78',font:{size:11},callback:v=>v.toFixed(0)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'oz Gold / oz Silver',color:'#666C78',font:{size:10}}}
+        y:{ticks:{color:'#666C78',font:{size:11},callback:v=>v.toFixed(0)},grid:{color:'rgba(255,255,255,0.2)',lineWidth:1},title:{display:true,text:'oz Gold / oz Silver',color:'#666C78',font:{size:10}}}
       }
     }
   });
@@ -3003,7 +3003,7 @@ function renderSp500Chart(data,range){
       },
       scales:{
         x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy',year:'yyyy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:{size:11}},grid:{display:false}},
-        y:{ticks:{color:'#666C78',font:{size:11},callback:v=>v.toFixed(2)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'oz Gold per S&P 500 point',color:'#666C78',font:{size:10}}}
+        y:{ticks:{color:'#666C78',font:{size:11},callback:v=>v.toFixed(2)},grid:{color:'rgba(255,255,255,0.2)',lineWidth:1},title:{display:true,text:'oz Gold per S&P 500 point',color:'#666C78',font:{size:10}}}
       }
     }
   });
