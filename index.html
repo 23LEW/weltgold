@@ -2484,13 +2484,19 @@ function renderModalChart(data, range){
       },
       scales:{
         x:{
-          ticks:{font:{size:11},color:'#666C78',maxRotation:0,
-            maxTicksLimit:8, autoSkip:true,
+          ticks:{
+            font:{size:window.innerWidth<=768?9:11},
+            color:'#666C78',
+            maxRotation:window.innerWidth<=768?30:0,
+            maxTicksLimit:window.innerWidth<=768?5:8,
+            autoSkip:true,
             callback:function(val,idx){
               const d=data[idx];
               if(!d||!d.ts) return '';
               if(range==='1d'||range==='24h') return d.ts.slice(11,16);
               if(range==='5d') return d.ts.slice(5,10);
+              // Auf Mobile: kurzes Format "dd.MM"
+              if(window.innerWidth<=768) return d.ts.slice(5,10);
               return d.ts.slice(0,10);
             }
           },
