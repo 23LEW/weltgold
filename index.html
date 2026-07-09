@@ -2485,10 +2485,17 @@ function renderModalChart(data, range){
       scales:{
         x:{
           ticks:{font:{size:11},color:'#666C78',maxRotation:0,
-            maxTicksLimit: (range==='1d'||range==='5d') ? 200 : 8,
-            autoSkip: !(range==='1d'||range==='5d')
+            maxTicksLimit:8, autoSkip:true,
+            callback:function(val,idx){
+              const d=data[idx];
+              if(!d||!d.ts) return '';
+              if(range==='1d'||range==='24h') return d.ts.slice(11,16);
+              if(range==='5d') return d.ts.slice(5,10);
+              return d.ts.slice(0,10);
+            }
           },
-          grid:{drawOnChartArea:true,offset:false,color:function(ctx){const lbl=ctx.chart.data.labels[ctx.index];return lbl&&lbl!==''?'rgba(180,180,180,0.3)':'transparent';}}
+          border:{display:true,color:'rgba(255,255,255,0.1)'},
+          grid:{display:false}
         },
                 y1:{position:'left',ticks:{font:{size:11},color:lineColor,maxTicksLimit:6},grid:{display:false},title:{display:true,text:unitLabel,color:lineColor,font:{size:11}}},
         y2:{position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{color:'rgba(91,141,239,0.35)',lineWidth:1},title:{display:true,text:tPrem(),color:'#5B8DEF',font:{size:11}}}
