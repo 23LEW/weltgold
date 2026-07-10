@@ -598,7 +598,7 @@ footer a:hover{text-decoration:underline}
         <span><span style="display:inline-block;width:10px;height:3px;background:var(--gold);border-radius:2px;vertical-align:middle"></span> Local price</span>
         <span><span style="display:inline-block;width:10px;height:3px;background:var(--blue);border-radius:2px;vertical-align:middle"></span> ${tPrem()} vs COMEX</span>
       </div>
-      <span style="font-size:10px;color:var(--text3);white-space:nowrap">Drag to zoom · dbl-click reset</span>
+      <span style="font-size:10px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
     </div>
   </div>
 </div>
@@ -645,57 +645,51 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <div id="ratio-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:90%;max-width:900px;max-height:90vh;overflow:auto;position:relative">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
-      <div>
-        <div style="font-size:16px;font-weight:600;color:var(--text1)">Gold / Silver Ratio</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:2px">oz Gold per oz Silver · Historical</div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:900px;max-height:93vh;overflow:auto;position:relative">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;font-weight:500;color:var(--text1)">Gold / Silver Ratio</span>
+      <div style="display:flex;gap:4px;align-items:center">
+        <button class="rbtn" id="rbtn-ratio-1d" onclick="setRatioRange('1d')">1D</button>
+        <button class="rbtn on" id="rbtn-ratio-5d" onclick="setRatioRange('5d')">5D</button>
+        <button class="rbtn" id="rbtn-ratio-30d" onclick="setRatioRange('30d')">30D</button>
+        <button class="rbtn" id="rbtn-ratio-3m" onclick="setRatioRange('3m')">3M</button>
+        <button class="rbtn" id="rbtn-ratio-1y" onclick="setRatioRange('1y')">1Y</button>
+        <button class="rbtn" id="rbtn-ratio-10y" onclick="setRatioRange('10y')">10Y</button>
+        <button class="rbtn" id="rbtn-ratio-max" onclick="setRatioRange('max')">Max</button>
+        <button onclick="closeRatioModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
       </div>
-      <button onclick="closeRatioModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
     </div>
-    <div style="display:flex;gap:6px;margin-bottom:16px">
-      <button class="rbtn" id="rbtn-ratio-1d" onclick="setRatioRange('1d')">1D</button>
-      <button class="rbtn on" id="rbtn-ratio-5d" onclick="setRatioRange('5d')">5D</button>
-      <button class="rbtn" id="rbtn-ratio-30d" onclick="setRatioRange('30d')">30D</button>
-      <button class="rbtn" id="rbtn-ratio-3m" onclick="setRatioRange('3m')">3M</button>
-      <button class="rbtn" id="rbtn-ratio-1y" onclick="setRatioRange('1y')">1Y</button>
-      <button class="rbtn" id="rbtn-ratio-10y" onclick="setRatioRange('10y')">10Y</button>
-      <button class="rbtn" id="rbtn-ratio-max" onclick="setRatioRange('max')">Max</button>
-    </div>
-    <div class="chart-wrap" style="position:relative;width:100%;height:420px">
+    <div class="chart-wrap" style="position:relative;width:100%;height:clamp(300px,52vh,500px)">
       <canvas id="chart-ratio"></canvas>
     </div>
-    <div style="font-size:11px;color:var(--text3);margin-top:8px;display:flex;justify-content:space-between">
-      <span>Drag to zoom · Double-click to reset</span>
-      <span>Source: LBMA PM Fix (long-term) · COMEX Futures (1D/5D/30D)</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
+      <span style="font-size:10px;color:var(--text3)">oz Gold per oz Silver · LBMA PM Fix / COMEX</span>
+      <span style="font-size:10px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
     </div>
   </div>
 </div>
 
 <div id="sp500-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:90%;max-width:900px;max-height:90vh;overflow:auto;position:relative">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
-      <div>
-        <div style="font-size:16px;font-weight:600;color:var(--text1)">Gold / S&amp;P 500 Ratio</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:2px">oz Gold per S&amp;P 500 index point · Historical</div>
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:900px;max-height:93vh;overflow:auto;position:relative">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:13px;font-weight:500;color:var(--text1)">Gold / S&amp;P 500 Ratio</span>
+      <div style="display:flex;gap:4px;align-items:center">
+        <button class="rbtn" id="rbtn-sp500-1d" onclick="setSp500Range('1d')">1D</button>
+        <button class="rbtn on" id="rbtn-sp500-5d" onclick="setSp500Range('5d')">5D</button>
+        <button class="rbtn" id="rbtn-sp500-30d" onclick="setSp500Range('30d')">30D</button>
+        <button class="rbtn" id="rbtn-sp500-3m" onclick="setSp500Range('3m')">3M</button>
+        <button class="rbtn" id="rbtn-sp500-1y" onclick="setSp500Range('1y')">1Y</button>
+        <button class="rbtn" id="rbtn-sp500-10y" onclick="setSp500Range('10y')">10Y</button>
+        <button class="rbtn" id="rbtn-sp500-max" onclick="setSp500Range('max')">Max</button>
+        <button onclick="closeSp500Modal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
       </div>
-      <button onclick="closeSp500Modal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
     </div>
-    <div style="display:flex;gap:6px;margin-bottom:16px">
-      <button class="rbtn" id="rbtn-sp500-1d" onclick="setSp500Range('1d')">1D</button>
-      <button class="rbtn on" id="rbtn-sp500-5d" onclick="setSp500Range('5d')">5D</button>
-      <button class="rbtn" id="rbtn-sp500-30d" onclick="setSp500Range('30d')">30D</button>
-      <button class="rbtn" id="rbtn-sp500-3m" onclick="setSp500Range('3m')">3M</button>
-      <button class="rbtn" id="rbtn-sp500-1y" onclick="setSp500Range('1y')">1Y</button>
-      <button class="rbtn" id="rbtn-sp500-10y" onclick="setSp500Range('10y')">10Y</button>
-      <button class="rbtn" id="rbtn-sp500-max" onclick="setSp500Range('max')">Max</button>
-    </div>
-    <div class="chart-wrap" style="position:relative;width:100%;height:420px">
+    <div class="chart-wrap" style="position:relative;width:100%;height:clamp(300px,52vh,500px)">
       <canvas id="chart-sp500"></canvas>
     </div>
-    <div style="font-size:11px;color:var(--text3);margin-top:8px;display:flex;justify-content:space-between">
-      <span>Drag to zoom · Double-click to reset</span>
-      <span>Source: Yahoo Finance (^GSPC) · LBMA gold (long-term) · COMEX gold (1D/5D/30D)</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
+      <span style="font-size:10px;color:var(--text3)">oz Gold per S&amp;P 500 index point · Yahoo Finance / LBMA</span>
+      <span style="font-size:10px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
     </div>
   </div>
 </div>
@@ -2877,12 +2871,14 @@ function renderRatioChart(data,range){
   if(!data||!data.length) return;
   const isShort=range==='1d'||range==='5d';
   const timeUnit=range==='1d'?'hour':range==='5d'?'hour':(range==='30d'||range==='3m')?'day':range==='1y'?'month':'year';
+  const points=data.map(d=>({x:new Date(d.ts).getTime(),y:d.ratio}));
   chartRatio=new Chart(ctx,{
     type:'line',
     data:{
-      labels:data.map(d=>d.ts),
       datasets:[{
-        data:data.map(d=>d.ratio),
+        data:points,
+        parsing:false,
+        normalized:true,
         borderColor:'#F5C842',
         backgroundColor:'rgba(212,175,90,0.06)',
         borderWidth:1.5,
@@ -2895,14 +2891,15 @@ function renderRatioChart(data,range){
     },
     options:{...CHART_OPTS,
       plugins:{...CHART_OPTS.plugins,
+        decimation:{enabled:true,algorithm:'lttb',samples:600},
         zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
         verticalGrid:{enabled:isShort},
         tooltip:{...CHART_OPTS.plugins.tooltip,
           callbacks:{
             title:ctx=>{
-              const d=data[ctx[0].dataIndex];
-              if(!d) return '';
-              return isShort?(d.ts||'').slice(0,16).replace('T',' ')+' UTC':d.ts;
+              if(!ctx[0]) return '';
+              const ts=new Date(ctx[0].parsed.x);
+              return isShort?ts.toISOString().slice(0,16).replace('T',' ')+' UTC':ts.toISOString().slice(0,10);
             },
             label:ctx=>`Ratio: ${fmt(ctx.parsed.y,2)}`
           }
