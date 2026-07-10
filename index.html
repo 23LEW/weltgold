@@ -228,6 +228,7 @@ footer a:hover{text-decoration:underline}
       <img src="goldpremium_logo_dark.svg?v=2" alt="GoldPremium.org" style="height:112px;width:auto;flex-shrink:0">
     </h1>
     <p class="site-subtitle" data-i18n="siteSubtitle">Compare physical gold &amp; silver prices across the world's markets</p>
+    <p style="font-size:13px;color:var(--text2);margin-top:6px;line-height:1.6;max-width:640px;margin-left:auto;margin-right:auto;text-align:center">Shows how physical gold &amp; silver prices at international dealers deviate from the COMEX spot price — market by market, in real time.</p>
   </div>
   <div class="header-meta">
     <div class="live-badge"><div class="dot"></div>Live</div>
@@ -272,7 +273,7 @@ footer a:hover{text-decoration:underline}
     <div style="margin-top:auto;text-align:center;font-size:22px;font-weight:600;line-height:1.25;position:relative;top:1px;background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:var(--radius);padding:4px 18px" id="v-usd-chp"></div>
   </div>
   <div id="toggles-col" style="flex:0 0 auto;display:flex;flex-direction:column;gap:5px;padding:12px 14px;width:160px;background:var(--bg3);border:1px solid var(--border3);border-radius:var(--radius)">
-    <div data-i18n="displayOptionsLabel" style="font-size:21px;color:#fff;font-weight:600;text-align:center;letter-spacing:0.3px;margin-bottom:2px">Settings</div>
+    <div data-i18n="displayOptionsLabel" style="font-size:21px;color:#fff;font-weight:600;text-align:center;letter-spacing:0.3px;margin-bottom:2px">View</div>
     <div class="ctrl-group">
       <button class="ctrl-btn on" id="btn-gold" onclick="setMetal('XAU')" style="flex:1;text-align:left;padding-left:14px;padding-right:6px">Gold</button>
       <div class="ctrl-sep"></div>
@@ -389,7 +390,7 @@ footer a:hover{text-decoration:underline}
     <th data-i18n="thExchange">Exchange</th>
     <th id="th-local-ex" data-i18n="thLocalPrice" style="white-space:nowrap;width:1%;padding-right:12px">Local Price</th>
     <th class="r th-usd" id="th-usd-ex" data-i18n="thUsdPrice">Price (USD) / oz</th>
-    <th class="r" data-i18n="thPremium">Premium %</th>
+    <th class="r" data-i18n="thPremium">Premium % <span title="Price premium vs. COMEX spot. Positive = physical costs more than spot; negative = below spot." style="cursor:help;color:var(--text3);font-size:11px;font-weight:400">ⓘ</span></th>
     <th class="chart-th" data-i18n="th1dChart">1D Chart</th>
   </tr>
 </thead>
