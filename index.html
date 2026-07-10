@@ -2335,23 +2335,28 @@ function renderModalChart(data, range){
     : d=>d.ts.slice(0,10);
 
   const labelsRaw = data.map(labelFmt);
-  // Für 1D: nur volle 4h Stunden beschriften
-  // Für 5D: nur Tageswechsel (00:00) beschriften
-  // Für 1D: erste Aufzeichnung nach jeder vollen 4h Stunde
-  // Für 5D: erste Aufzeichnung des Tages
-  // Gridline Indizes für Annotations
+  // Gridline-Positionen für 30D/3M/1Y vorab berechnen
+  const gridSet = new Set();
+  if(range==='30d'||range==='3m'||range==='1y'){
+    data.forEach((d,idx)=>{
+      if(idx===0) return;
+      const date=new Date(d?.ts||''); const prev=new Date(data[idx-1]?.ts||'');
+      if(isNaN(date)||isNaN(prev)) return;
+      if(range==='30d' && date.getUTCDay()===1 && prev.getUTCDay()!==1) gridSet.add(idx);
+      else if(range==='3m' && date.getUTCDay()===1 && prev.getUTCDay()!==1 && Math.ceil(date.getUTCDate()/7)%2===1) gridSet.add(idx);
+      else if(range==='1y' && date.getUTCMonth()!==prev.getUTCMonth()) gridSet.add(idx);
+    });
+  }
   modalGridIndices = [];
   const gridIndices = modalGridIndices;
   const labels = labelsRaw.map((lbl, idx) => {
     if(range==='1d'||range==='24h'){
       const hh=parseInt(lbl.slice(0,2));
-      const mm=parseInt(lbl.slice(3,5));
       const prevHh = idx > 0 ? parseInt(labelsRaw[idx-1].slice(0,2)) : -1;
       const window = Math.floor(hh/4);
       const prevWindow = Math.floor(prevHh/4);
       if(window !== prevWindow){
         const timeStr = (hh<10?'0':'')+hh+':00';
-        // Bei Mitternacht (00:00) auch Datum anzeigen
         if(hh===0){
           const dateStr = data[idx]?.ts ? data[idx].ts.slice(5,10) : '';
           return dateStr ? [timeStr, dateStr] : timeStr;
@@ -2363,18 +2368,20 @@ function renderModalChart(data, range){
     if(range==='5d'){
       const ts = data[idx]?.ts || '';
       const prevTs = idx > 0 ? (data[idx-1]?.ts || '') : '';
-      const day = ts.slice(0,10);
-      const prevDay = prevTs.slice(0,10);
-      return day !== prevDay ? ts.slice(5,10) : '';
+      return ts.slice(0,10) !== prevTs.slice(0,10) ? ts.slice(5,10) : '';
+    }
+    // 30D/3M/1Y: nur an Gridline-Positionen ein Label, sonst leerer String
+    if(range==='30d'||range==='3m'||range==='1y'){
+      return gridSet.has(idx) ? labelsRaw[idx] : '';
     }
     return lbl;
   });
-  // Sammle Indizes mit Labels für Annotations (nur 1D/5D)
+  // Sammle Label-Indizes → Annotations für alle Ranges
   labels.forEach((lbl,idx)=>{ if(lbl&&lbl!=='') gridIndices.push(idx); });
-  const annotationConfig = (range==='1d'||range==='5d') ? Object.fromEntries(gridIndices.map((idx,i)=>[
+  const annotationConfig = Object.fromEntries(gridIndices.map((idx,i)=>[
     'vline'+i,
     {type:'line',xMin:idx,xMax:idx,borderColor:'rgba(180,180,180,0.35)',borderWidth:1,drawTime:'beforeDatasetsDraw'}
-  ])) : {};
+  ]));
   const currency = data[0]?.currency || '';
   const isKg = unit === 'gram';
   const KGFACT = 1000 / 31.1035;
@@ -2496,7 +2503,7 @@ function renderModalChart(data, range){
             }
           },
           border:{display:true,color:'rgba(255,255,255,0.1)'},
-          grid:{display:range!=='1d'&&range!=='5d',color:'rgba(255,255,255,0.2)',lineWidth:1}
+          grid:{display:false}
         },
                 y1:{position:'left',ticks:{font:{size:11},color:lineColor,maxTicksLimit:6},grid:{display:false},title:{display:true,text:unitLabel,color:lineColor,font:{size:11}}},
         y2:{position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{color:'rgba(91,141,239,0.35)',lineWidth:1},title:{display:true,text:tPrem(),color:'#5B8DEF',font:{size:11}}}
