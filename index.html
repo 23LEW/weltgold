@@ -583,9 +583,10 @@ footer a:hover{text-decoration:underline}
     </div>
     <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center;justify-content:space-between">
       <div style="display:flex;gap:6px">
-        <button class="rbtn on" id="modal-btn-1d" onclick="setModalRange('1d')">1D</button>
+        <button class="rbtn" id="modal-btn-1d" onclick="setModalRange('1d')">1D</button>
         <button class="rbtn" id="modal-btn-5d" onclick="setModalRange('5d')">5D</button>
         <button class="rbtn" id="modal-btn-30d" onclick="setModalRange('30d')">30D</button>
+        <button class="rbtn on" id="modal-btn-3m" onclick="setModalRange('3m')">3M</button>
         <button class="rbtn" id="modal-btn-1y" onclick="setModalRange('1y')">1Y</button>
       </div>
       <span style="font-size:10px;color:var(--text3)">Drag to zoom · Double-click to reset</span>
@@ -658,7 +659,8 @@ footer a:hover{text-decoration:underline}
     <div style="display:flex;gap:6px;margin-bottom:16px">
       <button class="rbtn" id="rbtn-ratio-1d" onclick="setRatioRange('1d')">1D</button>
       <button class="rbtn" id="rbtn-ratio-5d" onclick="setRatioRange('5d')">5D</button>
-      <button class="rbtn on" id="rbtn-ratio-30d" onclick="setRatioRange('30d')">30D</button>
+      <button class="rbtn" id="rbtn-ratio-30d" onclick="setRatioRange('30d')">30D</button>
+      <button class="rbtn on" id="rbtn-ratio-3m" onclick="setRatioRange('3m')">3M</button>
       <button class="rbtn" id="rbtn-ratio-1y" onclick="setRatioRange('1y')">1Y</button>
       <button class="rbtn" id="rbtn-ratio-10y" onclick="setRatioRange('10y')">10Y</button>
       <button class="rbtn" id="rbtn-ratio-max" onclick="setRatioRange('max')">Max</button>
@@ -685,7 +687,8 @@ footer a:hover{text-decoration:underline}
     <div style="display:flex;gap:6px;margin-bottom:16px">
       <button class="rbtn" id="rbtn-sp500-1d" onclick="setSp500Range('1d')">1D</button>
       <button class="rbtn" id="rbtn-sp500-5d" onclick="setSp500Range('5d')">5D</button>
-      <button class="rbtn on" id="rbtn-sp500-30d" onclick="setSp500Range('30d')">30D</button>
+      <button class="rbtn" id="rbtn-sp500-30d" onclick="setSp500Range('30d')">30D</button>
+      <button class="rbtn on" id="rbtn-sp500-3m" onclick="setSp500Range('3m')">3M</button>
       <button class="rbtn" id="rbtn-sp500-1y" onclick="setSp500Range('1y')">1Y</button>
       <button class="rbtn" id="rbtn-sp500-10y" onclick="setSp500Range('10y')">10Y</button>
       <button class="rbtn" id="rbtn-sp500-max" onclick="setSp500Range('max')">Max</button>
@@ -2216,11 +2219,11 @@ function setMetal(m){
 let modalChart = null;
 let modalMarket = null;
 let modalMetal = 'gold';
-let modalRange = '1d';
+let modalRange = '3m';
 let modalHistCache = {};
 
 function openSpotChart(){
-  modalRange = '1d';
+  modalRange = '3m';
   ['1d','5d','30d','1y'].forEach(r=>{
     const b=document.getElementById('modal-btn-'+r);
     if(b) b.className='rbtn'+(r==='1d'?' on':'');
@@ -2264,7 +2267,7 @@ function closeChartModal(){
 async function setModalRange(range){
   if(modalChart) try{modalChart.resetZoom();}catch(e){}
   modalRange = range;
-  ['1d','5d','30d','1y'].forEach(r=>{
+  ['1d','5d','30d','3m','1y'].forEach(r=>{
     const btn = document.getElementById('modal-btn-'+r);
     if(btn){ btn.className = 'rbtn' + (r===range?' on':''); }
   });
@@ -2296,7 +2299,7 @@ function downsampleData(data, range){
 }
 
 async function loadModalData(marketId, range){
-  const hours = {'1d':24,'5d':120,'30d':720,'1y':8760}[range] || 24;
+  const hours = {'1d':24,'5d':120,'30d':720,'3m':2160,'1y':8760}[range] || 24;
   document.getElementById('modal-note').textContent = 'Loading...';
   try{
     const r = await fetch(`https://api.goldpremium.org/api/history/${marketId}?hours=${hours}`);
@@ -2828,7 +2831,7 @@ setLang(currentLang);
 
 // ── Ratio Modal ────────────────────────────────────────────────
 let chartRatio = null;
-let ratioRange = '30d';
+let ratioRange = '3m';
 let ratioModalReady = false;
 
 document.getElementById('ratio-display').addEventListener('click', openRatioModal);
@@ -2857,7 +2860,7 @@ function closeRatioModal(){
 }
 function setRatioRange(r){
   ratioRange=r;
-  ['1d','5d','30d','1y','10y','max'].forEach(x=>{
+  ['1d','5d','30d','3m','1y','10y','max'].forEach(x=>{
     document.getElementById('rbtn-ratio-'+x).className='rbtn'+(x===r?' on':'');
   });
   loadRatioData(r);
@@ -2874,7 +2877,7 @@ function renderRatioChart(data,range){
   if(chartRatio){ chartRatio.destroy(); chartRatio=null; }
   if(!data||!data.length) return;
   const isShort=range==='1d'||range==='5d';
-  const timeUnit=range==='1d'?'hour':range==='5d'?'hour':range==='30d'?'day':range==='1y'?'month':'year';
+  const timeUnit=range==='1d'?'hour':range==='5d'?'hour':(range==='30d'||range==='3m')?'day':range==='1y'?'month':'year';
   chartRatio=new Chart(ctx,{
     type:'line',
     data:{
@@ -2916,7 +2919,7 @@ function renderRatioChart(data,range){
 
 // ── Gold / S&P 500 Ratio Modal ─────────────────────────────────
 let chartSp500 = null;
-let sp500Range = '30d';
+let sp500Range = '3m';
 let sp500ModalReady = false;
 let sp500LiveRatio = null;
 
@@ -2947,7 +2950,7 @@ function closeSp500Modal(){
 }
 function setSp500Range(r){
   sp500Range=r;
-  ['1d','5d','30d','1y','10y','max'].forEach(x=>{
+  ['1d','5d','30d','3m','1y','10y','max'].forEach(x=>{
     const btn=document.getElementById('rbtn-sp500-'+x);
     if(btn) btn.className='rbtn'+(x===r?' on':'');
   });
@@ -2976,7 +2979,7 @@ function renderSp500Chart(data,range){
   if(chartSp500){ chartSp500.destroy(); chartSp500=null; }
   if(!data||!data.length) return;
   const isShort=range==='1d'||range==='5d';
-  const timeUnit=range==='1d'?'hour':range==='5d'?'hour':range==='30d'?'day':range==='1y'?'month':'year';
+  const timeUnit=range==='1d'?'hour':range==='5d'?'hour':(range==='30d'||range==='3m')?'day':range==='1y'?'month':'year';
   // {x,y}-Format + parsing:false sind Voraussetzung fuers Decimation-Plugin (LTTB).
   const points=data.map(d=>({x:new Date(d.ts).getTime(), y:d.ratio}));
   chartSp500=new Chart(ctx,{
