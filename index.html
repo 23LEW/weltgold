@@ -593,9 +593,12 @@ footer a:hover{text-decoration:underline}
       <canvas id="modal-chart"></canvas>
     </div>
     <div id="modal-note" style="display:none"></div>
-    <div id="modal-legend" style="display:flex;gap:10px;font-size:10px;color:var(--text3);align-items:center;margin-top:5px">
-      <span><span style="display:inline-block;width:10px;height:3px;background:var(--gold);border-radius:2px;vertical-align:middle"></span> Local price</span>
-      <span><span style="display:inline-block;width:10px;height:3px;background:var(--blue);border-radius:2px;vertical-align:middle"></span> ${tPrem()} vs COMEX</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
+      <div id="modal-legend" style="display:flex;gap:10px;font-size:10px;color:var(--text3);align-items:center">
+        <span><span style="display:inline-block;width:10px;height:3px;background:var(--gold);border-radius:2px;vertical-align:middle"></span> Local price</span>
+        <span><span style="display:inline-block;width:10px;height:3px;background:var(--blue);border-radius:2px;vertical-align:middle"></span> ${tPrem()} vs COMEX</span>
+      </div>
+      <span style="font-size:10px;color:var(--text3);white-space:nowrap">Drag to zoom · dbl-click reset</span>
     </div>
   </div>
 </div>
