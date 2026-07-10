@@ -2369,32 +2369,11 @@ function renderModalChart(data, range){
     }
     return lbl;
   });
-  // Sammle Indizes mit Labels für Annotations (1D/5D: aus Labels-Array)
+  // Sammle Indizes mit Labels für Annotations (nur 1D/5D)
   labels.forEach((lbl,idx)=>{ if(lbl&&lbl!=='') gridIndices.push(idx); });
-  // Längere Ranges: Gitterlinien an sinnvollen Zeitgrenzen
-  if(range==='30d'||range==='3m'||range==='1y'){
-    data.forEach((d,idx)=>{
-      if(idx===0) return;
-      const ts=d?.ts||''; const prevTs=data[idx-1]?.ts||'';
-      if(!ts||!prevTs) return;
-      const date=new Date(ts); const prev=new Date(prevTs);
-      if(range==='30d'){
-        // Wöchentlich: wenn Wochentag auf Montag wechselt
-        if(date.getUTCDay()===1 && prev.getUTCDay()!==1) gridIndices.push(idx);
-      } else if(range==='3m'){
-        // Zweiwöchentlich: Montag der 1. und 3. Woche des Monats
-        if(date.getUTCDay()===1 && prev.getUTCDay()!==1){
-          if(Math.ceil(date.getUTCDate()/7)%2===1) gridIndices.push(idx);
-        }
-      } else if(range==='1y'){
-        // Monatlich: wenn sich der Monat ändert
-        if(date.getUTCMonth()!==prev.getUTCMonth()) gridIndices.push(idx);
-      }
-    });
-  }
-  const annotationConfig = (range==='1d'||range==='5d'||range==='30d'||range==='3m'||range==='1y') ? Object.fromEntries(gridIndices.map((idx,i)=>[
+  const annotationConfig = (range==='1d'||range==='5d') ? Object.fromEntries(gridIndices.map((idx,i)=>[
     'vline'+i,
-    {type:'line',xMin:idx,xMax:idx,borderColor:'rgba(180,180,180,0.25)',borderWidth:1,drawTime:'beforeDatasetsDraw'}
+    {type:'line',xMin:idx,xMax:idx,borderColor:'rgba(180,180,180,0.35)',borderWidth:1,drawTime:'beforeDatasetsDraw'}
   ])) : {};
   const currency = data[0]?.currency || '';
   const isKg = unit === 'gram';
@@ -2517,7 +2496,7 @@ function renderModalChart(data, range){
             }
           },
           border:{display:true,color:'rgba(255,255,255,0.1)'},
-          grid:{display:false}
+          grid:{display:range!=='1d'&&range!=='5d',color:'rgba(255,255,255,0.2)',lineWidth:1}
         },
                 y1:{position:'left',ticks:{font:{size:11},color:lineColor,maxTicksLimit:6},grid:{display:false},title:{display:true,text:unitLabel,color:lineColor,font:{size:11}}},
         y2:{position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{color:'rgba(91,141,239,0.35)',lineWidth:1},title:{display:true,text:tPrem(),color:'#5B8DEF',font:{size:11}}}
