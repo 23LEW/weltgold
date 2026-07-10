@@ -571,16 +571,8 @@ footer a:hover{text-decoration:underline}
 
 <div id="chart-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:94%;max-width:1200px;max-height:93vh;overflow:auto;position:relative">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
-      <div>
-        <div id="modal-title" style="font-size:16px;font-weight:600;color:var(--text1)"></div>
-        <div id="modal-sub" style="font-size:12px;color:var(--text3);margin-top:2px"></div>
-      </div>
-      <div style="display:flex;gap:4px;align-items:center">
-        <button onclick="_toggleModalFS('chart-modal')" style="background:none;border:none;color:var(--text2);cursor:pointer;line-height:1;padding:0 4px" title="Vollbild"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
-        <button onclick="closeChartModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
-      </div>
-    </div>
+    <div id="modal-title" style="display:none"></div>
+    <div id="modal-sub" style="display:none"></div>
     <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center;justify-content:space-between">
       <div style="display:flex;gap:6px;align-items:center">
         <button class="rbtn" id="modal-btn-1d" onclick="setModalRange('1d')">1D</button>
@@ -588,9 +580,13 @@ footer a:hover{text-decoration:underline}
         <button class="rbtn" id="modal-btn-30d" onclick="setModalRange('30d')">30D</button>
         <button class="rbtn" id="modal-btn-3m" onclick="setModalRange('3m')">3M</button>
         <button class="rbtn" id="modal-btn-1y" onclick="setModalRange('1y')">1Y</button>
-        <span id="modal-market-badge" style="font-size:10px;color:var(--text3);margin-left:8px;opacity:0.7"></span>
+        <span id="modal-market-badge" style="font-size:12px;color:var(--text2);margin-left:10px"></span>
       </div>
-      <span style="font-size:10px;color:var(--text3)">Drag to zoom · Double-click to reset</span>
+      <div style="display:flex;gap:4px;align-items:center">
+        <span style="font-size:10px;color:var(--text3)">Drag to zoom · Double-click to reset</span>
+        <button onclick="_toggleModalFS('chart-modal')" style="background:none;border:none;color:var(--text2);cursor:pointer;line-height:1;padding:0 4px" title="Vollbild"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
+        <button onclick="closeChartModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
+      </div>
     </div>
     <div id="modal-metal-toggle" style="display:none;gap:6px;margin-bottom:12px">
       <button class="rbtn on" id="modal-btn-gold" onclick="setModalMetal('gold')">Gold</button>
