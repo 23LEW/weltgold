@@ -2487,21 +2487,7 @@ function renderModalChart(data, range){
             font:{size:window.innerWidth<=768?9:11},
             color:'#666C78',
             maxRotation:window.innerWidth<=768?30:0,
-            maxTicksLimit:window.innerWidth<=768?5:8,
-            autoSkip:true,
-            callback:function(val,idx){
-              // Nur Labels an Gridline-Positionen anzeigen (gridSet)
-              if(!gridSet.has(idx)) return '';
-              const d=data[idx];
-              if(!d||!d.ts) return '';
-              if(range==='1d'||range==='24h'){
-                const hh=parseInt(d.ts.slice(11,13));
-                return (hh<10?'0':'')+hh+':00';
-              }
-              if(range==='5d'||range==='30d'||range==='3m') return d.ts.slice(5,10);
-              if(range==='1y') return d.ts.slice(0,7);
-              return d.ts.slice(0,10);
-            }
+            autoSkip:false,
           },
           border:{display:true,color:'rgba(255,255,255,0.1)'},
           grid:{display:false}
