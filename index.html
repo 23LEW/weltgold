@@ -592,13 +592,10 @@ footer a:hover{text-decoration:underline}
     <div id="modal-chart-wrap" style="position:relative;width:100%;height:clamp(320px,52vh,580px)">
       <canvas id="modal-chart"></canvas>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:4px;flex-wrap:nowrap;overflow:hidden">
-      <div id="modal-legend" style="display:flex;gap:8px;font-size:10px;color:var(--text3);align-items:center;white-space:nowrap;flex-shrink:0">
-        <span><span style="display:inline-block;width:10px;height:3px;background:var(--gold);border-radius:2px;vertical-align:middle"></span> Local price</span>
-        <span><span style="display:inline-block;width:10px;height:3px;background:var(--blue);border-radius:2px;vertical-align:middle"></span> ${tPrem()} vs COMEX</span>
-      </div>
-      <div id="modal-note" style="font-size:10px;color:var(--text3);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;padding:0 4px"></div>
-      <span style="font-size:10px;color:var(--text3);white-space:nowrap;flex-shrink:0">Drag to zoom · dbl-click reset</span>
+    <div id="modal-note" style="display:none"></div>
+    <div id="modal-legend" style="display:flex;gap:10px;font-size:10px;color:var(--text3);align-items:center;margin-top:5px">
+      <span><span style="display:inline-block;width:10px;height:3px;background:var(--gold);border-radius:2px;vertical-align:middle"></span> Local price</span>
+      <span><span style="display:inline-block;width:10px;height:3px;background:var(--blue);border-radius:2px;vertical-align:middle"></span> ${tPrem()} vs COMEX</span>
     </div>
   </div>
 </div>
