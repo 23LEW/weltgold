@@ -2369,12 +2369,32 @@ function renderModalChart(data, range){
     }
     return lbl;
   });
-  // Sammle Indizes mit Labels für Annotations
+  // Sammle Indizes mit Labels für Annotations (1D/5D: aus Labels-Array)
   labels.forEach((lbl,idx)=>{ if(lbl&&lbl!=='') gridIndices.push(idx); });
-  // Nur für 1D/5D Annotationen setzen
-  const annotationConfig = (range==='1d'||range==='5d') ? Object.fromEntries(gridIndices.map((idx,i)=>[
+  // Längere Ranges: Gitterlinien an sinnvollen Zeitgrenzen
+  if(range==='30d'||range==='3m'||range==='1y'){
+    data.forEach((d,idx)=>{
+      if(idx===0) return;
+      const ts=d?.ts||''; const prevTs=data[idx-1]?.ts||'';
+      if(!ts||!prevTs) return;
+      const date=new Date(ts); const prev=new Date(prevTs);
+      if(range==='30d'){
+        // Wöchentlich: wenn Wochentag auf Montag wechselt
+        if(date.getUTCDay()===1 && prev.getUTCDay()!==1) gridIndices.push(idx);
+      } else if(range==='3m'){
+        // Zweiwöchentlich: Montag der 1. und 3. Woche des Monats
+        if(date.getUTCDay()===1 && prev.getUTCDay()!==1){
+          if(Math.ceil(date.getUTCDate()/7)%2===1) gridIndices.push(idx);
+        }
+      } else if(range==='1y'){
+        // Monatlich: wenn sich der Monat ändert
+        if(date.getUTCMonth()!==prev.getUTCMonth()) gridIndices.push(idx);
+      }
+    });
+  }
+  const annotationConfig = (range==='1d'||range==='5d'||range==='30d'||range==='3m'||range==='1y') ? Object.fromEntries(gridIndices.map((idx,i)=>[
     'vline'+i,
-    {type:'line',xMin:idx,xMax:idx,borderColor:'rgba(180,180,180,0.35)',borderWidth:1,drawTime:'beforeDatasetsDraw'}
+    {type:'line',xMin:idx,xMax:idx,borderColor:'rgba(180,180,180,0.25)',borderWidth:1,drawTime:'beforeDatasetsDraw'}
   ])) : {};
   const currency = data[0]?.currency || '';
   const isKg = unit === 'gram';
@@ -2870,7 +2890,8 @@ function renderRatioChart(data,range){
   if(chartRatio){ chartRatio.destroy(); chartRatio=null; }
   if(!data||!data.length) return;
   const isShort=range==='1d'||range==='5d';
-  const timeUnit=range==='1d'?'hour':range==='5d'?'hour':(range==='30d'||range==='3m')?'day':range==='1y'?'month':'year';
+  const timeUnit={'1d':'hour','5d':'day','30d':'week','3m':'week','1y':'month','10y':'year','max':'year'}[range]||'day';
+  const timeStep={'1d':4,'5d':1,'30d':1,'3m':2,'1y':2,'10y':1,'max':5}[range]||1;
   const points=data.map(d=>({x:new Date(d.ts).getTime(),y:d.ratio}));
   chartRatio=new Chart(ctx,{
     type:'line',
@@ -2893,7 +2914,6 @@ function renderRatioChart(data,range){
       plugins:{...CHART_OPTS.plugins,
         decimation:{enabled:true,algorithm:'lttb',samples:600},
         zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
-        verticalGrid:{enabled:isShort},
         tooltip:{...CHART_OPTS.plugins.tooltip,
           callbacks:{
             title:ctx=>{
@@ -2906,7 +2926,7 @@ function renderRatioChart(data,range){
         }
       },
       scales:{
-        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy',year:'yyyy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:{size:11}},grid:{color:'rgba(255,255,255,0.2)',lineWidth:1}},
+        x:{type:'time',time:{unit:timeUnit,stepSize:timeStep,displayFormats:{hour:'HH:mm',day:'dd MMM',week:'dd MMM',month:'MMM yy',year:'yyyy'}},ticks:{color:'#666C78',maxTicksLimit:12,font:{size:11}},grid:{color:'rgba(255,255,255,0.2)',lineWidth:1}},
         y:{ticks:{color:'#666C78',font:{size:11},callback:v=>v.toFixed(0)},grid:{color:'rgba(255,255,255,0.2)',lineWidth:1},title:{display:true,text:'oz Gold / oz Silver',color:'#666C78',font:{size:10}}}
       }
     }
@@ -2975,8 +2995,8 @@ function renderSp500Chart(data,range){
   if(chartSp500){ chartSp500.destroy(); chartSp500=null; }
   if(!data||!data.length) return;
   const isShort=range==='1d'||range==='5d';
-  const timeUnit=range==='1d'?'hour':range==='5d'?'hour':(range==='30d'||range==='3m')?'day':range==='1y'?'month':'year';
-  // {x,y}-Format + parsing:false sind Voraussetzung fuers Decimation-Plugin (LTTB).
+  const timeUnit={'1d':'hour','5d':'day','30d':'week','3m':'week','1y':'month','10y':'year','max':'year'}[range]||'day';
+  const timeStep={'1d':4,'5d':1,'30d':1,'3m':2,'1y':2,'10y':1,'max':5}[range]||1;
   const points=data.map(d=>({x:new Date(d.ts).getTime(), y:d.ratio}));
   chartSp500=new Chart(ctx,{
     type:'line',
@@ -2997,11 +3017,8 @@ function renderSp500Chart(data,range){
     options:{...CHART_OPTS,
       parsing:false,
       plugins:{...CHART_OPTS.plugins,
-        // LTTB duennt aus, wenn die Punkte im sichtbaren Bereich den Schwellwert ueberschreiten;
-        // beim Reinzoomen (Zoom-Plugin) rechnet es neu -> glatt in der Uebersicht, scharf im Zoom.
         decimation:{enabled:true,algorithm:'lttb',samples:500},
         zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
-        verticalGrid:{enabled:isShort},
         tooltip:{...CHART_OPTS.plugins.tooltip,
           callbacks:{
             title:ctx=>{
@@ -3014,7 +3031,7 @@ function renderSp500Chart(data,range){
         }
       },
       scales:{
-        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy',year:'yyyy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:{size:11}},grid:{color:'rgba(255,255,255,0.2)',lineWidth:1}},
+        x:{type:'time',time:{unit:timeUnit,stepSize:timeStep,displayFormats:{hour:'HH:mm',day:'dd MMM',week:'dd MMM',month:'MMM yy',year:'yyyy'}},ticks:{color:'#666C78',maxTicksLimit:12,font:{size:11}},grid:{color:'rgba(255,255,255,0.2)',lineWidth:1}},
         y:{ticks:{color:'#666C78',font:{size:11},callback:v=>v.toFixed(2)},grid:{color:'rgba(255,255,255,0.2)',lineWidth:1},title:{display:true,text:'oz Gold per S&P 500 point',color:'#666C78',font:{size:10}}}
       }
     }
