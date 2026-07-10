@@ -582,12 +582,13 @@ footer a:hover{text-decoration:underline}
       </div>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center;justify-content:space-between">
-      <div style="display:flex;gap:6px">
+      <div style="display:flex;gap:6px;align-items:center">
         <button class="rbtn" id="modal-btn-1d" onclick="setModalRange('1d')">1D</button>
         <button class="rbtn on" id="modal-btn-5d" onclick="setModalRange('5d')">5D</button>
         <button class="rbtn" id="modal-btn-30d" onclick="setModalRange('30d')">30D</button>
         <button class="rbtn" id="modal-btn-3m" onclick="setModalRange('3m')">3M</button>
         <button class="rbtn" id="modal-btn-1y" onclick="setModalRange('1y')">1Y</button>
+        <span id="modal-market-badge" style="font-size:10px;color:var(--text3);margin-left:8px;opacity:0.7"></span>
       </div>
       <span style="font-size:10px;color:var(--text3)">Drag to zoom · Double-click to reset</span>
     </div>
@@ -2251,6 +2252,8 @@ async function openChartModal(marketId, title){
   modalMetal = metal==='XAG' ? 'silver' : 'gold';
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-sub').textContent = 'Gold price & COMEX premium';
+  const _badge = document.getElementById('modal-market-badge');
+  if(_badge){ const _parts = title.replace(/[\u{1F1E0}-\u{1F1FF}\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,'').trim(); _badge.textContent = _parts; }
   document.getElementById('chart-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
   _autoFsOnFirstTap('chart-modal');
