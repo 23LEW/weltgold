@@ -813,22 +813,35 @@ const verticalGridPlugin = {
   beforeDatasetsDraw(chart) {
     if (!chart.options?.plugins?.verticalGrid?.enabled) return;
     const xScale = chart.scales.x;
-    const yScale = chart.scales.y;
+    const yScale = chart.scales.y || chart.scales.y1;
     if (!xScale || !yScale) return;
-    const chartLabels = chart.data.labels || [];
     const ctx = chart.ctx;
     ctx.save();
     ctx.strokeStyle = "rgba(160,160,160,0.2)";
     ctx.lineWidth = 1;
-    chartLabels.forEach((lbl, i) => {
-      if (!lbl || lbl === "") return;
-      const x = xScale.getPixelForValue(i);
-      if (x < xScale.left || x > xScale.right) return;
-      ctx.beginPath();
-      ctx.moveTo(x, yScale.top);
-      ctx.lineTo(x, yScale.bottom);
-      ctx.stroke();
-    });
+    // Zeitskalen-Chart (type:'time'): Ticks der X-Achse nutzen
+    if (xScale.type === 'time') {
+      xScale.ticks.forEach(tick => {
+        const x = xScale.getPixelForValue(tick.value);
+        if (x < xScale.left || x > xScale.right) return;
+        ctx.beginPath();
+        ctx.moveTo(x, yScale.top);
+        ctx.lineTo(x, yScale.bottom);
+        ctx.stroke();
+      });
+    } else {
+      // Index-basierter Chart (Modal): labels nutzen
+      const chartLabels = chart.data.labels || [];
+      chartLabels.forEach((lbl, i) => {
+        if (!lbl || lbl === "") return;
+        const x = xScale.getPixelForValue(i);
+        if (x < xScale.left || x > xScale.right) return;
+        ctx.beginPath();
+        ctx.moveTo(x, yScale.top);
+        ctx.lineTo(x, yScale.bottom);
+        ctx.stroke();
+      });
+    }
     ctx.restore();
   }
 };
