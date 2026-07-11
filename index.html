@@ -636,29 +636,26 @@ footer a:hover{text-decoration:underline}
   </div>
 </div>
 
-<div id="compare-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:94%;max-width:1200px;max-height:93vh;overflow:auto;position:relative">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span id="compare-modal-title" style="font-size:13px;font-weight:500;color:var(--text1)">Market Comparison</span>
-      <div style="display:flex;gap:4px;align-items:center">
-        <button class="rbtn on" id="rbtn-cmp-1d" onclick="setCompareRange('1d')">1D</button>
-        <button class="rbtn" id="rbtn-cmp-5d" onclick="setCompareRange('5d')">5D</button>
-        <button class="rbtn" id="rbtn-cmp-30d" onclick="setCompareRange('30d')">30D</button>
-        <button class="rbtn" id="rbtn-cmp-1y" onclick="setCompareRange('1y')">1Y</button>
-        <span style="width:1px;background:var(--border);margin:0 2px;align-self:stretch;display:inline-block"></span>
-        <button class="rbtn on" id="rbtn-cmp-mode-price" onclick="setCompareMode('price')">Price (USD)</button>
-        <button class="rbtn" id="rbtn-cmp-mode-premium" onclick="setCompareMode('premium')">Premium %</button>
-        <button onclick="_toggleModalFS('compare-modal')" style="background:none;border:none;color:var(--text2);cursor:pointer;line-height:1;padding:0 4px" title="Vollbild"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
-        <button onclick="closeCompareModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
-      </div>
+<div id="compare-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg2);flex-direction:column;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0">
+    <span id="compare-modal-title" style="font-size:13px;font-weight:600;color:var(--text1)">Market Comparison</span>
+    <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+      <button class="rbtn on" id="rbtn-cmp-1d" onclick="setCompareRange('1d')">1D</button>
+      <button class="rbtn" id="rbtn-cmp-5d" onclick="setCompareRange('5d')">5D</button>
+      <button class="rbtn" id="rbtn-cmp-30d" onclick="setCompareRange('30d')">30D</button>
+      <button class="rbtn" id="rbtn-cmp-1y" onclick="setCompareRange('1y')">1Y</button>
+      <span style="width:1px;background:var(--border);margin:0 2px;align-self:stretch;display:inline-block"></span>
+      <button class="rbtn on" id="rbtn-cmp-mode-price" onclick="setCompareMode('price')">Price (USD)</button>
+      <button class="rbtn" id="rbtn-cmp-mode-premium" onclick="setCompareMode('premium')">Premium %</button>
+      <button onclick="closeCompareModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 6px;margin-left:4px">✕</button>
     </div>
-    <div id="cmp-chart-wrap" style="position:relative;width:100%;height:clamp(320px,52vh,580px)">
-      <canvas id="chart-compare"></canvas>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
-      <div id="cmp-legend" style="display:flex;gap:10px;font-size:10px;color:var(--text3);align-items:center"></div>
-      <span style="font-size:10px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
-    </div>
+  </div>
+  <div id="cmp-chart-wrap" style="flex:1;min-height:0;position:relative;padding:8px 12px 4px">
+    <canvas id="chart-compare" style="width:100%;height:100%"></canvas>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 16px 10px;flex-shrink:0">
+    <div id="cmp-legend" style="display:flex;gap:10px;font-size:10px;color:var(--text3);align-items:center;flex-wrap:wrap"></div>
+    <span style="font-size:10px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
   </div>
 </div>
 
@@ -3132,22 +3129,20 @@ function _onFsChange(){
   const isChart=fsEl&&fsEl.id==='chart-modal';
   const isCmp=fsEl&&fsEl.id==='compare-modal';
   if(!fsEl){
-    // exiting — reset inner div styles
-    ['chart-modal','compare-modal'].forEach(id=>{
-      const inner=document.querySelector('#'+id+'>div');
-      if(inner){['maxHeight','height','width','maxWidth','borderRadius','padding','display','flexDirection','overflow','boxSizing'].forEach(p=>inner.style[p]='');}
-      const wrapId=id==='chart-modal'?'modal-chart-wrap':'cmp-chart-wrap';
-      const w=document.getElementById(wrapId);
-      if(w) w.style.height='';
-    });
+    // exiting — reset inner div styles (only chart-modal, compare-modal is always fullscreen)
+    const inner=document.querySelector('#chart-modal>div');
+    if(inner){['maxHeight','height','width','maxWidth','borderRadius','padding','display','flexDirection','overflow','boxSizing'].forEach(p=>inner.style[p]='');}
+    const w=document.getElementById('modal-chart-wrap');
+    if(w) w.style.height='';
     return;
   }
+  if(!isChart) return; // compare-modal handled natively, no fullscreen API needed
   const inner=fsEl.querySelector(':scope>div');
   if(inner){
     Object.assign(inner.style,{maxHeight:'100vh',height:'100vh',width:'100%',maxWidth:'none',borderRadius:'0',padding:'8px 12px',display:'flex',flexDirection:'column',overflow:'hidden',boxSizing:'border-box'});
   }
-  const wrapId=isChart?'modal-chart-wrap':'cmp-chart-wrap';
-  const chart=isChart?modalChart:chartCompare;
+  const wrapId='modal-chart-wrap';
+  const chart=modalChart;
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     const wrap=document.getElementById(wrapId);
     if(inner&&wrap){
@@ -3251,7 +3246,6 @@ function _openCompareModalInner(){
   const modal=document.getElementById('compare-modal');
   modal.style.display='flex';
   document.body.style.overflow='hidden';
-  _autoFsOnFirstTap('compare-modal');
   loadCompareData(compareRange);
 }
 
@@ -3293,7 +3287,7 @@ function renderCompareChart(results,range){
   const timeUnit=range==='1d'?'hour':range==='5d'?'hour':range==='30d'?'day':'month';
   const isPrem=compareModeView==='premium';
   const yField=isPrem
-    ?(metal==='XAU'?'gold_premium_pct':'silver_premium_pct')
+    ?(metal==='XAU'?'premium_pct':'silver_premium_pct')
     :(metal==='XAU'?'gold_usd_oz':'silver_usd_oz');
   const datasets=results.filter(r=>r.data&&r.data.length).map(({market,data})=>({
     label:COMPARE_LABELS[market]||market,
