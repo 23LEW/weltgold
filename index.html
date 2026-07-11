@@ -648,11 +648,14 @@ footer a:hover{text-decoration:underline}
         <button onclick="closeCompareModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
       </div>
     </div>
-    <div style="display:flex;gap:6px;margin-bottom:16px">
+    <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
       <button class="rbtn on" id="rbtn-cmp-1d" onclick="setCompareRange('1d')">1D</button>
       <button class="rbtn" id="rbtn-cmp-5d" onclick="setCompareRange('5d')">5D</button>
       <button class="rbtn" id="rbtn-cmp-30d" onclick="setCompareRange('30d')">30D</button>
       <button class="rbtn" id="rbtn-cmp-1y" onclick="setCompareRange('1y')">1Y</button>
+      <span style="width:1px;background:var(--border);margin:0 4px;align-self:stretch;display:inline-block"></span>
+      <button class="rbtn on" id="rbtn-cmp-mode-price" onclick="setCompareMode('price')">Price (USD)</button>
+      <button class="rbtn" id="rbtn-cmp-mode-premium" onclick="setCompareMode('premium')">Premium %</button>
     </div>
     <div id="cmp-chart-wrap" style="position:relative;width:100%;height:420px">
       <canvas id="chart-compare"></canvas>
@@ -3034,7 +3037,7 @@ const COMPARE_COLORS={comex:'#E85A5A',lbma:'#5B8DEF',shanghai:'#F0A500',hkgx:'#2
 const COMPARE_LABELS=Object.fromEntries([...EXCHANGES,...MARKETS].map(r=>[r.id,r.flag+' '+r.name]));
 const COMPARE_HISTID=Object.fromEntries([...EXCHANGES,...MARKETS].map(r=>[r.id,r.historyId||r.id]));
 const selectedMarkets=new Set();
-let chartCompare=null, compareRange='1d';
+let chartCompare=null, compareRange='1d', compareModeView='price';
 
 ['tbody-exchanges','tbody-dealers'].forEach(id=>{
   document.getElementById(id).addEventListener('click',e=>{
@@ -3265,6 +3268,11 @@ function setCompareRange(r){
   ['1d','5d','30d','1y'].forEach(x=>{ document.getElementById('rbtn-cmp-'+x).className='rbtn'+(x===r?' on':''); });
   loadCompareData(r);
 }
+function setCompareMode(m){
+  compareModeView=m;
+  ['price','premium'].forEach(x=>{ document.getElementById('rbtn-cmp-mode-'+x).className='rbtn'+(x===m?' on':''); });
+  loadCompareData(compareRange);
+}
 
 async function loadCompareData(range){
   const hours={'1d':24,'5d':120,'30d':720,'1y':8760}[range]||24;
@@ -3282,7 +3290,10 @@ function renderCompareChart(results,range){
   if(chartCompare){ chartCompare.destroy(); chartCompare=null; }
   const isShort=range==='1d'||range==='5d';
   const timeUnit=range==='1d'?'hour':range==='5d'?'hour':range==='30d'?'day':'month';
-  const yField=metal==='XAU'?'gold_usd_oz':'silver_usd_oz';
+  const isPrem=compareModeView==='premium';
+  const yField=isPrem
+    ?(metal==='XAU'?'gold_premium_pct':'silver_premium_pct')
+    :(metal==='XAU'?'gold_usd_oz':'silver_usd_oz');
   const datasets=results.filter(r=>r.data&&r.data.length).map(({market,data})=>({
     label:COMPARE_LABELS[market]||market,
     data:data.map(d=>({x:d.ts||d.date,y:d[yField]})).filter(p=>p.y!=null),
@@ -3291,6 +3302,10 @@ function renderCompareChart(results,range){
     borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:0
   }));
   if(!datasets.length) return;
+  const yAxisOpts=isPrem
+    ?{ticks:{color:'#666C78',font:{size:11},callback:v=>(v>0?'+':'')+v.toFixed(2)+'%'},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'Premium %',color:'#666C78',font:{size:10}}}
+    :{ticks:{color:'#666C78',font:{size:11},callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'USD / oz',color:'#666C78',font:{size:10}}};
+  const annotationsPrem=isPrem?{zeroline:{type:'line',yMin:0,yMax:0,borderColor:'rgba(255,255,255,0.2)',borderWidth:1,borderDash:[4,4]}}:{};
   chartCompare=new Chart(ctx,{
     type:'line',data:{datasets},
     options:{...CHART_OPTS,
@@ -3298,13 +3313,16 @@ function renderCompareChart(results,range){
         legend:{display:true,position:'right',align:'start',labels:{color:'#666C78',font:{size:22},boxWidth:20,padding:12,usePointStyle:true,pointStyle:'line'}},
         zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
         verticalGrid:{enabled:isShort},
+        annotation:{annotations:annotationsPrem},
         tooltip:{...CHART_OPTS.plugins.tooltip,mode:'index',intersect:false,
-          callbacks:{label:c=>`${c.dataset.label}: $${fmt(c.parsed.y,2)}`}
+          callbacks:{label:c=>isPrem
+            ?`${c.dataset.label}: ${c.parsed.y>0?'+':''}${fmt(c.parsed.y,2)}%`
+            :`${c.dataset.label}: $${fmt(c.parsed.y,2)}`}
         }
       },
       scales:{
         x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:{size:11}},grid:{display:false}},
-        y:{ticks:{color:'#666C78',font:{size:11},callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'USD / oz',color:'#666C78',font:{size:10}}}
+        y:yAxisOpts
       }
     }
   });
