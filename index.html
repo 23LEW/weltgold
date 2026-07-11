@@ -158,6 +158,9 @@ tr.hi td:first-child{border-left:2px solid var(--red)}
 .rbtn{padding:5px 12px;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:500;background:transparent;border:none;border-radius:4px;color:var(--text3);cursor:pointer;transition:all .15s}
 .rbtn:hover{color:var(--text)}
 .rbtn.on{background:var(--bg3);color:var(--text);font-weight:600}
+/* Kompakte ctrl-btn Variante für Chart-Steuerelemente */
+.chart-ctrl .ctrl-btn{padding:4px 10px;font-size:12px;border-radius:4px}
+.chart-ctrl .ctrl-btn.on{background:var(--gold);color:#0E1015;font-weight:600}
 .chart-wrap{position:relative;height:220px}
 .chart-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
 
@@ -595,15 +598,19 @@ footer a:hover{text-decoration:underline}
     <div id="modal-sub" style="display:none"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <span id="modal-market-badge" style="font-size:13px;font-weight:500;color:var(--text1)"></span>
-      <div style="display:flex;gap:4px;align-items:center">
-        <button class="rbtn" id="modal-btn-1d" onclick="setModalRange('1d')">1D</button>
-        <button class="rbtn on" id="modal-btn-5d" onclick="setModalRange('5d')">5D</button>
-        <button class="rbtn" id="modal-btn-30d" onclick="setModalRange('30d')">30D</button>
-        <button class="rbtn" id="modal-btn-3m" onclick="setModalRange('3m')">3M</button>
-        <button class="rbtn" id="modal-btn-1y" onclick="setModalRange('1y')">1Y</button>
+      <div style="display:flex;gap:6px;align-items:center">
+        <div class="ctrl-group chart-ctrl">
+          <button class="ctrl-btn" id="modal-btn-1d" onclick="setModalRange('1d')">1D</button>
+          <button class="ctrl-btn on" id="modal-btn-5d" onclick="setModalRange('5d')">5D</button>
+          <button class="ctrl-btn" id="modal-btn-30d" onclick="setModalRange('30d')">30D</button>
+          <button class="ctrl-btn" id="modal-btn-3m" onclick="setModalRange('3m')">3M</button>
+          <button class="ctrl-btn" id="modal-btn-1y" onclick="setModalRange('1y')">1Y</button>
+        </div>
         <div id="modal-metal-toggle" style="display:none;gap:4px">
-          <button class="rbtn on" id="modal-btn-gold" onclick="setModalMetal('gold')">Gold</button>
-          <button class="rbtn" id="modal-btn-silver" onclick="setModalMetal('silver')">Silver</button>
+          <div class="ctrl-group chart-ctrl">
+            <button class="ctrl-btn on" id="modal-btn-gold" onclick="setModalMetal('gold')">Gold</button>
+            <button class="ctrl-btn" id="modal-btn-silver" onclick="setModalMetal('silver')">Silver</button>
+          </div>
         </div>
         <button onclick="_toggleModalFS('chart-modal')" style="background:none;border:none;color:var(--text2);cursor:pointer;line-height:1;padding:0 4px" title="Vollbild"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
         <button onclick="closeChartModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
@@ -640,11 +647,13 @@ footer a:hover{text-decoration:underline}
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:1200px;max-height:96vh;overflow:auto;position:relative">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div id="cmp-legend" style="display:flex;gap:12px;font-size:11px;color:var(--text2);align-items:center;flex-wrap:wrap"></div>
-      <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;margin-left:12px">
-        <button class="rbtn on" id="rbtn-cmp-1d" onclick="setCompareRange('1d')">1D</button>
-        <button class="rbtn" id="rbtn-cmp-5d" onclick="setCompareRange('5d')">5D</button>
-        <button class="rbtn" id="rbtn-cmp-30d" onclick="setCompareRange('30d')">30D</button>
-        <button class="rbtn" id="rbtn-cmp-1y" onclick="setCompareRange('1y')">1Y</button>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;margin-left:12px">
+        <div class="ctrl-group chart-ctrl">
+          <button class="ctrl-btn on" id="rbtn-cmp-1d" onclick="setCompareRange('1d')">1D</button>
+          <button class="ctrl-btn" id="rbtn-cmp-5d" onclick="setCompareRange('5d')">5D</button>
+          <button class="ctrl-btn" id="rbtn-cmp-30d" onclick="setCompareRange('30d')">30D</button>
+          <button class="ctrl-btn" id="rbtn-cmp-1y" onclick="setCompareRange('1y')">1Y</button>
+        </div>
         <button onclick="closeCompareModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;margin-left:4px">✕</button>
       </div>
     </div>
@@ -652,9 +661,9 @@ footer a:hover{text-decoration:underline}
       <canvas id="chart-compare"></canvas>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
-      <div style="display:flex;gap:4px;align-items:center">
-        <button class="rbtn on" id="rbtn-cmp-mode-price" onclick="setCompareMode('price')">Local Price</button>
-        <button class="rbtn" id="rbtn-cmp-mode-premium" onclick="setCompareMode('premium')">Premium %</button>
+      <div class="ctrl-group chart-ctrl">
+        <button class="ctrl-btn on" id="rbtn-cmp-mode-price" onclick="setCompareMode('price')">Local Price</button>
+        <button class="ctrl-btn" id="rbtn-cmp-mode-premium" onclick="setCompareMode('premium')">Premium %</button>
       </div>
       <span style="font-size:10px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
     </div>
@@ -665,14 +674,16 @@ footer a:hover{text-decoration:underline}
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:900px;max-height:96vh;overflow:auto;position:relative">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <span style="font-size:13px;font-weight:500;color:var(--text1)">Gold / Silver Ratio</span>
-      <div style="display:flex;gap:4px;align-items:center">
-        <button class="rbtn" id="rbtn-ratio-1d" onclick="setRatioRange('1d')">1D</button>
-        <button class="rbtn on" id="rbtn-ratio-5d" onclick="setRatioRange('5d')">5D</button>
-        <button class="rbtn" id="rbtn-ratio-30d" onclick="setRatioRange('30d')">30D</button>
-        <button class="rbtn" id="rbtn-ratio-3m" onclick="setRatioRange('3m')">3M</button>
-        <button class="rbtn" id="rbtn-ratio-1y" onclick="setRatioRange('1y')">1Y</button>
-        <button class="rbtn" id="rbtn-ratio-10y" onclick="setRatioRange('10y')">10Y</button>
-        <button class="rbtn" id="rbtn-ratio-max" onclick="setRatioRange('max')">Max</button>
+      <div style="display:flex;gap:6px;align-items:center">
+        <div class="ctrl-group chart-ctrl">
+          <button class="ctrl-btn" id="rbtn-ratio-1d" onclick="setRatioRange('1d')">1D</button>
+          <button class="ctrl-btn on" id="rbtn-ratio-5d" onclick="setRatioRange('5d')">5D</button>
+          <button class="ctrl-btn" id="rbtn-ratio-30d" onclick="setRatioRange('30d')">30D</button>
+          <button class="ctrl-btn" id="rbtn-ratio-3m" onclick="setRatioRange('3m')">3M</button>
+          <button class="ctrl-btn" id="rbtn-ratio-1y" onclick="setRatioRange('1y')">1Y</button>
+          <button class="ctrl-btn" id="rbtn-ratio-10y" onclick="setRatioRange('10y')">10Y</button>
+          <button class="ctrl-btn" id="rbtn-ratio-max" onclick="setRatioRange('max')">Max</button>
+        </div>
         <button onclick="closeRatioModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
       </div>
     </div>
@@ -2234,7 +2245,7 @@ function openSpotChart(){
   modalRange = '5d';
   ['1d','5d','30d','1y'].forEach(r=>{
     const b=document.getElementById('modal-btn-'+r);
-    if(b) b.className='rbtn'+(r==='1d'?' on':'');
+    if(b) b.className='ctrl-btn'+(r==='1d'?' on':'');
   });
   const title = metal==='XAG' ? '🌍 Silver Spot Price · COMEX' : '🌍 Gold Spot Price · COMEX';
   openChartModal('comex', title);
@@ -2279,7 +2290,7 @@ async function setModalRange(range){
   modalRange = range;
   ['1d','5d','30d','3m','1y'].forEach(r=>{
     const btn = document.getElementById('modal-btn-'+r);
-    if(btn){ btn.className = 'rbtn' + (r===range?' on':''); }
+    if(btn){ btn.className = 'ctrl-btn' + (r===range?' on':''); }
   });
   if(modalMarket) await loadModalData(modalMarket, range);
   // Reload mini charts with new range
@@ -2288,7 +2299,7 @@ async function setModalRange(range){
 
 function setModalMetal(metal){
   modalMetal = metal;
-  ['gold','silver'].forEach(m=>{ const b=document.getElementById('modal-btn-'+m); if(b) b.className='rbtn'+(m===metal?' on':''); });
+  ['gold','silver'].forEach(m=>{ const b=document.getElementById('modal-btn-'+m); if(b) b.className='ctrl-btn'+(m===metal?' on':''); });
   if(modalMarket) loadModalData(modalMarket, modalRange);
 }
 
@@ -2858,7 +2869,7 @@ function closeRatioModal(){
 function setRatioRange(r){
   ratioRange=r;
   ['1d','5d','30d','3m','1y','10y','max'].forEach(x=>{
-    document.getElementById('rbtn-ratio-'+x).className='rbtn'+(x===r?' on':'');
+    document.getElementById('rbtn-ratio-'+x).className='ctrl-btn'+(x===r?' on':'');
   });
   loadRatioData(r);
 }
@@ -3255,12 +3266,12 @@ function closeCompareModal(){
 
 function setCompareRange(r){
   compareRange=r;
-  ['1d','5d','30d','1y'].forEach(x=>{ document.getElementById('rbtn-cmp-'+x).className='rbtn'+(x===r?' on':''); });
+  ['1d','5d','30d','1y'].forEach(x=>{ document.getElementById('rbtn-cmp-'+x).className='ctrl-btn'+(x===r?' on':''); });
   loadCompareData(r);
 }
 function setCompareMode(m){
   compareModeView=m;
-  ['price','premium'].forEach(x=>{ document.getElementById('rbtn-cmp-mode-'+x).className='rbtn'+(x===m?' on':''); });
+  ['price','premium'].forEach(x=>{ document.getElementById('rbtn-cmp-mode-'+x).className='ctrl-btn'+(x===m?' on':''); });
   loadCompareData(compareRange);
 }
 
