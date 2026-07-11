@@ -644,7 +644,7 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <div id="compare-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;padding:8px;box-sizing:border-box;">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;width:100%;max-width:1200px;max-height:100%;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;width:100%;max-width:1200px;height:100%;max-height:100%;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden">
     <!-- Header: Legend links, Range-Buttons + X rechts -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-shrink:0;flex-wrap:wrap;gap:6px">
       <div id="cmp-legend" style="display:flex;gap:10px;font-size:11px;color:var(--text2);align-items:center;flex-wrap:wrap;min-width:0"></div>
@@ -3339,8 +3339,8 @@ function renderCompareChart(results,range){
   }));
   if(!datasets.length) return;
   const yAxisOpts=isPrem
-    ?{ticks:{color:'#666C78',font:MONO,callback:v=>(v>0?'+':'')+v.toFixed(2)+'%'},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'Premium %',color:'#666C78',font:MONO}}
-    :{ticks:{color:'#666C78',font:MONO,callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'USD / oz',color:'#666C78',font:MONO}};
+    ?{ticks:{color:'#666C78',font:MONO,callback:v=>(v>0?'+':'')+v.toFixed(2)+'%'},grid:{color:'rgba(255,255,255,0.2)',lineWidth:1},title:{display:true,text:'Premium %',color:'#666C78',font:MONO}}
+    :{ticks:{color:'#666C78',font:MONO,callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,0.2)',lineWidth:1},title:{display:true,text:'USD / oz',color:'#666C78',font:MONO}};
   const annotationsPrem=isPrem?{zeroline:{type:'line',yMin:0,yMax:0,borderColor:'rgba(255,255,255,0.2)',borderWidth:1,borderDash:[4,4]}}:{};
   chartCompare=new Chart(ctx,{
     type:'line',data:{datasets},
