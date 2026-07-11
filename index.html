@@ -2282,10 +2282,12 @@ async function openChartModal(marketId, title){
 }
 
 function closeChartModal(){
-  document.getElementById('chart-modal').style.display = 'none';
-  document.body.style.overflow = '';
-  if(modalChart){ modalChart.destroy(); modalChart = null; }
-  _exitFS();
+  try{
+    document.getElementById('chart-modal').style.display = 'none';
+    if(modalChart){ modalChart.destroy(); modalChart = null; }
+    _exitFS();
+  }catch(e){ console.warn('closeChartModal error',e); }
+  finally{ document.body.style.overflow = ''; }
 }
 
 async function setModalRange(range){
@@ -2340,6 +2342,8 @@ async function loadModalData(marketId, range){
 
 function renderModalChart(data, range){
   if(typeof Chart==='undefined') return;
+  // Abbruch wenn Modal bereits geschlossen wurde (async race)
+  if(document.getElementById('chart-modal').style.display==='none') return;
   const ctx = document.getElementById('modal-chart');
   if(modalChart){ modalChart.destroy(); modalChart = null; }
 
@@ -2865,9 +2869,12 @@ function openRatioModal(){
   loadRatioData(ratioRange);
 }
 function closeRatioModal(){
-  document.getElementById('ratio-modal').style.display='none';
-  document.body.style.overflow='';
-  if(chartRatio){ chartRatio.destroy(); chartRatio=null; }
+  try{
+    document.getElementById('ratio-modal').style.display='none';
+    if(chartRatio){ chartRatio.destroy(); chartRatio=null; }
+    _exitFS();
+  }catch(e){ console.warn('closeRatioModal error',e); }
+  finally{ document.body.style.overflow=''; }
 }
 function setRatioRange(r){
   ratioRange=r;
@@ -2884,6 +2891,7 @@ async function loadRatioData(range){
   }catch(e){ console.warn('Ratio history error',e); }
 }
 function renderRatioChart(data,range){
+  if(document.getElementById('ratio-modal').style.display==='none') return;
   const ctx=document.getElementById('chart-ratio');
   if(chartRatio){ chartRatio.destroy(); chartRatio=null; }
   if(!data||!data.length) return;
@@ -3128,7 +3136,8 @@ function _autoFsOnFirstTap(modalId){
     modal.removeEventListener('touchstart',h);
     clearTimeout(timer);
     if(hint.parentNode) hint.remove();
-    if(!document.fullscreenElement&&!document.webkitFullscreenElement){
+    // Nur Fullscreen anfordern wenn Modal noch sichtbar (Race Condition vs. ✕-Tap)
+    if(modal.style.display!=='none'&&!document.fullscreenElement&&!document.webkitFullscreenElement){
       const req=modal.requestFullscreen||modal.webkitRequestFullscreen;
       if(req) req.call(modal).catch(()=>{});
     }
@@ -3266,11 +3275,13 @@ function _openCompareModalInner(){
 }
 
 function closeCompareModal(){
-  const modal=document.getElementById('compare-modal');
-  modal.style.display='none';
-  document.body.style.overflow='';
-  if(chartCompare){ chartCompare.destroy(); chartCompare=null; }
-  _exitFS();
+  try{
+    document.getElementById('compare-modal').style.display='none';
+    if(chartCompare){ chartCompare.destroy(); chartCompare=null; }
+    _cancelRotateHint();
+    _exitFS();
+  }catch(e){ console.warn('closeCompareModal error',e); }
+  finally{ document.body.style.overflow=''; }
 }
 
 function setCompareRange(r){
@@ -3296,6 +3307,7 @@ async function loadCompareData(range){
 }
 
 function renderCompareChart(results,range){
+  if(document.getElementById('compare-modal').style.display==='none') return;
   const ctx=document.getElementById('chart-compare');
   if(chartCompare){ chartCompare.destroy(); chartCompare=null; }
   const isShort=range==='1d'||range==='5d';
