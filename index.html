@@ -637,24 +637,27 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <div id="compare-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg2);flex-direction:column;">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0">
-    <span id="compare-modal-title" style="font-size:13px;font-weight:600;color:var(--text1)">Market Comparison</span>
-    <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+  <!-- HEADER: Marktlegende links | Zeitauswahl + Schließen rechts -->
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0;min-height:44px">
+    <div id="cmp-legend" style="display:flex;gap:12px;font-size:11px;color:var(--text2);align-items:center;flex-wrap:wrap"></div>
+    <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;margin-left:12px">
       <button class="rbtn on" id="rbtn-cmp-1d" onclick="setCompareRange('1d')">1D</button>
       <button class="rbtn" id="rbtn-cmp-5d" onclick="setCompareRange('5d')">5D</button>
       <button class="rbtn" id="rbtn-cmp-30d" onclick="setCompareRange('30d')">30D</button>
       <button class="rbtn" id="rbtn-cmp-1y" onclick="setCompareRange('1y')">1Y</button>
-      <span style="width:1px;background:var(--border);margin:0 2px;align-self:stretch;display:inline-block"></span>
-      <button class="rbtn on" id="rbtn-cmp-mode-price" onclick="setCompareMode('price')">Price (USD)</button>
-      <button class="rbtn" id="rbtn-cmp-mode-premium" onclick="setCompareMode('premium')">Premium %</button>
-      <button onclick="closeCompareModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 6px;margin-left:4px">✕</button>
+      <button onclick="closeCompareModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;margin-left:6px">✕</button>
     </div>
   </div>
-  <div id="cmp-chart-wrap" style="flex:1;min-height:0;position:relative;padding:8px 12px 4px">
+  <!-- CHART -->
+  <div id="cmp-chart-wrap" style="flex:1;min-height:0;position:relative;padding:8px 16px 4px">
     <canvas id="chart-compare" style="width:100%;height:100%"></canvas>
   </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 16px 10px;flex-shrink:0">
-    <div id="cmp-legend" style="display:flex;gap:10px;font-size:10px;color:var(--text3);align-items:center;flex-wrap:wrap"></div>
+  <!-- FOOTER: Modus-Toggle links | Zoom-Hinweis rechts -->
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 16px 10px;border-top:1px solid var(--border);flex-shrink:0">
+    <div style="display:flex;gap:4px;align-items:center">
+      <button class="rbtn on" id="rbtn-cmp-mode-price" onclick="setCompareMode('price')">Local Price</button>
+      <button class="rbtn" id="rbtn-cmp-mode-premium" onclick="setCompareMode('premium')">Premium %</button>
+    </div>
     <span style="font-size:10px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
   </div>
 </div>
@@ -3236,13 +3239,7 @@ function _showRotateHint(onLandscape){
   window.addEventListener('resize',check);
 }
 
-function _updateCompareTitle(){
-  const mName=metal==='XAU'?'Gold':'Silver';
-  const modeLabel=compareModeView==='premium'?'Premium %':'USD/oz';
-  document.getElementById('compare-modal-title').textContent=`Market Comparison · ${mName} — ${modeLabel}`;
-}
 function _openCompareModalInner(){
-  _updateCompareTitle();
   const modal=document.getElementById('compare-modal');
   modal.style.display='flex';
   document.body.style.overflow='hidden';
@@ -3265,7 +3262,6 @@ function setCompareRange(r){
 function setCompareMode(m){
   compareModeView=m;
   ['price','premium'].forEach(x=>{ document.getElementById('rbtn-cmp-mode-'+x).className='rbtn'+(x===m?' on':''); });
-  _updateCompareTitle();
   loadCompareData(compareRange);
 }
 
@@ -3289,38 +3285,46 @@ function renderCompareChart(results,range){
   const yField=isPrem
     ?(metal==='XAU'?'premium_pct':'silver_premium_pct')
     :(metal==='XAU'?'gold_usd_oz':'silver_usd_oz');
+  const MONO={family:'DM Mono',size:10};
   const datasets=results.filter(r=>r.data&&r.data.length).map(({market,data})=>({
     label:COMPARE_LABELS[market]||market,
     data:data.map(d=>({x:d.ts||d.date,y:d[yField]})).filter(p=>p.y!=null),
     borderColor:COMPARE_COLORS[market]||'#666C78',
     backgroundColor:'transparent',
-    borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:0
+    borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:0.3
   }));
   if(!datasets.length) return;
   const yAxisOpts=isPrem
-    ?{ticks:{color:'#666C78',font:{size:11},callback:v=>(v>0?'+':'')+v.toFixed(2)+'%'},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'Premium %',color:'#666C78',font:{size:10}}}
-    :{ticks:{color:'#666C78',font:{size:11},callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'USD / oz',color:'#666C78',font:{size:10}}};
+    ?{ticks:{color:'#666C78',font:MONO,callback:v=>(v>0?'+':'')+v.toFixed(2)+'%'},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'Premium %',color:'#666C78',font:MONO}}
+    :{ticks:{color:'#666C78',font:MONO,callback:v=>'$'+v.toFixed(0)},grid:{color:'rgba(255,255,255,0.04)'},title:{display:true,text:'USD / oz',color:'#666C78',font:MONO}};
   const annotationsPrem=isPrem?{zeroline:{type:'line',yMin:0,yMax:0,borderColor:'rgba(255,255,255,0.2)',borderWidth:1,borderDash:[4,4]}}:{};
   chartCompare=new Chart(ctx,{
     type:'line',data:{datasets},
-    options:{...CHART_OPTS,
-      plugins:{...CHART_OPTS.plugins,
-        legend:{display:true,position:'right',align:'start',labels:{color:'#666C78',font:{size:22},boxWidth:20,padding:12,usePointStyle:true,pointStyle:'line'}},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
         zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
         verticalGrid:{enabled:isShort},
         annotation:{annotations:annotationsPrem},
-        tooltip:{...CHART_OPTS.plugins.tooltip,mode:'index',intersect:false,
-          callbacks:{label:c=>isPrem
+        tooltip:{...CHART_OPTS.plugins.tooltip,callbacks:{
+          label:c=>isPrem
             ?`${c.dataset.label}: ${c.parsed.y>0?'+':''}${fmt(c.parsed.y,2)}%`
-            :`${c.dataset.label}: $${fmt(c.parsed.y,2)}`}
-        }
+            :`${c.dataset.label}: $${fmt(c.parsed.y,2)}`
+        }}
       },
       scales:{
-        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:{size:11}},grid:{display:false}},
+        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:MONO},grid:{display:false}},
         y:yAxisOpts
       }
     }
   });
+  // Custom legend — identisch mit Modal-Chart-Stil
+  const legend=document.getElementById('cmp-legend');
+  if(legend) legend.innerHTML=datasets.map(ds=>
+    `<span><span style="display:inline-block;width:16px;height:4px;background:${ds.borderColor};border-radius:2px;vertical-align:middle;margin-right:4px"></span>${ds.label}</span>`
+  ).join('');
   if(!ctx.dataset.dblclickBound){
     ctx.addEventListener('dblclick',()=>{ if(chartCompare) chartCompare.resetZoom(); });
     ctx.dataset.dblclickBound='1';
