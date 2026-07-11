@@ -590,7 +590,7 @@ footer a:hover{text-decoration:underline}
 
 
 <div id="chart-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:94%;max-width:1200px;max-height:93vh;overflow:auto;position:relative">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:94%;max-width:1200px;max-height:96vh;overflow:auto;position:relative">
     <div id="modal-title" style="display:none"></div>
     <div id="modal-sub" style="display:none"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -609,7 +609,7 @@ footer a:hover{text-decoration:underline}
         <button onclick="closeChartModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
       </div>
     </div>
-    <div id="modal-chart-wrap" style="position:relative;width:100%;height:clamp(320px,52vh,580px)">
+    <div id="modal-chart-wrap" style="position:relative;width:100%;height:clamp(320px,65vh,760px)">
       <canvas id="modal-chart"></canvas>
     </div>
     <div id="modal-note" style="display:none"></div>
@@ -637,7 +637,7 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <div id="compare-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:1200px;max-height:93vh;overflow:auto;position:relative">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:1200px;max-height:96vh;overflow:auto;position:relative">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <div id="cmp-legend" style="display:flex;gap:12px;font-size:11px;color:var(--text2);align-items:center;flex-wrap:wrap"></div>
       <div style="display:flex;gap:4px;align-items:center;flex-shrink:0;margin-left:12px">
@@ -648,7 +648,7 @@ footer a:hover{text-decoration:underline}
         <button onclick="closeCompareModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;margin-left:4px">✕</button>
       </div>
     </div>
-    <div id="cmp-chart-wrap" style="position:relative;width:100%;height:clamp(320px,52vh,580px)">
+    <div id="cmp-chart-wrap" style="position:relative;width:100%;height:clamp(320px,65vh,760px)">
       <canvas id="chart-compare"></canvas>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
@@ -662,7 +662,7 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <div id="ratio-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:900px;max-height:93vh;overflow:auto;position:relative">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:900px;max-height:96vh;overflow:auto;position:relative">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <span style="font-size:13px;font-weight:500;color:var(--text1)">Gold / Silver Ratio</span>
       <div style="display:flex;gap:4px;align-items:center">
@@ -676,7 +676,7 @@ footer a:hover{text-decoration:underline}
         <button onclick="closeRatioModal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
       </div>
     </div>
-    <div class="chart-wrap" style="position:relative;width:100%;height:clamp(300px,52vh,500px)">
+    <div class="chart-wrap" style="position:relative;width:100%;height:clamp(300px,65vh,760px)">
       <canvas id="chart-ratio"></canvas>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
@@ -687,7 +687,7 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <div id="sp500-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:900px;max-height:93vh;overflow:auto;position:relative">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:900px;max-height:96vh;overflow:auto;position:relative">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <span style="font-size:13px;font-weight:500;color:var(--text1)">Gold / S&amp;P 500 Ratio</span>
       <div style="display:flex;gap:4px;align-items:center">
@@ -701,7 +701,7 @@ footer a:hover{text-decoration:underline}
         <button onclick="closeSp500Modal()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;padding:0 4px">✕</button>
       </div>
     </div>
-    <div class="chart-wrap" style="position:relative;width:100%;height:clamp(300px,52vh,500px)">
+    <div class="chart-wrap" style="position:relative;width:100%;height:clamp(300px,65vh,760px)">
       <canvas id="chart-sp500"></canvas>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
