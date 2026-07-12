@@ -27,6 +27,7 @@ gelesen werden. Vor jedem Commit: Skript ausführen, Fehler = STOPP.
 | R12 | Chart-Buttons: ctrl-btn (nicht rbtn) | `ctrl-btn.*rbtn-cmp-1d\|id="rbtn-cmp-1d".*ctrl-btn` | index.html |
 | R13 | Chart-Höhe 65vh (Modal + Compare) | `65vh,760px` | index.html |
 | R14 | Silver Premium Feld: silver_premium_pct | `silver_premium_pct` | index.html |
+| R15 | Compare X-Grid: immer display:true (nicht isShort) | `grid:{display:true,color:` | index.html |
 | R15 | GVS Dubai Silver: AED-Parsing | `AED.*6000.*20000\|6000.*_sval.*20000` | app.py |
 
 ---

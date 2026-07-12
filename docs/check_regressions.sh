@@ -88,6 +88,9 @@ check "R13" "Chart-Höhe 65vh Standard (Modal + Compare)" \
 check "R14" "Silver Premium Feld: silver_premium_pct" \
   "$HTML" "silver_premium_pct"
 
+check "R15" "Compare X-Grid: immer sichtbar (display:true, nicht isShort)" \
+  "$HTML" "grid:\{display:true,color:'rgba\(255,255,255,0\.2\)',lineWidth:1\}\}"
+
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
