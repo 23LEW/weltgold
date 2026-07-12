@@ -3350,7 +3350,7 @@ function renderCompareChart(results,range){
       plugins:{
         legend:{display:false},
         zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
-        verticalGrid:{enabled:isShort},
+        verticalGrid:{enabled:false},
         annotation:{annotations:annotationsPrem},
         tooltip:{...CHART_OPTS.plugins.tooltip,callbacks:{
           label:c=>isPrem
@@ -3359,7 +3359,7 @@ function renderCompareChart(results,range){
         }}
       },
       scales:{
-        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:MONO},grid:{display:false}},
+        x:{type:'time',time:{unit:timeUnit,displayFormats:{hour:'dd.MM HH:mm',day:'dd MMM',month:'MMM yy'}},ticks:{color:'#666C78',maxTicksLimit:10,font:MONO},grid:{display:isShort,color:'rgba(255,255,255,0.2)',lineWidth:1}},
         y:yAxisOpts
       }
     }
