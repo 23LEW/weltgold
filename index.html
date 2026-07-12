@@ -1699,11 +1699,7 @@ function renderSilverPremiumChart(){ try {
   const ctx = document.getElementById('chart-silver-premium');
   if(!ctx) return;
   if(chartSilverPremium){ chartSilverPremium.destroy(); chartSilverPremium = null; }
-  const colors = {
-    istanbul:'#F5C842', india_gjc:'#E87040', germany:'#5BAD7A',
-    switzerland:'#E63946', dubai:'#C67BD4', usa:'#E85A5A', australia:'#00A693',
-    canada:'#D4003F', shanghai:'#EE4B2B', russia_dealer:'#CC4444'
-  };
+  const colors = MARKET_COLORS;
   fetch('https://api.goldpremium.org/api/premium-history?metal=XAG&days=30')
     .then(r=>r.json())
     .then(data=>{
@@ -1750,11 +1746,7 @@ function renderGlobalPremiumChart(){ try {
   fetch('https://api.goldpremium.org/api/premium-history')
     .then(r=>r.json())
     .then(data=>{
-      const colors = {
-        istanbul:'#F5C842', india_gjc:'#E87040', japan:'#4A90D9',
-        germany:'#5BAD7A', switzerland:'#E63946', dubai:'#C67BD4', usa:'#E85A5A',
-        hongkong:'#F0A500', australia:'#00A693', canada:'#D4003F', shanghai:'#EE4B2B'
-      };
+      const colors = MARKET_COLORS;
       const MKTNAMES2={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',us_sdbullion:'SD Bullion',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',hongkong:'CGSE',japan:'Tanaka',lbma:'LBMA',comex:'COMEX'};
       const datasets = Object.entries(data).map(([market, points])=>({
         label: MKTNAMES2[market]||market.charAt(0).toUpperCase()+market.slice(1),
@@ -3062,7 +3054,7 @@ loadSp500LiveRatio();
 setInterval(loadSp500LiveRatio, 5*60*1000);
 
 // ── Market Compare ────────────────────────────────────────────
-const COMPARE_COLORS={comex:'#E85A5A',lbma:'#5B8DEF',shanghai:'#F0A500',hkgx:'#2ECC71',india_ibja:'#C879E0',hongkong:'#FF8C42',istanbul:'#F5C842',india_mumbai:'#EC4899',india_gjc:'#22D3EE',japan:'#4A90D9',dubai:'#C67BD4',usa:'#00A693',canada:'#F4D03F',russia_dealer:'#94A3B8',australia:'#A3E635',germany:'#5BAD7A',switzerland:'#D946EF',uk_royalmint:'#38BDF8',chinagold:'#FCD34D'};
+const MARKET_COLORS={comex:'#E8E8E8',lbma:'#1F77B4',uk_royalmint:'#AEC7E8',usa:'#2CA02C',us_sdbullion:'#D62728',switzerland:'#9467BD',germany:'#8C564B',dubai:'#C67BD4',istanbul:'#D4AF5A',india_ibja:'#FF7F0E',india_gjc:'#FFBB78',india_mumbai:'#E8A33D',japan:'#98DF8A',hongkong:'#BCBD22',hkgx:'#DBDB8D',russia_dealer:'#FF9896',shanghai:'#17BECF',chinagold:'#9EDAE5',australia:'#E377C2',canada:'#C49C94'};
 const COMPARE_LABELS=Object.fromEntries([...EXCHANGES,...MARKETS].map(r=>[r.id,r.flag+' '+r.name]));
 const COMPARE_HISTID=Object.fromEntries([...EXCHANGES,...MARKETS].map(r=>[r.id,r.historyId||r.id]));
 const selectedMarkets=new Set();
@@ -3333,7 +3325,7 @@ function renderCompareChart(results,range){
   const datasets=results.filter(r=>r.data&&r.data.length).map(({market,data})=>({
     label:COMPARE_LABELS[market]||market,
     data:data.map(d=>({x:d.ts||d.date,y:d[yField]})).filter(p=>p.y!=null),
-    borderColor:COMPARE_COLORS[market]||'#666C78',
+    borderColor:MARKET_COLORS[market]||'#666C78',
     backgroundColor:'transparent',
     borderWidth:1.5,pointRadius:0,pointHoverRadius:4,tension:0
   }));
