@@ -1175,16 +1175,15 @@ async function load(){
       } else { canadaLive = null; }
 
       const du = vps?.dubai;
-      if(du?.gold_eur_kg_ask){
+      if(du?.gold_aed_kg_ask){
         const aedRate = fx?.AED || 3.6725;
-        const eurRate = fx?.EUR || 0.92;
         dubaiLive = {
-          ask_aed_kg: du.gold_eur_kg_ask ? Math.round(du.gold_eur_kg_ask / eurRate * aedRate) : null,
-          bid_aed_kg: du.gold_eur_kg_bid  ? Math.round(du.gold_eur_kg_bid  / eurRate * aedRate) : null,
-          ask_usd_oz: du.gold_eur_oz_ask  ? Math.round(du.gold_eur_oz_ask  / eurRate * 100) / 100 : null,
-          bid_usd_oz: du.gold_eur_kg_bid  ? Math.round(du.gold_eur_kg_bid  / 32.1507 / eurRate * 100) / 100 : null,
-          silver_ask_usd_oz: du.silver_eur_kg_ask ? Math.round(du.silver_eur_kg_ask / eurRate / 32.1507 * 100) / 100 : null,
-          silver_bid_usd_oz: du.silver_eur_kg_bid ? Math.round(du.silver_eur_kg_bid / eurRate / 32.1507 * 100) / 100 : null,
+          ask_aed_kg: du.gold_aed_kg_ask ? Math.round(du.gold_aed_kg_ask) : null,
+          bid_aed_kg: du.gold_aed_kg_bid ? Math.round(du.gold_aed_kg_bid) : null,
+          ask_usd_oz: du.gold_usd_oz ? Math.round(du.gold_usd_oz * 100) / 100 : null,
+          bid_usd_oz: du.gold_aed_kg_bid ? Math.round(du.gold_aed_kg_bid / 32.1507 / aedRate * 100) / 100 : null,
+          silver_ask_usd_oz: du.silver_usd_oz ? Math.round(du.silver_usd_oz * 100) / 100 : null,
+          silver_bid_usd_oz: du.silver_aed_kg_bid ? Math.round(du.silver_aed_kg_bid / aedRate / 32.1507 * 100) / 100 : null,
           source: du.source
         };
       } else { dubaiLive = null; }
