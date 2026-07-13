@@ -18,6 +18,7 @@ CORS(app)
 
 cache = {"prices": {}, "last_updated": None, "yesterday": {}, "last_gc": None, "last_si": None, "lbma_ratio": None, "lbma_ratio_ts": 0, "alerts_sent": set()}
 YESTERDAY_FX_FILE = '/opt/goldpremium/yesterday_fx.json'
+HKGX_CACHE_FILE = '/opt/goldpremium/hkgx_cache.json'
 
 ALERT_EMAIL = "larsenwolff@posteo.de"
 SMTP_HOST = "posteo.de"
@@ -122,6 +123,12 @@ def init_db():
         local_currency TEXT
     )''')
     c.execute('CREATE INDEX IF NOT EXISTS idx_market_ts ON price_history(market, ts)')
+    c.execute('''CREATE TABLE IF NOT EXISTS site_visits (
+        id INTEGER PRIMARY KEY DEFAULT 1,
+        count INTEGER DEFAULT 0,
+        last_visit TEXT
+    )''')
+    c.execute('INSERT OR IGNORE INTO site_visits (id, count) VALUES (1, 0)')
     conn.commit()
     conn.close()
     print("DB initialized")
@@ -260,15 +267,15 @@ def save_prices(prices):
         # Dubai
         dub = prices.get("dubai")
         if dub and not dub.get("is_calculated"):
-            gold_ask = dub.get("gold_eur_kg_ask")
-            gold_bid  = dub.get("gold_eur_kg_bid")
-            silver = dub.get("silver_eur_kg_ask")
-            silver_bid = dub.get("silver_eur_kg_bid")
-            eur_rate = fx.get("EUR", 0.85)
-            usd_oz_ask = (gold_ask / 32.1507 / eur_rate) if gold_ask else None
-            usd_oz_bid = (gold_bid  / 32.1507 / eur_rate) if gold_bid  else None
-            silver_usd = (silver / 32.1507 / eur_rate) if silver else None
-            silver_bid_usd = (silver_bid / 32.1507 / eur_rate) if silver_bid else None
+            gold_ask = dub.get("gold_aed_kg_ask")
+            gold_bid  = dub.get("gold_aed_kg_bid")
+            silver = dub.get("silver_aed_kg_ask")
+            silver_bid = dub.get("silver_aed_kg_bid")
+            aed_peg = 3.6725  # AED ist fest an USD gekoppelt, kein Live-Kurs noetig
+            usd_oz_ask = (gold_ask / 32.1507 / aed_peg) if gold_ask else None
+            usd_oz_bid = (gold_bid  / 32.1507 / aed_peg) if gold_bid  else None
+            silver_usd = (silver / 32.1507 / aed_peg) if silver else None
+            silver_bid_usd = (silver_bid / 32.1507 / aed_peg) if silver_bid else None
             c.execute(
                 "INSERT INTO price_history "
                 "(ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,"
@@ -278,7 +285,7 @@ def save_prices(prices):
                 "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (ts, 'dubai',
                  usd_oz_ask, gold_ask, silver, silver_usd,
-                 calc_premium(usd_oz_ask), 'EUR', 'kg', 'kg',
+                 calc_premium(usd_oz_ask), 'AED', 'kg', 'kg',
                  usd_oz_bid, calc_premium(usd_oz_bid),
                  gold_bid, silver_bid,
                  calc_silver_premium(silver_usd), calc_silver_premium(silver_bid_usd))
@@ -478,6 +485,7 @@ def fetch_fx():
         fx_date = r.get("date")
         rates = r.get("rates", {})
         rates["USD"] = 1.0
+        rates["AED"] = rates.get("AED") or 3.6725  # Frankfurter liefert kein AED; fester Peg
 
         # RUB von CBR holen (Frankfurter hat kein RUB seit 2022)
         try:
@@ -503,6 +511,7 @@ def fetch_fx():
                     timeout=(5, 10)).json()
                 yest_rates = r2.get("rates", {})
                 yest_rates["USD"] = 1.0
+                yest_rates["AED"] = yest_rates.get("AED") or 3.6725
                 print(f"FX: latest={fx_date} prev={prev_date}  "
                       f"EUR today={rates.get('EUR')} EUR yest={yest_rates.get('EUR')}")
             except Exception as e2:
@@ -1036,92 +1045,173 @@ def fetch_dubai():
             page = browser.new_page()
             # Gold bars
             page.goto("https://www.gvs-trading.ae/buy/gold-bars.html", timeout=30000)
-            page.wait_for_timeout(5000)
+            page.wait_for_timeout(3000)
+            page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            page.wait_for_timeout(2000)
+            page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            page.wait_for_timeout(2000)
             gold_text = page.inner_text("body")
             # Silver bars
             page.goto("https://www.gvs-trading.ae/buy/silver-bars.html", timeout=30000)
-            page.wait_for_timeout(5000)
+            page.wait_for_timeout(3000)
+            page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            page.wait_for_timeout(2000)
             silver_text = page.inner_text("body")
             browser.close()
 
-        # Parse 1kg gold ask price in EUR (line-based)
-        gold_eur_kg = None
-        gold_lines = gold_text.split('\n')
-        for i, line in enumerate(gold_lines):
-            if '1 kg Gold Bar' in line:
-                for j in range(i+1, min(i+5, len(gold_lines))):
-                    clean = gold_lines[j].strip().replace('\xa0', '').replace('\u00a0', '').replace('€', '').replace(',', '').strip()
+        # Parse alle 1kg Goldbarren — guenstigsten nehmen (normalisiert auf AED)
+        import re as _re2
+        AED_PEG = 3.6725
+        gold_aed_kg = None
+        gold_lines = gold_text.split(chr(10))
+        gold_candidates = []
+        for _i, _line in enumerate(gold_lines):
+            if chr(49)+chr(32)+chr(107)+chr(103)+chr(32)+chr(71)+chr(111)+chr(108)+chr(100)+chr(32)+chr(66)+chr(97)+chr(114) in _line:
+                for _j in range(_i+1, min(_i+5, len(gold_lines))):
+                    _raw = gold_lines[_j].strip()
+                    _is_aed = chr(65)+chr(69)+chr(68) in _raw
+                    _clean = _re2.sub(r"[^\d.]", "", _raw)
                     try:
-                        val = float(clean)
-                        if 50000 < val < 500000:
-                            gold_eur_kg = val
+                        _val = float(_clean)
+                        if _is_aed and 400000 < _val < 700000:
+                            gold_candidates.append((_val, "AED", _line.strip()))
+                            break
+                        elif not _is_aed and 50000 < _val < 200000:
+                            gold_candidates.append((_val, "EUR", _line.strip()))
                             break
                     except: pass
-                if gold_eur_kg: break
-        if gold_eur_kg:
-            print(f"GVS Dubai: gold_eur_kg={gold_eur_kg}")
+        if gold_candidates:
+            _eur_usd_g = None
+            if any(c == "EUR" for _, c, _ in gold_candidates):
+                try:
+                    _yfx = requests.get(
+                        "https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d&range=1d",
+                        timeout=5, headers={"User-Agent": "Mozilla/5.0"}
+                    ).json()
+                    _eur_usd_g = _yfx["chart"]["result"][0]["meta"]["regularMarketPrice"]
+                except Exception as _fe:
+                    print(f"GVS Dubai FX error (gold): {_fe}")
+            _normalized = []
+            for _val, _cur, _prod in gold_candidates:
+                if _cur == "AED":
+                    _normalized.append((_val, _val, _cur, _prod))
+                elif _eur_usd_g:
+                    _normalized.append((round(_val * _eur_usd_g * AED_PEG, 2), _val, _cur, _prod))
+            if _normalized:
+                gold_aed_kg, _orig_val, _orig_cur, _bprod = min(_normalized, key=lambda x: x[0])
+                print(f"GVS Dubai: guenstigster 1kg: {_bprod} = {_orig_val} {_orig_cur} -> {gold_aed_kg} AED")
+        if gold_aed_kg:
+            print(f"GVS Dubai: gold_aed_kg={gold_aed_kg}")
 
-        # Parse 1kg silver ask price in EUR (line-based)
-        silver_eur_kg = None
-        silver_lines = silver_text.split('\n')
-        for i, line in enumerate(silver_lines):
-            if '1 kg Silver Bar' in line:
-                for j in range(i+1, min(i+5, len(silver_lines))):
-                    clean = silver_lines[j].strip().replace('\xa0', '').replace('\u00a0', '').replace('€', '').replace(',', '').strip()
+        # Parse alle 1kg Silberbarren — guenstigsten nehmen (normalisiert auf AED)
+        silver_aed_kg = None
+        silver_lines = silver_text.split(chr(10))
+        silver_candidates = []
+        _SILVER_MARKERS = [
+            '1 kg Silver Bar', '1 kg Silberbarren', '1kg Silberbarren',
+            '1 kg valcambi silver', '1 kg Valcambi Silver',
+            '1 kg argor', '1 kg Argor',
+        ]
+        for _si, _sline in enumerate(silver_lines):
+            if any(m.lower() in _sline.lower() for m in _SILVER_MARKERS):
+                for _sj in range(_si+1, min(_si+5, len(silver_lines))):
+                    _sraw = silver_lines[_sj].strip()
+                    _sis_aed = 'AED' in _sraw
+                    _sclean = re.sub(r'[^\d.]', '', _sraw)
                     try:
-                        val = float(clean)
-                        if 500 < val < 50000:
-                            silver_eur_kg = val
+                        _sval = float(_sclean)
+                        if _sis_aed and 6000 < _sval < 20000:
+                            silver_candidates.append((_sval, 'AED', _sline.strip()))
+                            break
+                        elif not _sis_aed and 500 < _sval < 5000:
+                            silver_candidates.append((_sval, 'EUR', _sline.strip()))
                             break
                     except: pass
-                if silver_eur_kg: break
-        if silver_eur_kg:
-            print(f"GVS Dubai: silver_eur_kg={silver_eur_kg}")
+        if silver_candidates:
+            _eur_usd_s = None
+            if any(c == 'EUR' for _, c, _ in silver_candidates):
+                try:
+                    _syfx = requests.get(
+                        'https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d&range=1d',
+                        timeout=5, headers={'User-Agent': 'Mozilla/5.0'}
+                    ).json()
+                    _eur_usd_s = _syfx['chart']['result'][0]['meta']['regularMarketPrice']
+                except Exception as _sfe:
+                    print(f'GVS Dubai Silver FX error: {_sfe}')
+            _snormalized = []
+            for _sval, _scur, _sprod in silver_candidates:
+                if _scur == 'AED':
+                    _snormalized.append((_sval, _sval, _scur, _sprod))
+                elif _eur_usd_s:
+                    _snormalized.append((round(_sval * _eur_usd_s * AED_PEG, 2), _sval, _scur, _sprod))
+            if _snormalized:
+                silver_aed_kg, _sorig_val, _sorig_cur, _sbprod = min(_snormalized, key=lambda x: x[0])
+                print(f'GVS Dubai Silver: guenstigster 1kg: {_sbprod} = {_sorig_val} {_sorig_cur} -> {silver_aed_kg} AED')
+        if silver_aed_kg:
+            print(f"GVS Dubai: silver_aed_kg={silver_aed_kg}")
 
-        # Bid prices from sell subdomain (static JSON-LD, no JS needed)
+        # Bid prices from sell subdomain (product:price meta tags). Native
+        # currency on this subdomain is AED; kept as-is, no pre-conversion.
         import re as _re
-        gold_eur_kg_bid = None
-        silver_eur_kg_bid = None
+        gold_aed_kg_bid = None
+        silver_aed_kg_bid = None
+
+        def _gvs_bid_meta_to_aed(html, lo, hi):
+            m_amt = _re.search(r'product:price:amount"\s*content="([\d.]+)"', html)
+            m_cur = _re.search(r'product:price:currency"\s*content="([A-Z]{3})"', html)
+            if not (m_amt and m_cur):
+                return None
+            val = float(m_amt.group(1))
+            cur = m_cur.group(1)
+            if cur == "AED":
+                return round(val, 2) if lo < val < hi else None
+            if cur == "EUR":
+                # Fallback falls die Seite mal EUR zeigt statt AED
+                try:
+                    yfx = requests.get(
+                        "https://query1.finance.yahoo.com/v8/finance/chart/EURUSD=X?interval=1d&range=1d",
+                        timeout=5, headers={"User-Agent": "Mozilla/5.0"}
+                    ).json()
+                    eur_usd = yfx["chart"]["result"][0]["meta"]["regularMarketPrice"]
+                    aed_val = val * eur_usd * AED_PEG
+                    return round(aed_val, 2) if lo < aed_val < hi else None
+                except Exception as fe:
+                    print(f"GVS bid FX error: {fe}")
+                    return None
+            return None
+
         try:
             sell_gold = requests.get(
                 "https://sell.gvs-trading.ae/1-kg-gold-bar-various-manufacturers.html",
                 timeout=(5, 10), headers={"User-Agent": "Mozilla/5.0"}
             ).text
-            mg = _re.search(r'"price"\s*:\s*"?([\d.]+)"?.*?"priceCurrency"\s*:\s*"EUR"', sell_gold)
-            if mg:
-                bid_val = float(mg.group(1))
-                if 50000 < bid_val < 500000:
-                    gold_eur_kg_bid = bid_val
+            gold_aed_kg_bid = _gvs_bid_meta_to_aed(sell_gold, 400000, 700000)
         except Exception as be:
             print(f"GVS gold bid error: {be}")
         try:
             sell_silver = requests.get(
-                "https://sell.gvs-trading.ae/1-kg-silver-bar-diverse-manufacturers.html",
+                "https://sell.gvs-trading.ae/1-kg-silver-bar-argor-heraeus.html",
                 timeout=(5, 10), headers={"User-Agent": "Mozilla/5.0"}
             ).text
-            ms = _re.search(r'"price"\s*:\s*"?([\d.]+)"?.*?"priceCurrency"\s*:\s*"EUR"', sell_silver)
-            if ms:
-                bid_val = float(ms.group(1))
-                if 500 < bid_val < 50000:
-                    silver_eur_kg_bid = bid_val
+            silver_aed_kg_bid = _gvs_bid_meta_to_aed(sell_silver, 6000, 20000)
         except Exception as be:
             print(f"GVS silver bid error: {be}")
 
-        if gold_eur_kg:
+        if gold_aed_kg:
             result = {
-                "gold_eur_kg_ask": gold_eur_kg,
-                "gold_eur_oz_ask": round(gold_eur_kg / 32.1507, 2),
+                "gold_aed_kg_ask": gold_aed_kg,
+                "gold_aed_oz_ask": round(gold_aed_kg / 32.1507, 2),
                 "source": "gvs-trading.ae",
                 "is_calculated": False
             }
-            if gold_eur_kg_bid:
-                result["gold_eur_kg_bid"] = gold_eur_kg_bid
-                print(f"GVS Dubai: gold_eur_kg ask={gold_eur_kg} bid={gold_eur_kg_bid}")
-            if silver_eur_kg:
-                result["silver_eur_kg_ask"] = silver_eur_kg
-            if silver_eur_kg_bid:
-                result["silver_eur_kg_bid"] = silver_eur_kg_bid
-                print(f"GVS Dubai: silver_eur_kg ask={silver_eur_kg} bid={silver_eur_kg_bid}")
+            if gold_aed_kg_bid:
+                result["gold_aed_kg_bid"] = gold_aed_kg_bid
+                print(f"GVS Dubai: gold_aed_kg ask={gold_aed_kg} bid={gold_aed_kg_bid}")
+            if silver_aed_kg:
+                result["silver_aed_kg_ask"] = silver_aed_kg
+            if silver_aed_kg_bid:
+                result["silver_aed_kg_bid"] = silver_aed_kg_bid
+                print(f"GVS Dubai: silver_aed_kg ask={silver_aed_kg} bid={silver_aed_kg_bid}")
             return result
         return None
     except Exception as e:
@@ -1129,46 +1219,70 @@ def fetch_dubai():
         return None
 def fetch_philoro():
     """Scrape live gold/silver prices from philoro.ch (Philoro Schweiz AG).
-    Returns gold 1oz ask/bid in CHF and silver 1kg ask/bid in CHF.
-    Uses requests+BeautifulSoup on static Vue SSR HTML."""
+    Gold: 1000g diverse Hersteller from /shop/goldbarren-1000g (ask+bid, converted to CHF/oz).
+    Silver: 1000g diverse Hersteller from /shop/silberbarren (bid only, no retail ask available).
+    Products are now <a href="/produkt/..."> links (site restructured 2025)."""
     import re
     from bs4 import BeautifulSoup
 
     UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    GRAMS_PER_OZ = 31.1035   # troy oz
+    OZ_PER_1000G = 1000 / GRAMS_PER_OZ  # ≈ 32.1507
 
     def parse_chf(s):
         return float(s.replace('.', '').replace(',', '.'))
 
-    def scrape(url, title_pattern):
+    def scrape(url, title_pattern, require_ask=True):
+        """Returns (ask, bid). If require_ask=False, ask may be None."""
         r = requests.get(url, headers={'User-Agent': UA}, timeout=(5, 20))
         soup = BeautifulSoup(r.text, 'html.parser')
-        for card in soup.find_all(attrs={'data-testid': 'productCard'}):
+        for card in soup.find_all('a', href=re.compile(r'/produkt/')):
             txt = card.get_text(' ', strip=True)
             if re.search(title_pattern, txt):
                 m_ask = re.search(r'Kaufen:\s*([\d.,]+)\s*CHF', txt)
                 m_bid = re.search(r'Verkaufen:\s*([\d.,]+)\s*CHF', txt)
-                if m_ask and m_bid:
-                    return parse_chf(m_ask.group(1)), parse_chf(m_bid.group(1))
+                if require_ask:
+                    if m_ask and m_bid:
+                        return parse_chf(m_ask.group(1)), parse_chf(m_bid.group(1))
+                else:
+                    if m_bid:
+                        ask = parse_chf(m_ask.group(1)) if m_ask else None
+                        return ask, parse_chf(m_bid.group(1))
         return None, None
 
     try:
-        gold_ask, gold_bid = scrape('https://www.philoro.ch/shop/goldbarren', r'Goldbarren 1 oz[ -]')
-        silver_ask, silver_bid = scrape('https://www.philoro.ch/shop/silberbarren', r'Silberbarren 1000 g ')
-        if not gold_ask:
-            print("Philoro: gold 1oz not found")
+        # Gold 1000g → convert to CHF/oz
+        gold_ask_1000g, gold_bid_1000g = scrape(
+            'https://www.philoro.ch/shop/goldbarren-1000g',
+            r'Goldbarren 1000\s*g diverse',
+            require_ask=True
+        )
+        if not gold_ask_1000g:
+            print("Philoro: gold 1000g diverse not found")
             return None
+        gold_ask = gold_ask_1000g / OZ_PER_1000G
+        gold_bid = gold_bid_1000g / OZ_PER_1000G
+
+        # Silver 1000g – only Verkaufen (bid) available; no retail ask currently offered
+        silver_ask_raw, silver_bid_raw = scrape(
+            'https://www.philoro.ch/shop/silberbarren',
+            r'Silberbarren 1000\s*g diverse',
+            require_ask=False
+        )
+
         result = {
             "gold_chf_oz_ask": round(gold_ask, 2),
             "gold_chf_oz_bid": round(gold_bid, 2),
             "source": "philoro.ch",
             "is_calculated": False
         }
-        if silver_ask:
-            result["silver_chf_kg_ask"] = round(silver_ask, 2)
-            result["silver_chf_kg_bid"] = round(silver_bid, 2)
-            print(f"Philoro: gold ask={gold_ask} bid={gold_bid} CHF/oz  silver ask={silver_ask} bid={silver_bid} CHF/kg")
+        if silver_bid_raw:
+            result["silver_chf_kg_bid"] = round(silver_bid_raw, 2)
+            if silver_ask_raw:
+                result["silver_chf_kg_ask"] = round(silver_ask_raw, 2)
+            print(f"Philoro: gold ask={gold_ask:.2f} bid={gold_bid:.2f} CHF/oz  silver bid={silver_bid_raw} CHF/kg (no ask)")
         else:
-            print(f"Philoro: gold ask={gold_ask} bid={gold_bid} CHF/oz  (no silver)")
+            print(f"Philoro: gold ask={gold_ask:.2f} bid={gold_bid:.2f} CHF/oz  (no silver)")
         return result
     except Exception as e:
         print(f"Philoro error: {e}")
@@ -1875,6 +1989,11 @@ def update():
             cache["hkgx_last_ts"] = _now_ts_hk
             cache["hkgx_last_value"] = _fresh_hkgx
             hkgx = _fresh_hkgx
+            try:
+                with open(HKGX_CACHE_FILE, 'w') as _hf:
+                    json.dump({"ts": _now_ts_hk, "value": _fresh_hkgx}, _hf)
+            except Exception as _he:
+                print(f"HKGX cache save error: {_he}")
     australia = fetch_australia()
     usa = fetch_usa()
     us_sdbullion = fetch_us_sdbullion()
@@ -2018,9 +2137,10 @@ def update():
     if dubai:
         prices["dubai"] = dubai
     elif spot and fx:
+        _aed_rate = fx.get("AED", 3.6725)
         prices["dubai"] = {
-            "gold_aed_gram": round((spot["XAU"] / GRAM) * fx.get("AED", 3.67), 2) if fx.get("AED") else None,
-            "silver_aed_kg": round((spot["XAG"] / GRAM) * 1000 * fx.get("AED", 3.67), 2) if fx.get("AED") and spot.get("XAG") else None,
+            "gold_aed_kg_ask": round((spot["XAU"] / GRAM) * 1000 * _aed_rate, 2) if spot.get("XAU") else None,
+            "silver_aed_kg_ask": round((spot["XAG"] / GRAM) * 1000 * _aed_rate, 2) if spot.get("XAG") else None,
             "source": "calculated",
             "is_calculated": True
         }
@@ -2069,7 +2189,7 @@ def update():
         "germany":       ("gold_eur_oz_ask",   "EUR", "oz",   "silver_eur_kg_ask",  "EUR", "kg"),
         "russia":        ("gold_rub_gram",     "RUB", "gram", "silver_rub_gram",    "RUB", "gram"),
         "russia_dealer": ("gold_rub_gram",     "RUB", "gram", "silver_rub_gram",    "RUB", "gram"),
-        "dubai":         ("gold_eur_kg_ask",   "EUR", "kg",   "silver_eur_kg_ask",  "EUR", "kg"),
+        "dubai":         ("gold_aed_kg_ask",   "AED", "kg",   "silver_aed_kg_ask",  "AED", "kg"),
         "india":         ("gold_inr_gram",     "INR", "gram", "silver_inr_kg",      "INR", "kg"),
         "japan":         ("gold_jpy_gram_ask", "JPY", "gram", None,                 None,  None),
         "shanghai":      ("gold_cny_gram",     "CNY", "gram", "silver_cny_kg",      "CNY", "kg"),
@@ -2356,8 +2476,8 @@ def get_ratio_history():
     try:
         # ------- Gold / S&P 500 -------
         if type_ == 'gold_sp500':
-            if range_ in ('1d', '5d', '30d'):
-                hours = {'1d': 24, '5d': 120, '30d': 720}[range_]
+            if range_ in ('1d', '5d', '30d', '3m'):
+                hours = {'1d': 24, '5d': 120, '30d': 720, '3m': 2160}[range_]
                 conn = sqlite3.connect(DB_PATH)
                 c = conn.cursor()
                 c.execute("""
@@ -2406,8 +2526,8 @@ def get_ratio_history():
                 return jsonify(result)
 
         # ------- Gold / Silver (bestehende Logik) -------
-        if range_ in ('1d', '5d', '30d'):
-            hours = {'1d': 24, '5d': 120, '30d': 720}[range_]
+        if range_ in ('1d', '5d', '30d', '3m'):
+            hours = {'1d': 24, '5d': 120, '30d': 720, '3m': 2160}[range_]
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
             c.execute("""
@@ -2510,9 +2630,53 @@ def ingest_price():
         print(f"/ingest DB error: {e}")
         return jsonify({"error": "db error"}), 500
 
+VISITS_ADMIN_KEY = "GPadMIN"
+
+@app.route("/api/visits/ping", methods=["GET"])
+def visits_ping():
+    """Called silently by frontend on every page load — increments visitor counter."""
+    try:
+        ts = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("UPDATE site_visits SET count = count + 1, last_visit = ? WHERE id = 1", (ts,))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"visits_ping error: {e}")
+    return ('', 204)
+
+@app.route("/api/visits", methods=["GET"])
+def visits_admin():
+    """Admin-only: returns total page view count. Requires ?key=GPadMIN"""
+    if request.args.get("key") != VISITS_ADMIN_KEY:
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("SELECT count, last_visit FROM site_visits WHERE id = 1")
+        row = c.fetchone()
+        conn.close()
+        if row:
+            return jsonify({"page_views": row[0], "last_visit": row[1]})
+        return jsonify({"page_views": 0, "last_visit": None})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == "__main__":
     init_db()
     init_yesterday_from_db()
+    try:
+        with open(HKGX_CACHE_FILE) as _hf:
+            _hd = json.load(_hf)
+        if _hd.get('ts') and time.time() - _hd['ts'] < 86400:
+            cache['hkgx_last_ts'] = _hd['ts']
+            cache['hkgx_last_value'] = _hd['value']
+            print(f"HKGX cache loaded from file (age={(time.time()-_hd['ts'])/3600:.1f}h)")
+        else:
+            print('HKGX cache file too old or invalid, skipping')
+    except Exception as _he:
+        print(f'HKGX cache load: no file or error ({_he})')
     t = threading.Thread(target=background, daemon=True)
     t.start()
     app.run(host="0.0.0.0", port=5000)
