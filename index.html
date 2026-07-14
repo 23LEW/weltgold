@@ -2802,6 +2802,7 @@ function syncCardHeights(){
 window.addEventListener('load', syncCardHeights);
 window.addEventListener('resize',()=>{positionRatioForDevice();fitUsdPrice();fitEurPrice();syncCardHeights();});
 positionRatioForDevice();
+window.addEventListener('load', positionRatioForDevice);
 requestAnimationFrame(syncCardHeights);
 // Seite startet beim Reload oben (keine Scroll-Wiederherstellung des Browsers)
 if('scrollRestoration' in history) history.scrollRestoration='manual';
