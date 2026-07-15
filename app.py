@@ -161,6 +161,28 @@ def save_prices(prices):
         c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?,?)",
             (ts, 'comex', gc, gc, si, si, basis_pct, 'USD', 'oz', 'oz'))
 
+        # Kitco (World Spot Price)
+        kit = prices.get("spot", {})
+        kit_gold_ask = kit.get("XAU_ask")
+        kit_gold_bid = kit.get("XAU_bid")
+        kit_silver_ask = kit.get("XAG_ask")
+        kit_silver_bid = kit.get("XAG_bid")
+        if kit_gold_ask:
+            c.execute(
+                "INSERT INTO price_history "
+                "(ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,"
+                "premium_pct,local_currency,gold_local_unit,silver_local_unit,"
+                "bid_usd_oz,bid_premium_pct,gold_local_bid,silver_local_bid,"
+                "silver_premium_pct,silver_bid_premium_pct) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'kitco',
+                 kit_gold_ask, kit_gold_ask, kit_silver_ask, kit_silver_ask,
+                 calc_premium(kit_gold_ask), 'USD', 'oz', 'oz',
+                 kit_gold_bid, calc_premium(kit_gold_bid),
+                 kit_gold_bid, kit_silver_bid,
+                 calc_silver_premium(kit_silver_ask), calc_silver_premium(kit_silver_bid))
+            )
+
         # Istanbul
         ist = prices.get("istanbul")
         if ist and not ist.get("is_calculated"):
