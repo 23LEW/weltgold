@@ -2254,7 +2254,7 @@ function openSpotChart(){
     const b=document.getElementById('modal-btn-'+r);
     if(b) b.className='ctrl-btn'+(r==='1d'?' on':'');
   });
-  const title = metal==='XAG' ? '🌍 Silver Spot Price · COMEX' : '🌍 Gold Spot Price · COMEX';
+  const title = metal==='XAG' ? '🌍 World Spot Price · Silver' : '🌍 World Spot Price';
   openChartModal('comex', title);
 }
 
