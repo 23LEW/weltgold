@@ -1435,13 +1435,13 @@ function renderMiniCharts(rows, spotUSD){
         return;
       }
       vals = silverVals;
-    } else if(r.isSpot || r.id==='comex'){
+    } else if(r.isSpot){
       vals = mData.map(d=> d.gold_usd_oz!=null ? d.gold_usd_oz : null);
     } else {
       vals = mData.map(d=> tradeDir==="sell" && d.bid_premium_pct!=null ? d.bid_premium_pct : d.premium_pct);
     }
-    const color = (r.isSpot || r.isFutures) ? '#F5C842' : '#5B8DEF';
-    const isPremiumChart = !(r.isSpot || r.id==='comex');
+    const color = r.isSpot ? '#F5C842' : '#5B8DEF';
+    const isPremiumChart = !r.isSpot;
     const validVals = isPremiumChart ? vals.filter(v=>v!=null&&isFinite(v)) : [];
     let peakVal = null;
     if(validVals.length){ const mx=Math.max(...validVals),mn=Math.min(...validVals); peakVal=Math.abs(mx)>=Math.abs(mn)?mx:mn; }
