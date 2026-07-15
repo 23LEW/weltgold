@@ -760,6 +760,7 @@ try { istHistory = JSON.parse(localStorage.getItem('ist_history')||'[]'); } catc
 
 // Exchange & Benchmark Prices
 const EXCHANGES = [
+  {id:'kitco', name:'World Spot Price · Kitco', city:'Live OTC Cash Market', flag:'🌍', currency:'USD', unitLabel:'USD/oz', calcPremium:0, isReference:true, historyId:'comex'},
   {id:'comex', name:'COMEX · New York', city:'CME Group / Futures Exchange', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0, isReference:true},
   {id:'lbma', name:'LBMA · London', city:'London Bullion Market Association', flag:'🇬🇧', currency:'USD', unitLabel:'USD/oz', calcPremium:0},
   {id:'shanghai', name:'SGE · Shanghai', city:'Shanghai Gold Exchange', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/gram', calcPremium:0},
@@ -1981,6 +1982,12 @@ function render(){
 
   // Rows — exchanges (COMEX spot row + others)
   const exchangeRows = EXCHANGES.map(m=>{
+    if(m.id==='kitco'){
+      const gc = spotUSD;
+      const diff = 0;
+      const pct = 0;
+      return {...m, localPrice:gc, usdOz:gc, diff, pct, eurOz:fx.EUR?gc*fx.EUR:null, isSpot:true, istLive:false, istClosed:false};
+    }
     if(m.id==='comex'){
       const gc = isGold ? (spot.GC || spotUSD) : (spot.SI || spotUSD);
       const spotRef = isGold ? spotUSD : (spot.XAG || spotUSD);
@@ -2161,7 +2168,9 @@ function render(){
     const lp = r.isSpot
       ? (isGram ? fmt(spotUSD*KGFACTOR*getCurrencyRate(),2) : fmt(spotUSD*getCurrencyRate(),2))
       : fmt(r.localPrice,2);
-    const srcBadge = r.isFutures
+    const srcBadge = r.id==='kitco'
+      ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">kitco.com</span></span>`
+      : r.isFutures
       ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">cmegroup.com</span></span>`
       : r.id==='lbma'     && lbmaLive?.usd_oz        ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> DAILY</span><span class="bsep"> · </span><span class="bsrc">lbma.org.uk</span></span>`
       : r.id==='shanghai' && shanghaiLive?.cny_gram   ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> DAILY</span><span class="bsep"> · </span><span class="bsrc">sge.com.cn</span></span>`
