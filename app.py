@@ -1719,7 +1719,7 @@ def fetch_usa():
             page2.goto("https://www.bgasc.com/gold/gold-bars/1-kilo-gold-bars/", timeout=30000)
             page2.wait_for_timeout(6000)
             gold_content = page2.inner_text("body")
-            page2.goto("https://www.bgasc.com/product/kilo-silver-bars-secondary-market-random-assorted", timeout=30000)
+            page2.goto("https://www.bgasc.com/buy-silver/buy-silver-bars-all-sizes/silver-bars-by-weight/1-kilo-silver-bars-all-brands", timeout=30000)
             page2.wait_for_timeout(6000)
             silver_content = page2.inner_text("body")
             page2.goto("https://www.bgasc.com/sell-silver-and-gold", timeout=30000)
@@ -1756,16 +1756,25 @@ def fetch_usa():
                 break
         if used_title and used_title != "1 Kilo Gold Bar (Varied Condition":
             print(f"BGASC USA Fallback aktiv: {used_title}")
-        # Silver: suche ersten Preis zwischen 1000-5000 USD
+        # Silver: alle verfuegbaren 1kg-Sorten sammeln, guenstigste nehmen (Regel 14)
         silver_usd_kg = None
-        for line2 in silver_lines:
-            if line2.startswith("$"):
-                try:
-                    val2 = float(line2.replace("$","").replace(",",""))
-                    if 1000 < val2 < 5000:
-                        silver_usd_kg = val2
+        silver_candidates = []
+        for i, line2 in enumerate(silver_lines):
+            if "Kilo" in line2 and "Silver" in line2 and "As Low As" not in line2:
+                for j in range(i+1, min(i+4, len(silver_lines))):
+                    if "As Low As" in silver_lines[j]:
+                        for k in range(j+1, min(j+3, len(silver_lines))):
+                            try:
+                                val2 = float(silver_lines[k].replace("$","").replace(",","").strip())
+                                if 1000 < val2 < 5000:
+                                    silver_candidates.append((val2, line2.strip()))
+                                    break
+                            except: pass
                         break
-                except: pass
+        if silver_candidates:
+            best_val, best_title = min(silver_candidates, key=lambda x: x[0])
+            silver_usd_kg = best_val
+            print(f"BGASC Silver: guenstigster 1kg von {len(silver_candidates)} Sorten: {best_title} = {best_val} USD")
         # Silver bid: parse sell page for "100 oz Silver Bars" price → per-oz
         import re as _re
         silver_usd_oz_bid = None
