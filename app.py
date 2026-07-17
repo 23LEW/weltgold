@@ -2685,6 +2685,22 @@ def visits_admin():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/visits/history", methods=["GET"])
+def visits_history():
+    """Admin-only: returns daily page view snapshots. Requires ?key=GPadMIN"""
+    if request.args.get("key") != VISITS_ADMIN_KEY:
+        return jsonify({"error": "unauthorized"}), 401
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("SELECT date, total_count FROM site_visits_history ORDER BY date ASC")
+        rows = c.fetchall()
+        conn.close()
+        history = [{"date": r[0], "total_count": r[1]} for r in rows]
+        return jsonify({"history": history})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == "__main__":
     init_db()
     init_yesterday_from_db()
