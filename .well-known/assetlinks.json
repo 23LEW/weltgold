@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "org.goldpremium.twa",
+        "sha256_cert_fingerprints": ["5D:88:1B:F0:11:F5:85:EA:B0:95:13:07:D7:70:9C:58:4A:5A:24:83:31:1C:71:A6:D9:F4:1F:82:56:A4:60:19"]
+      }
+    }]
