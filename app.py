@@ -783,8 +783,26 @@ def fetch_istanbul():
         gold_sell = None
         silver_buy = None
         silver_sell = None
+        usd_try_buy = None
+        usd_try_sell = None
         lines = content.split("\n")
         for i, line in enumerate(lines):
+            if line.strip() == "USD/TL":
+                uvals = []
+                for j in range(i+1, min(i+4, len(lines))):
+                    val_text = lines[j].strip().replace(".", "").replace(",", ".")
+                    try:
+                        val = float(val_text)
+                        if 10 < val < 200:
+                            uvals.append(val)
+                            if len(uvals) >= 2:
+                                break
+                    except:
+                        pass
+                if len(uvals) >= 2:
+                    usd_try_buy, usd_try_sell = uvals[0], uvals[1]
+                elif len(uvals) == 1:
+                    usd_try_sell = uvals[0]
             if line.strip() == "Altın/TL":
                 for j in range(i+1, min(i+6, len(lines))):
                     val_text = lines[j].strip().replace(".", "").replace(",", ".")
@@ -819,8 +837,8 @@ def fetch_istanbul():
 
         if gold_buy and gold_sell:
             gold = round((gold_buy + gold_sell) / 2, 2)
-            print(f"Nadir: gold buy={gold_buy} sell={gold_sell}  silver buy={silver_buy} sell={silver_sell}")
-            return {
+            print(f"Nadir: gold buy={gold_buy} sell={gold_sell}  silver buy={silver_buy} sell={silver_sell}  usd_try buy={usd_try_buy} sell={usd_try_sell}")
+            result = {
                 "gold_try_gram": gold,
                 "gold_try_gram_buy": gold_buy,
                 "gold_try_gram_sell": gold_sell,
@@ -830,6 +848,9 @@ def fetch_istanbul():
                 "source": "nadirdoviz.com",
                 "is_calculated": False
             }
+            if usd_try_buy and usd_try_sell:
+                result["usd_try"] = round((usd_try_buy + usd_try_sell) / 2, 4)
+            return result
         return None
     except Exception as e:
         print(f"Istanbul error: {e}")
@@ -2008,6 +2029,9 @@ def update():
         except Exception as _e:
             print(f"XAU_ch DB fallback error: {_e}")
     ist = fetch_istanbul()
+    if ist and ist.get("usd_try") and fx:
+        print(f"TRY: Frankfurter={fx.get('TRY')} -> Nadir live={ist['usd_try']}")
+        fx["TRY"] = ist["usd_try"]
     india_gjc = fetch_gjc()
     india_mumbai = fetch_india_augmont()
     uk_royalmint = fetch_uk_royalmint()
