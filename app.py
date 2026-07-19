@@ -2661,7 +2661,7 @@ def ingest_price():
         print(f"/ingest DB error: {e}")
         return jsonify({"error": "db error"}), 500
 
-VISITS_ADMIN_KEY = "GPadMIN"
+VISITS_ADMIN_KEY = os.environ.get("VISITS_ADMIN_KEY")
 
 @app.route("/api/visits/ping", methods=["GET"])
 def visits_ping():
