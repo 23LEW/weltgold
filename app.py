@@ -1242,7 +1242,8 @@ def fetch_dubai():
 def fetch_philoro():
     """Scrape live gold/silver prices from philoro.ch (Philoro Schweiz AG).
     Gold: 1000g diverse Hersteller from /shop/goldbarren-1000g (ask+bid, converted to CHF/oz).
-    Silver: 1000g diverse Hersteller from /shop/silberbarren (bid only, no retail ask available).
+    Silver: alle 1000g-Produkte von /shop/silberbarren-1000g, guenstigster Ask +
+    bester (hoechster) Bid ueber alle passenden Karten (Min-Ansatz, analog SD Bullion).
     Products are now <a href="/produkt/..."> links (site restructured 2025)."""
     import re
     from bs4 import BeautifulSoup
@@ -1272,6 +1273,28 @@ def fetch_philoro():
                         return ask, parse_chf(m_bid.group(1))
         return None, None
 
+    def scrape_silver_1000g_best(url):
+        """Sammelt alle 1000g-Silberprodukte (Barren, Muenzbarren, etc.) und gibt
+        (min_ask, max_bid) zurueck - guenstigster Kaufpreis und bester Rueckkaufpreis
+        ueber alle passenden Karten, nicht an einen festen Produktnamen gebunden
+        (analog Min-Ansatz bei SD Bullion/GVS Dubai)."""
+        r = requests.get(url, headers={'User-Agent': UA}, timeout=(5, 20))
+        soup = BeautifulSoup(r.text, 'html.parser')
+        asks, bids = [], []
+        for card in soup.find_all('a', href=re.compile(r'/produkt/')):
+            txt = card.get_text(' ', strip=True)
+            if not re.search(r'1000\s*g', txt):
+                continue
+            m_ask = re.search(r'Kaufen:\s*([\d.,]+)\s*CHF', txt)
+            m_bid = re.search(r'Verkaufen:\s*([\d.,]+)\s*CHF', txt)
+            if m_ask:
+                asks.append(parse_chf(m_ask.group(1)))
+            if m_bid:
+                bids.append(parse_chf(m_bid.group(1)))
+        ask = min(asks) if asks else None
+        bid = max(bids) if bids else None
+        return ask, bid
+
     try:
         # Gold 1000g → convert to CHF/oz
         gold_ask_1000g, gold_bid_1000g = scrape(
@@ -1285,11 +1308,9 @@ def fetch_philoro():
         gold_ask = gold_ask_1000g / OZ_PER_1000G
         gold_bid = gold_bid_1000g / OZ_PER_1000G
 
-        # Silver 1000g – only Verkaufen (bid) available; no retail ask currently offered
-        silver_ask_raw, silver_bid_raw = scrape(
-            'https://www.philoro.ch/shop/silberbarren',
-            r'Silberbarren 1000\s*g diverse',
-            require_ask=False
+        # Silver 1000g – guenstigster Ask + bester Bid ueber alle 1000g-Produkte
+        silver_ask_raw, silver_bid_raw = scrape_silver_1000g_best(
+            'https://philoro.ch/shop/silberbarren-1000g'
         )
 
         result = {
@@ -1300,9 +1321,11 @@ def fetch_philoro():
         }
         if silver_bid_raw:
             result["silver_chf_kg_bid"] = round(silver_bid_raw, 2)
-            if silver_ask_raw:
-                result["silver_chf_kg_ask"] = round(silver_ask_raw, 2)
-            print(f"Philoro: gold ask={gold_ask:.2f} bid={gold_bid:.2f} CHF/oz  silver bid={silver_bid_raw} CHF/kg (no ask)")
+        if silver_ask_raw:
+            result["silver_chf_kg_ask"] = round(silver_ask_raw, 2)
+        if silver_ask_raw or silver_bid_raw:
+            print(f"Philoro: gold ask={gold_ask:.2f} bid={gold_bid:.2f} CHF/oz  "
+                  f"silver ask={silver_ask_raw} bid={silver_bid_raw} CHF/kg")
         else:
             print(f"Philoro: gold ask={gold_ask:.2f} bid={gold_bid:.2f} CHF/oz  (no silver)")
         return result
