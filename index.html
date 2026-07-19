@@ -1227,7 +1227,7 @@ async function load(){
       console.warn('VPS fetch failed',e);
     }
 
-    document.getElementById('upd').textContent='Updated: '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+' UTC';
+    document.getElementById('upd').textContent='Updated: '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC';
     render();
     try{ await loadHistory(); }catch(he){ console.warn('History failed',he); }
     try{ await loadMiniHistory(); render(); }catch(me){ console.warn('Mini history failed',me); }
