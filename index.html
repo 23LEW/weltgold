@@ -621,9 +621,9 @@ footer a:hover{text-decoration:underline}
     </div>
     <div id="modal-note" style="display:none"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
-      <div id="modal-legend" style="display:flex;gap:10px;font-size:21px;color:var(--text3);align-items:center">
-        <span><span style="display:inline-block;width:10px;height:3px;background:var(--gold);border-radius:2px;vertical-align:middle"></span> Local price</span>
-        <span><span style="display:inline-block;width:10px;height:3px;background:var(--blue);border-radius:2px;vertical-align:middle"></span> ${tPrem()} vs Spot</span>
+      <div class="ctrl-group chart-ctrl">
+        <button class="ctrl-btn on" id="rbtn-modal-toggle-price" onclick="toggleModalSeries('price')">Local Price</button>
+        <button class="ctrl-btn on" id="rbtn-modal-toggle-premium" onclick="toggleModalSeries('premium')">Premium %</button>
       </div>
       <span style="font-size:21px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
     </div>
@@ -2353,12 +2353,32 @@ async function loadModalData(marketId, range){
   }
 }
 
+let modalSeriesVisible = {price:true, premium:true};
+function toggleModalSeries(which){
+  const other = which==='price' ? 'premium' : 'price';
+  if(modalSeriesVisible[which] && !modalSeriesVisible[other]) return;
+  modalSeriesVisible[which] = !modalSeriesVisible[which];
+  const btn = document.getElementById('rbtn-modal-toggle-'+which);
+  if(btn) btn.className = 'ctrl-btn'+(modalSeriesVisible[which]?' on':'');
+  if(modalChart){
+    modalChart.data.datasets.forEach(ds=>{
+      if(ds.yAxisID==='y1') ds.hidden = !modalSeriesVisible.price;
+      if(ds.yAxisID==='y2') ds.hidden = !modalSeriesVisible.premium;
+    });
+    if(modalChart.options.scales.y1) modalChart.options.scales.y1.display = modalSeriesVisible.price;
+    if(modalChart.options.scales.y2) modalChart.options.scales.y2.display = modalSeriesVisible.premium;
+    modalChart.update();
+  }
+}
+
 function renderModalChart(data, range){
   if(typeof Chart==='undefined') return;
   // Abbruch wenn Modal bereits geschlossen wurde (async race)
   if(document.getElementById('chart-modal').style.display==='none') return;
   const ctx = document.getElementById('modal-chart');
   if(modalChart){ modalChart.destroy(); modalChart = null; }
+  modalSeriesVisible = {price:true, premium:true};
+  ['price','premium'].forEach(k=>{ const b=document.getElementById('rbtn-modal-toggle-'+k); if(b) b.className='ctrl-btn on'; });
 
   // For silver mode, filter to rows that actually have silver data
   const hasSilver = data.filter(d => d.silver_local != null).length >= 2;
@@ -2453,14 +2473,16 @@ function renderModalChart(data, range){
         type:'line', label:`Silver ${priceLabel} (${currency})`,
         data:localVals,
         borderColor:lineColor, backgroundColor:lineColorAlpha,
-        borderWidth:1.5, pointRadius:0, fill:true, tension:0, yAxisID:'y1'
+        borderWidth:1.5, pointRadius:0, fill:true, tension:0, yAxisID:'y1',
+        hidden: !modalSeriesVisible.price
       },
       ...(hasPrem ? [{
         type:'line', label:'Silver '+tPrem(),
         data:premVals,
         borderColor:'#5B8DEF', backgroundColor:'rgba(91,141,239,0.05)',
         borderWidth:1.5, pointRadius:0, fill:false, tension:0,
-        borderDash:[4,3], yAxisID:'y2'
+        borderDash:[4,3], yAxisID:'y2',
+        hidden: !modalSeriesVisible.premium
       }] : [])
     ];
   } else {
@@ -2490,14 +2512,16 @@ function renderModalChart(data, range){
           type:'line', label:`Local (${currency})`,
           data:localVals,
           borderColor:lineColor, backgroundColor:lineColorAlpha,
-          borderWidth:1.5, pointRadius:0, fill:true, tension:0, yAxisID:'y1'
+          borderWidth:1.5, pointRadius:0, fill:true, tension:0, yAxisID:'y1',
+          hidden: !modalSeriesVisible.price
         },
         {
           type:'line', label:tPrem(),
           data:premVals,
           borderColor:'#5B8DEF', backgroundColor:'rgba(91,141,239,0.05)',
           borderWidth:1.5, pointRadius:0, fill:false, tension:0,
-          borderDash:[4,3], yAxisID:'y2'
+          borderDash:[4,3], yAxisID:'y2',
+          hidden: !modalSeriesVisible.premium
         }
       ]
     },
@@ -2534,8 +2558,8 @@ function renderModalChart(data, range){
           border:{display:true,color:'rgba(255,255,255,0.1)'},
           grid:{display:isLong,color:'rgba(255,255,255,0.2)',lineWidth:1}
         },
-                y1:{position:'left',ticks:{font:{size:11},color:lineColor,maxTicksLimit:6},grid:{display:false},title:{display:true,text:unitLabel,color:lineColor,font:{size:11}}},
-        y2:{position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{color:'rgba(91,141,239,0.35)',lineWidth:1},title:{display:true,text:tPrem(),color:'#5B8DEF',font:{size:11}}}
+                y1:{display:modalSeriesVisible.price,position:'left',ticks:{font:{size:11},color:lineColor,maxTicksLimit:6},grid:{display:false},title:{display:true,text:unitLabel,color:lineColor,font:{size:11}}},
+        y2:{display:modalSeriesVisible.premium,position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{color:'rgba(91,141,239,0.35)',lineWidth:1},title:{display:true,text:tPrem(),color:'#5B8DEF',font:{size:11}}}
       }
     }
   });
