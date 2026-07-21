@@ -155,11 +155,12 @@ tr.hi td:first-child{border-left:2px solid var(--red)}
 .chart-title{font-size:14px;font-weight:600;color:var(--text)}
 .chart-sub{font-size:11px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-top:3px}
 .range-btns{display:flex;gap:4px;background:var(--bg3);border-radius:6px;padding:3px}
-.rbtn{padding:5px 12px;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:500;background:transparent;border:none;border-radius:4px;color:var(--text3);cursor:pointer;transition:all .15s}
+.rbtn{padding:5px 12px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;border:none;border-radius:4px;color:var(--text3);cursor:pointer;transition:all .15s}
 .rbtn:hover{color:var(--text)}
 .rbtn.on{background:var(--bg3);color:var(--text);font-weight:600}
 /* Kompakte ctrl-btn Variante für Chart-Steuerelemente */
-.chart-ctrl .ctrl-btn{padding:6px 16px;font-size:21px;border-radius:4px}
+.chart-ctrl .ctrl-btn{padding:4px 10px;font-size:13px;border-radius:4px}
+#rbtn-modal-toggle-price,#rbtn-modal-toggle-premium,#rbtn-cmp-mode-price,#rbtn-cmp-mode-premium{font-size:21px;padding:6px 16px}
 .chart-ctrl .ctrl-btn.on{background:var(--gold);color:#0E1015;font-weight:600}
 .chart-wrap{position:relative;height:220px}
 .chart-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
@@ -647,7 +648,7 @@ footer a:hover{text-decoration:underline}
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;width:100%;max-width:1200px;height:100%;max-height:100%;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden">
     <!-- Header: Legend links, Range-Buttons + X rechts -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-shrink:0;flex-wrap:wrap;gap:6px">
-      <div id="cmp-legend" style="display:flex;gap:10px;font-size:11px;color:var(--text2);align-items:center;flex-wrap:wrap;min-width:0"></div>
+      <div id="cmp-legend" style="display:flex;gap:10px;font-size:13px;color:var(--text2);align-items:center;flex-wrap:wrap;min-width:0"></div>
       <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
         <div class="ctrl-group chart-ctrl">
           <button class="ctrl-btn on" id="rbtn-cmp-1d" onclick="setCompareRange('1d')">1D</button>
@@ -676,7 +677,7 @@ footer a:hover{text-decoration:underline}
 <div id="ratio-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:900px;max-height:96vh;overflow:auto;position:relative">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:13px;font-weight:500;color:var(--text1)">Gold / Silver Ratio</span>
+      <span style="font-size:21px;font-weight:500;color:var(--text1)">Gold / Silver Ratio</span>
       <div style="display:flex;gap:6px;align-items:center">
         <div class="ctrl-group chart-ctrl">
           <button class="ctrl-btn" id="rbtn-ratio-1d" onclick="setRatioRange('1d')">1D</button>
@@ -703,7 +704,7 @@ footer a:hover{text-decoration:underline}
 <div id="sp500-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;width:94%;max-width:900px;max-height:96vh;overflow:auto;position:relative">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:13px;font-weight:500;color:var(--text1)">Gold / S&amp;P 500 Ratio</span>
+      <span style="font-size:21px;font-weight:500;color:var(--text1)">Gold / S&amp;P 500 Ratio</span>
       <div style="display:flex;gap:4px;align-items:center">
         <button class="rbtn" id="rbtn-sp500-1d" onclick="setSp500Range('1d')">1D</button>
         <button class="rbtn on" id="rbtn-sp500-5d" onclick="setSp500Range('5d')">5D</button>
