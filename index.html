@@ -75,7 +75,7 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 .controls-row.scrollable .ctrl-group{flex-shrink:0}
 .ctrl-group{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;padding:3px;gap:2px}
-.ctrl-btn{padding:7px 18px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;border:none;color:var(--text2);cursor:pointer;transition:all .15s;border-radius:6px;white-space:nowrap}
+.ctrl-btn{padding:7px 18px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;border:none;color:var(--text2);cursor:pointer;transition:all .15s;border-radius:6px;white-space:nowrap}#toggles-col .ctrl-btn{padding-top:4px;padding-bottom:4px}
 .spots-sticky .ctrl-group .ctrl-btn:not(.on){color:var(--gold)}
 #currency-row .ctrl-btn{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:4px 8px;font-size:12px;color:var(--gold)}
 #currency-row .ctrl-btn.on{background:#F5C842;color:#0E1015;font-weight:600}
@@ -256,7 +256,7 @@ footer a:hover{text-decoration:underline}
     <div class="live-badge"><div class="dot"></div>Live</div>
     <span id="upd">Updated: 23:20 UTC</span>
     <span>Refresh every 5 min</span>
-    <div id="lang-btn-container" style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:13px">
+    <div id="lang-btn-container" style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;gap:6px">
       <span data-i18n="languageLabel" style="font-size:21px;color:#fff;font-weight:600;letter-spacing:0.3px">Language</span>
       <button id="lang-btn" onclick="toggleLangMenu(event)" style="background:none;border:none;cursor:pointer;font-size:34px;color:var(--text3);padding:0;line-height:1" title="Language">🌐</button>
       <div id="lang-menu" style="display:none;position:absolute;top:72px;right:0;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:4px;z-index:200;min-width:130px;box-shadow:0 4px 12px rgba(0,0,0,0.5)">
@@ -294,7 +294,7 @@ footer a:hover{text-decoration:underline}
     <div style="margin-top:2px;font-size:13px;color:var(--text2)" id="v-usd-source">Source: kitco.com</div>
     <div style="margin-top:auto;text-align:center;font-size:21px;font-weight:600;line-height:1.25;position:relative;top:1px;background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:var(--radius);padding:4px 18px" id="v-usd-chp"></div>
   </div>
-  <div id="toggles-col" style="flex:0 0 auto;display:flex;flex-direction:column;gap:5px;padding:12px 14px;width:160px;background:var(--bg3);border:1px solid var(--border3);border-radius:var(--radius)">
+  <div id="toggles-col" style="flex:0 0 auto;display:flex;flex-direction:column;gap:5px;padding:10px 14px;width:160px;background:var(--bg3);border:1px solid var(--border3);border-radius:var(--radius)">
     <div data-i18n="displayOptionsLabel" style="font-size:21px;color:#fff;font-weight:600;text-align:center;letter-spacing:0.3px;margin-bottom:2px">View</div>
     <div class="ctrl-group">
       <button class="ctrl-btn on" id="btn-gold" onclick="setMetal('XAU')" style="flex:1;text-align:left;padding-left:14px;padding-right:6px">Gold</button>
@@ -320,7 +320,7 @@ footer a:hover{text-decoration:underline}
         <div data-i18n="ratioExpand" style="font-size:13px;color:var(--silver-b);margin-top:3px">Tap to expand</div>
       </div>
       <div style="display:flex;align-items:baseline;justify-content:center">
-        <div id="v-ratio" style="font-family:'DM Mono',monospace;font-size:34px;font-weight:700;color:var(--gold);letter-spacing:-1px;line-height:1">—</div>
+        <div id="v-ratio" style="font-family:'DM Mono',monospace;font-size:21px;font-weight:700;color:var(--gold);letter-spacing:-1px;line-height:1">—</div>
       </div>
     </div>
     <div id="sp500-display" style="cursor:pointer;transition:opacity 0.2s;background:transparent;border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px 10px;min-width:200px;flex:1;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between">
@@ -329,7 +329,7 @@ footer a:hover{text-decoration:underline}
         <div style="font-size:13px;color:var(--silver-b);margin-top:3px">Tap to expand</div>
       </div>
       <div style="display:flex;align-items:baseline;justify-content:center;gap:5px">
-        <div id="v-sp500-ratio" style="font-family:'DM Mono',monospace;font-size:34px;font-weight:700;color:var(--gold);letter-spacing:-1px;line-height:1">—</div>
+        <div id="v-sp500-ratio" style="font-family:'DM Mono',monospace;font-size:21px;font-weight:700;color:var(--gold);letter-spacing:-1px;line-height:1">—</div>
         <div style="font-size:13px;color:var(--text3);line-height:1">oz</div>
       </div>
     </div>
@@ -339,11 +339,11 @@ footer a:hover{text-decoration:underline}
     </div>
   </div>
   <div id="lang-currency-col" style="flex:0 0 auto;display:flex;flex-direction:column;gap:6px;align-self:stretch">
-    <div id="lang-card" style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;background:var(--bg3);border:1px solid var(--border3);border-radius:var(--radius);padding:12px 18px">
+    <div id="lang-card" style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;background:var(--bg3);border:1px solid var(--border3);border-radius:var(--radius);padding:10px 18px">
     </div>
-    <div id="currency-row" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;align-items:center;background:var(--bg3);border:1px solid var(--border3);border-radius:var(--radius);padding:13px 18px">
+    <div id="currency-row" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;align-items:center;background:var(--bg3);border:1px solid var(--border3);border-radius:var(--radius);padding:10px 18px">
       <label for="currency-select" data-i18n="currencyLabel" style="font-size:21px;color:#fff;font-weight:600;letter-spacing:0.3px">Currency</label>
-      <select id="currency-select" autocomplete="off" onchange="setCurrency(this.value)" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:15px;color:var(--gold);font-weight:600;cursor:pointer;min-width:120px;margin-top:25px">
+      <select id="currency-select" autocomplete="off" onchange="setCurrency(this.value)" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:15px;color:var(--gold);font-weight:600;cursor:pointer;min-width:120px;margin-top:8px">
         <option value="USD" selected>USD</option>
         <option value="EUR">EUR</option>
         <option value="GBP">GBP</option>
@@ -1937,7 +1937,7 @@ function render(){
     const color = chp >= 0 ? 'var(--green)' : 'var(--red)';
     const ch = isGold ? spot.XAU_ch : spot.XAG_ch;
     const absStr = ch != null ? `${sign}$${fmt(Math.abs(ch),2)}` : '';
-    chpEl.innerHTML = `${absStr}<br>${sign}${chp.toFixed(2)}%`;
+    chpEl.innerHTML = `${absStr} ${sign}${chp.toFixed(2)}%`;
     chpEl.style.color = color;
 
     // EUR/currency chp: use VPS calculated value (available after 22:00 UTC)
@@ -1954,7 +1954,7 @@ function render(){
       const signEur = chpEur >= 0 ? '+' : '';
       const chAbs = isGold ? spot.XAU_ch : spot.XAG_ch;
       const absEurStr = chAbs != null ? `${signEur}${getCurrencySym()}${fmt(Math.abs(chAbs * getCurrencyRate()),2)}` : '';
-      chpEurEl.innerHTML = `${absEurStr}<br>${signEur}${chpEur.toFixed(2)}%`;
+      chpEurEl.innerHTML = `${absEurStr} ${signEur}${chpEur.toFixed(2)}%`;
       chpEurEl.style.color = chpEur >= 0 ? 'var(--green)' : 'var(--red)';
     } else {
       chpEurEl.textContent = '';
