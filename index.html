@@ -159,7 +159,7 @@ tr.hi td:first-child{border-left:2px solid var(--red)}
 .rbtn:hover{color:var(--text)}
 .rbtn.on{background:var(--bg3);color:var(--text);font-weight:600}
 /* Kompakte ctrl-btn Variante für Chart-Steuerelemente */
-.chart-ctrl .ctrl-btn{padding:4px 10px;font-size:12px;border-radius:4px}
+.chart-ctrl .ctrl-btn{padding:6px 16px;font-size:21px;border-radius:4px}
 .chart-ctrl .ctrl-btn.on{background:var(--gold);color:#0E1015;font-weight:600}
 .chart-wrap{position:relative;height:220px}
 .chart-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
@@ -597,7 +597,7 @@ footer a:hover{text-decoration:underline}
     <div id="modal-title" style="display:none"></div>
     <div id="modal-sub" style="display:none"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span id="modal-market-badge" style="font-size:13px;font-weight:500;color:var(--text1)"></span>
+      <span id="modal-market-badge" style="font-size:21px;font-weight:500;color:var(--text1)"></span>
       <div style="display:flex;gap:6px;align-items:center">
         <div class="ctrl-group chart-ctrl">
           <button class="ctrl-btn" id="modal-btn-1d" onclick="setModalRange('1d')">1D</button>
@@ -625,7 +625,7 @@ footer a:hover{text-decoration:underline}
         <button class="ctrl-btn on" id="rbtn-modal-toggle-price" onclick="toggleModalSeries('price')">Local Price</button>
         <button class="ctrl-btn on" id="rbtn-modal-toggle-premium" onclick="toggleModalSeries('premium')">Premium %</button>
       </div>
-      <span style="font-size:21px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
+      <span style="font-size:21px;color:var(--text);white-space:nowrap">Drag to zoom · Double-click to reset</span>
     </div>
   </div>
 </div>
@@ -668,7 +668,7 @@ footer a:hover{text-decoration:underline}
         <button class="ctrl-btn on" id="rbtn-cmp-mode-price" onclick="setCompareMode('price')">Local Price</button>
         <button class="ctrl-btn" id="rbtn-cmp-mode-premium" onclick="setCompareMode('premium')">Premium %</button>
       </div>
-      <span class="cmp-zoom-hint" style="font-size:21px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
+      <span class="cmp-zoom-hint" style="font-size:21px;color:var(--text);white-space:nowrap">Drag to zoom · Double-click to reset</span>
     </div>
   </div>
 </div>
@@ -695,7 +695,7 @@ footer a:hover{text-decoration:underline}
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
       <span class="ratio-subtitle" style="font-size:21px;color:var(--text3)">oz Gold per oz Silver · LBMA PM Fix / COMEX</span>
-      <span class="ratio-zoom-hint" style="font-size:21px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
+      <span class="ratio-zoom-hint" style="font-size:21px;color:var(--text);white-space:nowrap">Drag to zoom · Double-click to reset</span>
     </div>
   </div>
 </div>
@@ -720,7 +720,7 @@ footer a:hover{text-decoration:underline}
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
       <span class="sp500-subtitle" style="font-size:21px;color:var(--text3)">oz Gold per S&amp;P 500 index point · Yahoo Finance / LBMA</span>
-      <span class="sp500-zoom-hint" style="font-size:21px;color:var(--text3);white-space:nowrap">Drag to zoom · Double-click to reset</span>
+      <span class="sp500-zoom-hint" style="font-size:21px;color:var(--text);white-space:nowrap">Drag to zoom · Double-click to reset</span>
     </div>
   </div>
 </div>
