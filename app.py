@@ -9,6 +9,7 @@ import sqlite3
 import os
 import json
 import smtplib
+import statistics
 from email.mime.text import MIMEText
 from augmont_scraper import fetch_india_augmont
 from royalmint_scraper import fetch_uk_royalmint
@@ -2546,6 +2547,111 @@ def get_premium_history():
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/api/digest")
+def get_digest():
+    """
+    Read-only spike-alarm digest, identical logic to market_watch.py (see Admin/market_watch.py),
+    exposed via HTTP so it can be polled without SSH/terminal access.
+    Covers all 4 series (Gold Ask, Gold Bid, Silber Ask, Silber Bid) incl. Bid,
+    which /api/premium-history does not cover.
+    Does not write to the DB. Does not send mail. Query-param only, no side effects.
+    """
+    HISTORY_DAYS = 30
+    MIN_BASELINE_DAYS = 8
+    EVENT_WINDOW_DAYS = 3
+    JUMP_MIN_PP = 2.0
+    Z_MIN = 2.0
+    STD_FLOOR = 0.25
+    PLAUS_MIN_PCT = -5.0
+    PLAUS_MAX_PCT = 40.0
+    PLAUS_MIN_PCT_SILVER_BID = -15.0  # Germany MwSt-Effekt ~-12%
+
+    MARKETS_GOLD = [
+        'istanbul', 'india_gjc', 'japan', 'switzerland', 'germany',
+        'dubai', 'russia', 'usa', 'hongkong', 'australia', 'canada', 'shanghai',
+    ]
+    MARKETS_SILVER = [
+        'istanbul', 'dubai', 'switzerland', 'germany', 'usa',
+        'australia', 'canada', 'russia_dealer', 'shanghai',
+    ]
+    SERIES = [
+        ("Gold Ask",   "premium_pct",            MARKETS_GOLD),
+        ("Gold Bid",   "bid_premium_pct",        MARKETS_GOLD),
+        ("Silber Ask", "silver_premium_pct",     MARKETS_SILVER),
+        ("Silber Bid", "silver_bid_premium_pct", MARKETS_SILVER),
+    ]
+
+    def plausible(v, plaus_min):
+        return v is not None and plaus_min <= v <= PLAUS_MAX_PCT
+
+    def fetch_daily(conn, market, column):
+        c = conn.cursor()
+        c.execute(
+            f"SELECT date(ts), AVG({column}) "
+            f"FROM price_history "
+            f"WHERE market=? AND {column} IS NOT NULL "
+            f"AND ts >= datetime('now', ? || ' days') "
+            f"GROUP BY date(ts) ORDER BY date(ts) ASC",
+            (market, f"-{HISTORY_DAYS}"),
+        )
+        return [(d, v) for d, v in c.fetchall() if v is not None]
+
+    def analyze(label, market, points, plaus_min):
+        pts = [(d, v) for d, v in points if plausible(v, plaus_min)]
+        if len(pts) < MIN_BASELINE_DAYS + 1:
+            return {"status": "skip", "series": label, "market": market,
+                    "reason": "wenig Daten", "n_days": len(pts)}
+
+        current_date, current = pts[-1]
+        baseline_vals = [v for _, v in pts[:-EVENT_WINDOW_DAYS]]
+        if len(baseline_vals) < MIN_BASELINE_DAYS:
+            baseline_vals = [v for _, v in pts[:-1]]
+        if len(baseline_vals) < MIN_BASELINE_DAYS:
+            return {"status": "skip", "series": label, "market": market,
+                    "reason": "wenig Baseline", "n_days": len(pts)}
+
+        mean = statistics.mean(baseline_vals)
+        std = statistics.pstdev(baseline_vals) if len(baseline_vals) > 1 else 0.0
+        eff_std = max(std, STD_FLOOR)
+        jump = current - mean
+        z = jump / eff_std
+        triggered = abs(jump) >= JUMP_MIN_PP and abs(z) >= Z_MIN
+
+        return {
+            "status": "alert" if triggered else "normal",
+            "series": label, "market": market,
+            "current": round(current, 3), "current_date": current_date,
+            "baseline_mean": round(mean, 3), "baseline_std": round(std, 3),
+            "jump_pp": round(jump, 3), "zscore": round(z, 2),
+            "direction": "up" if jump >= 0 else "down",
+            "n_days": len(pts),
+        }
+
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        all_results = []
+        for label, column, markets in SERIES:
+            for market in markets:
+                pts = fetch_daily(conn, market, column)
+                plaus_min = (PLAUS_MIN_PCT_SILVER_BID
+                             if column == "silver_bid_premium_pct" and market == "germany"
+                             else PLAUS_MIN_PCT)
+                r = analyze(label, market, pts, plaus_min)
+                all_results.append(r)
+        conn.close()
+
+        alerts = [r for r in all_results if r["status"] == "alert"]
+        return jsonify({
+            "alerts": alerts,
+            "total_series_checked": len(all_results),
+            "n_alerts": len(alerts),
+            "n_skipped": sum(1 for r in all_results if r["status"] == "skip"),
+            "generated_at": datetime.utcnow().isoformat() + "Z",
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/ratio-history")
 def get_ratio_history():
