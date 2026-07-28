@@ -1,3 +1,7 @@
+> ⚠️ **Diese Datei ist veraltet und wird nicht mehr gepflegt.** Die aktuelle, aktiv gefuehrte Version liegt lokal bei Lew unter `DOC for Claude/OPS_RUNBOOK.md` (ausserhalb von Git). Stand dieser Git-Version: 24.07.2026.
+
+---
+
 # GoldPremium — Operations Runbook
 
 **Last updated:** 2026-07-24 (Cron-Zeiten health_check.py korrigiert, s.u.)
