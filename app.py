@@ -2506,21 +2506,33 @@ def get_premium_history():
         c = conn.cursor()
         if metal == 'XAG':
             result = {}
+            # Performance-Fix (2026-08-06): COMEX-Tagesdurchschnitt EINMAL vorab berechnen
+            # statt vorher 9x pro Request per SQL-Self-Join (date()-Funktion auf ts verhinderte
+            # Index-Nutzung -> langsam, timeoute ueber die oeffentliche Domain bei metal=XAG).
+            # Mathematisch identisches Ergebnis, nur ohne den teuren Join.
+            c.execute("""
+                SELECT date(ts), AVG(silver_local) FROM price_history
+                WHERE market='comex' AND silver_local IS NOT NULL
+                AND ts >= datetime('now', ? || ' days')
+                GROUP BY date(ts)
+            """, (f'-{days}',))
+            comex_by_date = {d: v for d, v in c.fetchall() if v}
+
             for market in ['istanbul', 'dubai', 'switzerland', 'germany', 'usa', 'australia', 'canada', 'russia_dealer', 'shanghai']:
-                dow_filter = "AND strftime('%w', ph.ts) NOT IN ('1','2')" if market in ('canada', 'dubai') else ""
+                dow_filter = "AND strftime('%w', ts) NOT IN ('1','2')" if market in ('canada', 'dubai') else ""
                 c.execute(f"""
-                    SELECT date(ph.ts), AVG(ph.silver_local), ph.local_currency, AVG(cx.silver_local), ph.silver_local_unit
-                    FROM price_history ph
-                    JOIN price_history cx ON date(ph.ts)=date(cx.ts) AND cx.market='comex'
-                    WHERE ph.market=? AND ph.silver_local IS NOT NULL AND cx.silver_local IS NOT NULL
-                    AND ph.ts >= datetime('now', ? || ' days')
-                    {{dow_filter}}
-                    GROUP BY date(ph.ts), ph.local_currency, ph.silver_local_unit ORDER BY date(ph.ts) ASC
-                """.format(dow_filter=dow_filter), (market, f'-{days}'))
+                    SELECT date(ts), AVG(silver_local), local_currency, silver_local_unit
+                    FROM price_history
+                    WHERE market=? AND silver_local IS NOT NULL
+                    AND ts >= datetime('now', ? || ' days')
+                    {dow_filter}
+                    GROUP BY date(ts), local_currency, silver_local_unit ORDER BY date(ts) ASC
+                """, (market, f'-{days}'))
                 rows = c.fetchall()
                 fx = cache.get("prices",{}).get("fx",{})
                 points = []
-                for day, avg_sl, cur, avg_spot, sl_unit in rows:
+                for day, avg_sl, cur, sl_unit in rows:
+                    avg_spot = comex_by_date.get(day)
                     if not avg_sl or not avg_spot or avg_spot==0: continue
                     # Dynamische Einheitsumrechnung aus DB
                     FALLBACKS = {"RUB":75,"TRY":45,"INR":85,"AUD":1.55,"CAD":1.36,"EUR":0.85,"HKD":7.8,"AED":3.6725,"JPY":150}
