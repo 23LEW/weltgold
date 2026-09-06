@@ -624,7 +624,7 @@ footer a:hover{text-decoration:underline}
     </div>
     <div id="modal-note" style="display:none"></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px">
-      <div class="ctrl-group chart-ctrl">
+      <div class="ctrl-group chart-ctrl" id="modal-toggle-group">
         <button class="ctrl-btn on" id="rbtn-modal-toggle-price" onclick="toggleModalSeries('price')">Local Price</button>
         <button class="ctrl-btn on" id="rbtn-modal-toggle-premium" onclick="toggleModalSeries('premium')">Premium %</button>
       </div>
@@ -2267,10 +2267,11 @@ function openSpotChart(){
     if(b) b.className='ctrl-btn'+(r==='1d'?' on':'');
   });
   const title = metal==='XAG' ? '🌍 World Spot Price · Silver' : '🌍 World Spot Price';
-  openChartModal('comex', title);
+  openChartModal('comex', title, true);
 }
 
-async function openChartModal(marketId, title){
+async function openChartModal(marketId, title, isSpotRef=false){
+  modalIsSpotRef = isSpotRef;
   if(window.innerWidth<=768&&window.innerHeight>window.innerWidth){
     // Request fullscreen NOW while the tap gesture is still active, then show rotate hint
     const dEl=document.documentElement;
@@ -2288,7 +2289,7 @@ async function openChartModal(marketId, title){
   modalMarket = marketId;
   modalMetal = metal==='XAG' ? 'silver' : 'gold';
   document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-sub').textContent = 'Gold price & COMEX premium';
+  document.getElementById('modal-sub').textContent = isSpotRef ? 'Gold price' : 'Gold price & COMEX premium';
   const _badge = document.getElementById('modal-market-badge');
   if(_badge){ const _parts = title.replace(/[\u{1F1E0}-\u{1F1FF}\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,'').trim(); _badge.textContent = _parts; }
   document.getElementById('chart-modal').style.display = 'flex';
@@ -2356,6 +2357,7 @@ async function loadModalData(marketId, range){
   }
 }
 
+let modalIsSpotRef = false;
 let modalSeriesVisible = {price:true, premium:true};
 function toggleModalSeries(which){
   const other = which==='price' ? 'premium' : 'price';
@@ -2380,8 +2382,10 @@ function renderModalChart(data, range){
   if(document.getElementById('chart-modal').style.display==='none') return;
   const ctx = document.getElementById('modal-chart');
   if(modalChart){ modalChart.destroy(); modalChart = null; }
-  modalSeriesVisible = {price:true, premium:true};
+  modalSeriesVisible = {price:true, premium: !modalIsSpotRef};
   ['price','premium'].forEach(k=>{ const b=document.getElementById('rbtn-modal-toggle-'+k); if(b) b.className='ctrl-btn on'; });
+  const _toggleGroup = document.getElementById('modal-toggle-group');
+  if(_toggleGroup) _toggleGroup.style.display = modalIsSpotRef ? 'none' : 'flex';
 
   // For silver mode, filter to rows that actually have silver data
   const hasSilver = data.filter(d => d.silver_local != null).length >= 2;
