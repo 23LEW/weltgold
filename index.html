@@ -733,6 +733,8 @@ footer a:hover{text-decoration:underline}
   <div><a id="lnk-impressum" href="/impressum.html">Impressum &amp; Datenschutz</a> · <a href="file:///cdn-cgi/l/email-protection#9af9f5f4eefbf9eedafdf5f6feeae8fff7f3eff7b4f5e8fd"><span class="__cf_email__" data-cfemail="b1d2dedfc5d0d2c5f1d6deddd5c1c3d4dcd8c4dc9fdec3d6">[email&nbsp;protected]</span></a></div>
 </footer>
 
+<div id="market-note-popup" style="display:none;position:fixed;z-index:10000;max-width:280px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--text);line-height:1.4;box-shadow:0 4px 20px rgba(0,0,0,0.4)"></div>
+
 <div id="cookie-banner" style="display:none">
   <div>We use Google Analytics to understand how visitors use this site. <a href="/impressum.html">Privacy Policy</a></div>
   <div class="cookie-btns">
@@ -743,6 +745,26 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <script>
+function showMarketNote(el, e){
+  if(e) e.stopPropagation();
+  const popup = document.getElementById('market-note-popup');
+  if(!popup) return;
+  popup.textContent = el.dataset.note;
+  const rect = el.getBoundingClientRect();
+  let left = rect.left;
+  if(left + 296 > window.innerWidth) left = window.innerWidth - 296;
+  if(left < 8) left = 8;
+  popup.style.left = left + 'px';
+  popup.style.top = (rect.bottom + 6) + 'px';
+  popup.style.display = 'block';
+}
+document.addEventListener('click', function(e){
+  const popup = document.getElementById('market-note-popup');
+  if(popup && popup.style.display==='block' && e.target.id!=='market-note-popup' && !e.target.classList.contains('note-icon')){
+    popup.style.display='none';
+  }
+});
+
 const G = 31.1035; // grams per troy oz
 let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
@@ -768,16 +790,16 @@ const EXCHANGES = [
   {id:'lbma', name:'LBMA · London', city:'London Bullion Market Association', flag:'🇬🇧', currency:'USD', unitLabel:'USD/oz', calcPremium:0},
   {id:'shanghai', name:'SGE · Shanghai', city:'Shanghai Gold Exchange', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/gram', calcPremium:0},
   {id:'hkgx', name:'HKGX · Hong Kong', city:'Hong Kong Gold Exchange', flag:'🇭🇰', currency:'USD', unitLabel:'USD/oz', calcPremium:0},
-  {id:'india_ibja', name:'IBJA · India', city:'India Bullion & Jewellers Assoc.', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0, per10g:true, samePrice:true, historyId:'india'},
+  {id:'india_ibja', name:'IBJA · India', city:'India Bullion & Jewellers Assoc.', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0, per10g:true, samePrice:true, historyId:'india', note:'India applies GST (3%) plus an import duty on gold that has been raised significantly during 2026 amid currency pressures — contributing to a naturally higher premium than in duty-free markets.'},
 ];
 
 // Physical Dealer Prices
 const MARKETS = [
   {id:'hongkong', name:'Hang Seng · Hong Kong', city:'Hang Seng Bank · Bullion Dealer', flag:'🇭🇰', currency:'HKD', unitLabel:'HKD/tael', calcPremium:0.002, tael:true},
-  {id:'istanbul', name:'Nadir · Türkiye', city:'Grand Bazaar / Kapalı Çarşı', flag:'🇹🇷', currency:'TRY', unitLabel:'TRY/g', calcPremium:0.02},
-  {id:'india_mumbai', name:'Augmont · India', city:'Mumbai · Live Spot', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0.05, per10g:true},
-  {id:'india_gjc', name:'GJC · India', city:'Gem & Jewellery Council · Mumbai', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0.05, per10g:true},
-  {id:'japan', name:'Tanaka · Japan', city:'Tokyo · Precious Metals', flag:'🇯🇵', currency:'JPY', unitLabel:'JPY/g', calcPremium:0.005},
+  {id:'istanbul', name:'Nadir · Türkiye', city:'Grand Bazaar / Kapalı Çarşı', flag:'🇹🇷', currency:'TRY', unitLabel:'TRY/g', calcPremium:0.02, note:'This tracks Turkey\'s "Has Altın" reference rate, derived from the international spot price. Physical bars or coins sold by individual dealers may carry 995 or 999.9 purity depending on the product.'},
+  {id:'india_mumbai', name:'Augmont · India', city:'Mumbai · Live Spot', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0.05, per10g:true, note:'India applies GST (3%) plus an import duty on gold that has been raised significantly during 2026 amid currency pressures — contributing to a naturally higher premium than in duty-free markets.'},
+  {id:'india_gjc', name:'GJC · India', city:'Gem & Jewellery Council · Mumbai', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0.05, per10g:true, note:'India applies GST (3%) plus an import duty on gold that has been raised significantly during 2026 amid currency pressures — contributing to a naturally higher premium than in duty-free markets.'},
+  {id:'japan', name:'Tanaka · Japan', city:'Tokyo · Precious Metals', flag:'🇯🇵', currency:'JPY', unitLabel:'JPY/g', calcPremium:0.005, note:'Japan levies a 10% consumption tax on physical gold purchases — bullion is even excluded from the tourist tax-free scheme, contributing to a structurally higher premium here.'},
   {id:'dubai', name:'GVS Trading · Dubai', city:'Gold & Diamond Park', flag:'🇦🇪', currency:'AED', unitLabel:'AED/kg', calcPremium:0.005},
   {id:'usa', name:'BGASC · USA', city:'Online Bullion Dealer', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0.02},
   {id:'us_sdbullion', name:'SD Bullion · USA', city:'Online Bullion Dealer', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0.02},
@@ -2151,13 +2173,13 @@ function render(){
     const chartId = `mini-${r.id}`;
     if(isSell && (r.noBid || (!isGold2 && r.noSilverBid))){
       return `<tr class="${rowCls}" data-market="${r.id}">
-        <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div><div style="margin-top:4px">${srcBadge}</div></div></div></td>
+        <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}${r.note?`<span class="note-icon" data-note="${r.note.replace(/"/g,'&quot;')}" onclick="showMarketNote(this,event)" style="cursor:pointer;margin-left:4px;font-size:11px;color:var(--text3)">ⓘ</span>`:''}</div><div class="mcity">${r.city}</div><div style="margin-top:4px">${srcBadge}</div></div></div></td>
         <td colspan="3" style="text-align:center;color:var(--text3);font-size:12px;font-style:italic;vertical-align:middle">No Bid price listed</td>
         <td class="chart-td" onclick="openChartModal('${r.id}','${r.flag} ${r.name}')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="${chartId}" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
       </tr>`;
     }
     return `<tr class="${rowCls}" data-market="${r.id}">
-      <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div><div style="margin-top:4px">${srcBadge}</div></div></div></td>
+      <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}${r.note?`<span class="note-icon" data-note="${r.note.replace(/"/g,'&quot;')}" onclick="showMarketNote(this,event)" style="cursor:pointer;margin-left:4px;font-size:11px;color:var(--text3)">ⓘ</span>`:''}</div><div class="mcity">${r.city}</div><div style="margin-top:4px">${srcBadge}</div></div></div></td>
       <td>${priceCell}<div class="usd-mob">${usdCell}</div></td>
       <td class="r td-usd">${usdCell}</td>
       <td class="r">${usdPremCell}<div class="tap-chart" onclick="openChartModal('${r.id}','${r.flag} ${r.name}')">Tap for chart</div></td>
@@ -2213,7 +2235,7 @@ function render(){
         : `<span class="badge ${premCls}" style="display:block;margin-bottom:3px">${exDiff>=0?'+':'-'}${getCurrencySym()}${fmt(Math.abs(exDiff),2)}</span><span class="badge ${premCls}">${exPct>=0?'+':''}${exPct.toFixed(2)}%</span>`;
     const chartId = `mini-${r.id}`;
     return `<tr class="${r.isSpot?'ref':''}" data-market="${r.id}">
-      <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}</div><div class="mcity">${r.city}</div><div style="margin-top:4px">${srcBadge}</div></div></div></td>
+      <td><div class="mkt"><span class="flag">${r.flag}</span><div><div class="mname">${r.name}${r.note?`<span class="note-icon" data-note="${r.note.replace(/"/g,'&quot;')}" onclick="showMarketNote(this,event)" style="cursor:pointer;margin-left:4px;font-size:11px;color:var(--text3)">ⓘ</span>`:''}</div><div class="mcity">${r.city}</div><div style="margin-top:4px">${srcBadge}</div></div></div></td>
       <td>${priceCell}<div class="usd-mob">${usdCell2}</div></td>
       <td class="r td-usd">${usdCell2}</td>
       <td class="r">${premCell}<div class="tap-chart" onclick="openChartModal('${r.historyId||r.id}','${r.flag} ${r.name}')">Tap for chart</div></td>
