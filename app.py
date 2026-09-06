@@ -1623,7 +1623,7 @@ def fetch_chinagold():
         r = requests.post(
             "https://api.brightdata.com/request",
             headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-            json={"zone": zone, "url": "https://www.chnau99999.com/page/goldPrice",
+            json={"zone": zone, "url": "https://www.chnau99999.com/page/board",
                   "format": "raw", "data_format": "markdown"},
             timeout=(10, 60))
         r.raise_for_status()
