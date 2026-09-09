@@ -1614,20 +1614,19 @@ def fetch_chinagold():
     零售价 = Verkauf (ask), 回购价 = Rueckkauf (bid), 基础金价 = Basis (Referenz). Alle CNY/Gramm.
     Token + Zone aus den Umgebungsvariablen BRIGHTDATA_API_TOKEN / BRIGHTDATA_ZONE."""
     import os, re
-    token = os.environ.get("BRIGHTDATA_API_TOKEN")
-    zone  = os.environ.get("BRIGHTDATA_ZONE")
-    if not token or not zone:
-        print("ChinaGold: BRIGHTDATA_API_TOKEN/ZONE fehlt -> uebersprungen")
+    ws = os.environ.get("BRIGHTDATA_BROWSER_WS")
+    if not ws:
+        print("ChinaGold: BRIGHTDATA_BROWSER_WS fehlt -> uebersprungen")
         return None
     try:
-        r = requests.post(
-            "https://api.brightdata.com/request",
-            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-            json={"zone": zone, "url": "https://www.chnau99999.com/page/board",
-                  "format": "raw", "data_format": "markdown"},
-            timeout=(10, 60))
-        r.raise_for_status()
-        text = r.text
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            browser = p.chromium.connect_over_cdp(ws)
+            page = browser.new_page()
+            page.goto("https://www.chnau99999.com/page/board", timeout=45000, wait_until="domcontentloaded")
+            page.wait_for_timeout(8000)
+            text = page.inner_text("body")
+            browser.close()
 
         def grab(label):
             m = re.search(label + r"[^0-9]{0,15}([0-9]{3,5}\.[0-9]{2})", text)
