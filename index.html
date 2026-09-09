@@ -2348,8 +2348,8 @@ function setModalMetal(metal){
 }
 
 function downsampleData(data, range){
-  if(!data || data.length === 0 || range === '1d' || range === '5d') return data;
-  const keyFn = range === '30d' ? d => d.ts.slice(0,13) : d => d.ts.slice(0,10);
+  if(!data || data.length === 0 || range !== '1y') return data;
+  const keyFn = d => d.ts.slice(0,10);
   const groups = new Map();
   data.forEach(d => { const k=keyFn(d); if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(d); });
   const numFields = ['gold_usd_oz','silver_usd_oz','premium_pct','bid_premium_pct','bid_usd_oz','gold_local','silver_local','silver_premium_pct','silver_bid_premium_pct'];
@@ -2400,7 +2400,6 @@ function toggleModalSeries(which){
 
 function renderModalChart(data, range){
   if(typeof Chart==='undefined') return;
-  // Abbruch wenn Modal bereits geschlossen wurde (async race)
   if(document.getElementById('chart-modal').style.display==='none') return;
   const ctx = document.getElementById('modal-chart');
   if(modalChart){ modalChart.destroy(); modalChart = null; }
@@ -2409,7 +2408,6 @@ function renderModalChart(data, range){
   const _toggleGroup = document.getElementById('modal-toggle-group');
   if(_toggleGroup) _toggleGroup.style.display = modalIsSpotRef ? 'none' : 'flex';
 
-  // For silver mode, filter to rows that actually have silver data
   const hasSilver = data.filter(d => d.silver_local != null).length >= 2;
   if(modalMetal === 'silver' && hasSilver){
     data = data.filter(d => d.silver_local != null);
@@ -2425,16 +2423,91 @@ function renderModalChart(data, range){
     return;
   }
 
-  const labelFmt = (range==='24h'||range==='1d')
-    ? d=>d.ts.slice(11,16)
-    : (range==='5d')
-    ? d=>d.ts.slice(5,13).replace('T',' ')
-    : d=>d.ts.slice(0,10);
-
-  const labelsRaw = data.map(labelFmt);
-  // 1D/5D: sparse Labels + Annotation-Linien (wenige Datenpunkte, funktioniert auf Mobile)
-  // 30D+: autoSkip + native grid (viele Datenpunkte, Annotations überfordern Mobile)
   const isLong = range==='30d'||range==='3m'||range==='1y';
+  const currency = data[0]?.currency || '';
+  const isKg = unit === 'gram';
+  const KGFACT = 1000 / 31.1035;
+
+  const metalToggle = document.getElementById('modal-metal-toggle');
+  if(metalToggle) metalToggle.style.display = 'none';
+
+  const isSellMode = tradeDir === 'sell';
+  let unitLabel, chartDatasets;
+  let lineColor, lineColorAlpha;
+
+  const tsToDate = ts => new Date(ts.endsWith('Z') ? ts : ts + 'Z');
+  const xy = valFn => data.map(d => ({ x: tsToDate(d.ts), y: valFn(d) }));
+
+  if(modalMetal === 'silver' && hasSilver){
+    const silverUnit = data.find(d => d.silver_unit)?.silver_unit || 'oz';
+    unitLabel = `${currency}/${silverUnit}`;
+    let localFn, premFn;
+    if(isSellMode){
+      localFn = d => d.silver_local_bid ?? null;
+      premFn  = d => d.silver_bid_premium_pct ?? null;
+      lineColor = '#8080B0'; lineColorAlpha = 'rgba(128,128,176,0.08)';
+    } else {
+      localFn = d => d.silver_local;
+      premFn  = d => d.silver_premium_pct ?? null;
+      lineColor = '#A0A0C0'; lineColorAlpha = 'rgba(160,160,192,0.08)';
+    }
+    const premData = xy(premFn);
+    const hasPrem = premData.some(p => p.y != null);
+    const priceLabel = isSellMode ? 'Bid' : 'Ask';
+    const legend = document.getElementById('modal-legend');
+    if(legend) legend.innerHTML = `<span><span style="display:inline-block;width:16px;height:4px;background:${lineColor};border-radius:2px;vertical-align:middle"></span> Silver price ${priceLabel} (${currency}/${silverUnit})</span>`
+      + (hasPrem ? `<span style="margin-left:16px"><span style="display:inline-block;width:16px;height:4px;background:var(--blue);border-radius:2px;vertical-align:middle"></span> ${tPrem()} vs Spot</span>` : '');
+    chartDatasets = [
+      {
+        type:'line', label:`Silver ${priceLabel} (${currency})`,
+        data:xy(localFn),
+        borderColor:lineColor, backgroundColor:lineColorAlpha,
+        borderWidth:1.5, pointRadius:0, fill:true, tension:0, yAxisID:'y1',
+        hidden: !modalSeriesVisible.price
+      },
+      ...(hasPrem ? [{
+        type:'line', label:'Silver '+tPrem(),
+        data:premData,
+        borderColor:'#5B8DEF', backgroundColor:'rgba(91,141,239,0.05)',
+        borderWidth:1, pointRadius:0, fill:false, tension:0,
+        yAxisID:'y2',
+        hidden: !modalSeriesVisible.premium
+      }] : [])
+    ];
+  } else {
+    const ozCurrencies = ['EUR', 'USD', 'GBP'];
+    const localKey = isSellMode ? 'gold_local_bid' : 'gold_local';
+    const localFn = d => {
+      if(!d[localKey]) return null;
+      if(isKg) return ozCurrencies.includes(currency) ? d[localKey] * KGFACT : d[localKey] * 1000;
+      return ozCurrencies.includes(currency) ? d[localKey] : d[localKey] * 31.1035;
+    };
+    const premFn = d => isSellMode ? (d.bid_premium_pct ?? null) : d.premium_pct;
+    unitLabel = isKg ? `${currency}/kg` : `${currency}/oz`;
+    lineColor = isSellMode ? '#C07830' : '#F5C842';
+    lineColorAlpha = isSellMode ? 'rgba(192,120,48,0.08)' : 'rgba(212,175,90,0.08)';
+    const priceLabel = isSellMode ? 'Bid' : 'Ask';
+    const legend = document.getElementById('modal-legend');
+    if(legend) legend.innerHTML = `<span><span style="display:inline-block;width:16px;height:4px;background:${lineColor};border-radius:2px;vertical-align:middle"></span> ${(TRANSLATIONS[currentLang]||TRANSLATIONS.en).localPriceLbl||'Local price'} (${priceLabel})</span><span style="margin-left:16px"><span style="display:inline-block;width:16px;height:4px;background:var(--blue);border-radius:2px;vertical-align:middle"></span> ${tPrem()} vs Spot</span>`;
+    chartDatasets = [
+      {
+        type:'line', label:`Local (${currency})`,
+        data:xy(localFn),
+        borderColor:lineColor, backgroundColor:lineColorAlpha,
+        borderWidth:1.5, pointRadius:0, fill:true, tension:0, yAxisID:'y1',
+        hidden: !modalSeriesVisible.price
+      },
+      {
+        type:'line', label:tPrem(),
+        data:xy(premFn),
+        borderColor:'#5B8DEF', backgroundColor:'rgba(91,141,239,0.05)',
+        borderWidth:1, pointRadius:0, fill:false, tension:0,
+        yAxisID:'y2',
+        hidden: !modalSeriesVisible.premium
+      }
+    ];
+  }
+
   const gridSet = new Set();
   if(!isLong){
     data.forEach((d,idx)=>{
@@ -2449,116 +2522,26 @@ function renderModalChart(data, range){
       }
     });
   }
-  modalGridIndices = [];
-  const gridIndices = modalGridIndices;
-  const labels = labelsRaw.map((lbl,idx)=>{
-    if(isLong) return lbl; // volle Labels, autoSkip übernimmt
-    if(!gridSet.has(idx)) return '';
-    if(range==='1d'||range==='24h'){
-      const ts=data[idx]?.ts||'';
-      const hh=parseInt(ts.slice(11,13));
-      const timeStr=(hh<10?'0':'')+hh+':00';
-      return hh===0 ? [timeStr, ts.slice(5,10)] : timeStr;
-    }
-    if(range==='5d') return (data[idx]?.ts||'').slice(5,10);
-    return lbl;
-  });
-  labels.forEach((lbl,idx)=>{ if(lbl&&lbl!=='') gridIndices.push(idx); });
-  // Annotations nur für 1D/5D
-  const annotationConfig = isLong ? {} : Object.fromEntries(gridIndices.map((idx,i)=>[
+  modalGridIndices = Array.from(gridSet).sort((a,b)=>a-b);
+  const annotationConfig = isLong ? {} : Object.fromEntries(modalGridIndices.map((idx,i)=>[
     'vline'+i,
-    {type:'line',xMin:idx,xMax:idx,borderColor:'rgba(180,180,180,0.35)',borderWidth:1,drawTime:'beforeDatasetsDraw'}
+    {type:'line',xMin:tsToDate(data[idx].ts),xMax:tsToDate(data[idx].ts),borderColor:'rgba(180,180,180,0.35)',borderWidth:1,drawTime:'beforeDatasetsDraw'}
   ]));
-  const currency = data[0]?.currency || '';
-  const isKg = unit === 'gram';
-  const KGFACT = 1000 / 31.1035;
 
-  const metalToggle = document.getElementById('modal-metal-toggle');
-  if(metalToggle) metalToggle.style.display = 'none';
-
-  const isSellMode = tradeDir === 'sell';
-  let localVals, premVals, unitLabel, chartDatasets;
-  let lineColor, lineColorAlpha;
-
-  if(modalMetal === 'silver' && hasSilver){
-    const silverUnit = data.find(d => d.silver_unit)?.silver_unit || 'oz';
-    unitLabel = `${currency}/${silverUnit}`;
-    if(isSellMode){
-      localVals = data.map(d => d.silver_local_bid ?? null);
-      premVals  = data.map(d => d.silver_bid_premium_pct ?? null);
-      lineColor = '#8080B0'; lineColorAlpha = 'rgba(128,128,176,0.08)';
-    } else {
-      localVals = data.map(d => d.silver_local);
-      premVals  = data.map(d => d.silver_premium_pct ?? null);
-      lineColor = '#A0A0C0'; lineColorAlpha = 'rgba(160,160,192,0.08)';
-    }
-    const hasPrem = premVals.some(v => v != null);
-    const priceLabel = isSellMode ? 'Bid' : 'Ask';
-    const legend = document.getElementById('modal-legend');
-    if(legend) legend.innerHTML = `<span><span style="display:inline-block;width:16px;height:4px;background:${lineColor};border-radius:2px;vertical-align:middle"></span> Silver price ${priceLabel} (${currency}/${silverUnit})</span>`
-      + (hasPrem ? `<span style="margin-left:16px"><span style="display:inline-block;width:16px;height:4px;background:var(--blue);border-radius:2px;vertical-align:middle"></span> ${tPrem()} vs Spot</span>` : '');
-    chartDatasets = [
-      {
-        type:'line', label:`Silver ${priceLabel} (${currency})`,
-        data:localVals,
-        borderColor:lineColor, backgroundColor:lineColorAlpha,
-        borderWidth:1.5, pointRadius:0, fill:true, tension:0, yAxisID:'y1',
-        hidden: !modalSeriesVisible.price
-      },
-      ...(hasPrem ? [{
-        type:'line', label:'Silver '+tPrem(),
-        data:premVals,
-        borderColor:'#5B8DEF', backgroundColor:'rgba(91,141,239,0.05)',
-        borderWidth:1.5, pointRadius:0, fill:false, tension:0,
-        borderDash:[4,3], yAxisID:'y2',
-        hidden: !modalSeriesVisible.premium
-      }] : [])
-    ];
-  } else {
-    // Gold mode
-    const ozCurrencies = ['EUR', 'USD', 'GBP'];
-    const localKey = isSellMode ? 'gold_local_bid' : 'gold_local';
-    localVals = data.map(d => {
-      if(!d[localKey]) return null;
-      if(isKg) return ozCurrencies.includes(currency) ? d[localKey] * KGFACT : d[localKey] * 1000;
-      return ozCurrencies.includes(currency) ? d[localKey] : d[localKey] * 31.1035;
-    });
-    premVals = data.map(d => isSellMode ? (d.bid_premium_pct ?? null) : d.premium_pct);
-    unitLabel = isKg ? `${currency}/kg` : `${currency}/oz`;
-    lineColor = isSellMode ? '#C07830' : '#F5C842';
-    lineColorAlpha = isSellMode ? 'rgba(192,120,48,0.08)' : 'rgba(212,175,90,0.08)';
-    const priceLabel = isSellMode ? 'Bid' : 'Ask';
-    const legend = document.getElementById('modal-legend');
-    if(legend) legend.innerHTML = `<span><span style="display:inline-block;width:16px;height:4px;background:${lineColor};border-radius:2px;vertical-align:middle"></span> ${(TRANSLATIONS[currentLang]||TRANSLATIONS.en).localPriceLbl||'Local price'} (${priceLabel})</span><span style="margin-left:16px"><span style="display:inline-block;width:16px;height:4px;background:var(--blue);border-radius:2px;vertical-align:middle"></span> ${tPrem()} vs Spot</span>`;
-    chartDatasets = null;
-  }
+  const timeUnit = (range==='1d') ? 'hour'
+    : (range==='5d') ? 'day'
+    : (range==='30d') ? 'day'
+    : (range==='3m') ? 'week'
+    : 'month';
 
   modalChart = new Chart(ctx, {
-    data:{
-      labels,
-      datasets: chartDatasets || [
-        {
-          type:'line', label:`Local (${currency})`,
-          data:localVals,
-          borderColor:lineColor, backgroundColor:lineColorAlpha,
-          borderWidth:1.5, pointRadius:0, fill:true, tension:0, yAxisID:'y1',
-          hidden: !modalSeriesVisible.price
-        },
-        {
-          type:'line', label:tPrem(),
-          data:premVals,
-          borderColor:'#5B8DEF', backgroundColor:'rgba(91,141,239,0.05)',
-          borderWidth:1.5, pointRadius:0, fill:false, tension:0,
-          borderDash:[4,3], yAxisID:'y2',
-          hidden: !modalSeriesVisible.premium
-        }
-      ]
-    },
+    data:{ datasets: chartDatasets },
     options:{
       responsive:true, maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{
         legend:{display:false},
+        decimation:{ enabled:true, algorithm:'min-max', samples:300 },
         annotation:{annotations: annotationConfig},
         zoom:{zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},pan:{enabled:false}},
         tooltip:{
@@ -2577,17 +2560,19 @@ function renderModalChart(data, range){
       },
       scales:{
         x:{
+          type:'time',
+          time:{ unit: timeUnit, displayFormats:{hour:'HH:mm', day:'dd MMM', week:'dd MMM', month:'MMM yyyy'} },
           ticks:{
             font:{size:window.innerWidth<=768?9:11},
             color:'#666C78',
             maxRotation:window.innerWidth<=768?30:0,
-            autoSkip:isLong,
-            maxTicksLimit:isLong?(range==='1y'?13:8):999,
+            autoSkip:true,
+            maxTicksLimit:isLong?(range==='1y'?13:8):12,
           },
           border:{display:true,color:'rgba(255,255,255,0.1)'},
           grid:{display:isLong,color:'rgba(255,255,255,0.2)',lineWidth:1}
         },
-                y1:{display:modalSeriesVisible.price,position:'left',ticks:{font:{size:11},color:lineColor,maxTicksLimit:6},grid:{display:false},title:{display:true,text:unitLabel,color:lineColor,font:{size:11}}},
+        y1:{display:modalSeriesVisible.price,position:'left',ticks:{font:{size:11},color:lineColor,maxTicksLimit:6},grid:{display:false},title:{display:true,text:unitLabel,color:lineColor,font:{size:11}}},
         y2:{display:modalSeriesVisible.premium,position:'right',ticks:{font:{size:11},color:'#5B8DEF',callback:v=>v?.toFixed(1)+'%'},grid:{color:'rgba(91,141,239,0.35)',lineWidth:1},title:{display:true,text:tPrem(),color:'#5B8DEF',font:{size:11}}}
       }
     }
