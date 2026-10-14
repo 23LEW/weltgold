@@ -1308,14 +1308,18 @@ async function loadHistory(){
     renderSpotChart();
   }catch(e){
     console.warn('History load failed',e);
-    if(spot?.XAU){
-      const base = spot.XAU;
-      histData = Array.from({length:365},(_,i)=>{
-        const d = new Date(); d.setDate(d.getDate()-364+i);
-        return {date:d.toISOString().slice(0,10), ts:d.toISOString(), gold: base*(0.85+0.3*(i/365)+((Math.random()-0.5)*0.02)), silver:null};
-      });
-      renderSpotChart();
+    // Kein erfundener Verlauf: nur echte Daten aus unserer eigenen Datenbank (letzte 10 Tage), sonst bleibt der Chart leer
+    try{
+      const rf = await fetch('https://api.goldpremium.org/api/history/comex?hours=240');
+      const jf = await rf.json();
+      const rows = (jf.data||[]).map(d=>({date:d.ts.slice(0,10), ts:d.ts, gold:d.gold_usd_oz, silver:d.silver_usd_oz||d.silver_local||null, silver_usd_oz:d.silver_usd_oz||d.silver_local||null}))
+        .filter(d=>(d.gold>100||d.silver>1) && new Date(d.date).getDay()!==0 && new Date(d.date).getDay()!==6);
+      histData = rows.filter((d,i)=> i===0 || (metal==='XAG' ? d.silver!==rows[i-1].silver : d.gold!==rows[i-1].gold));
+      if(metal==='XAG') histData = histData.filter(d=>d.silver>1);
+    }catch(e3){
+      histData = [];
     }
+    renderSpotChart();
   }
 }
 
