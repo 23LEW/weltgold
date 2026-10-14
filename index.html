@@ -2820,10 +2820,11 @@ function positionRatioForDevice(){
     if(ratio&&slot&&ratio.parentNode!==slot) slot.appendChild(ratio);
     if(sp500&&sp500Slot&&sp500.parentNode!==sp500Slot) sp500Slot.appendChild(sp500);
     if(langContainer&&currencyRow&&langContainer.parentNode!==currencyRow) currencyRow.appendChild(langContainer);
-    if(sUsd&&mobileControlsRow&&sUsd.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(sUsd);
-    if(sEur&&mobileControlsRow&&sEur.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(sEur);
-    if(togglesCol&&mobileControlsRow&&togglesCol.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(togglesCol);
-    if(currencyRow&&mobileControlsRow&&currencyRow.parentNode!==mobileControlsRow) mobileControlsRow.appendChild(currencyRow);
+    if(mobileControlsRow){
+      const want=[sUsd,sEur,togglesCol,currencyRow].filter(Boolean);
+      const have=Array.from(mobileControlsRow.children).filter(c=>want.includes(c));
+      if(want.length!==have.length||want.some((el,i)=>have[i]!==el)) want.forEach(el=>mobileControlsRow.appendChild(el));
+    }
   } else {
     if(ratio&&logoInner&&ratio.parentNode!==logoInner.parentNode) logoInner.parentNode.insertBefore(ratio,logoInner);
     if(sp500&&logoInner&&sp500.parentNode!==logoInner.parentNode) logoInner.parentNode.insertBefore(sp500,logoInner);
@@ -2832,6 +2833,7 @@ function positionRatioForDevice(){
     if(togglesCol&&leftGroup&&togglesCol.parentNode!==leftGroup) leftGroup.appendChild(togglesCol);
     if(langCurrencyCol&&rightGroup&&langCurrencyCol.parentNode!==rightGroup.parentNode) rightGroup.parentNode.insertBefore(langCurrencyCol,rightGroup);
     if(sEur&&rightGroup&&sEur.parentNode!==rightGroup) rightGroup.appendChild(sEur);
+    if(currencyRow&&langCurrencyCol&&currencyRow.parentNode!==langCurrencyCol) langCurrencyCol.appendChild(currencyRow);
   }
   if(typeof updateStickyTop==='function') updateStickyTop();
 }
