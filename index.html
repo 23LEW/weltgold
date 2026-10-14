@@ -2284,9 +2284,9 @@ let modalHistCache = {};
 
 function openSpotChart(){
   modalRange = '5d';
-  ['1d','5d','30d','1y'].forEach(r=>{
+  ['1d','5d','30d','3m','1y'].forEach(r=>{
     const b=document.getElementById('modal-btn-'+r);
-    if(b) b.className='ctrl-btn'+(r==='1d'?' on':'');
+    if(b) b.className='ctrl-btn'+(r==='5d'?' on':'');
   });
   const title = metal==='XAG' ? '🌍 World Spot Price · Silver' : '🌍 World Spot Price';
   openChartModal('comex', title, true);
