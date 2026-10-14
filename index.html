@@ -2299,7 +2299,7 @@ async function openChartModal(marketId, title, isSpotRef=false){
     const dEl=document.documentElement;
     if(dEl.requestFullscreen) dEl.requestFullscreen().catch(()=>{});
     else if(dEl.webkitRequestFullscreen) dEl.webkitRequestFullscreen();
-    _showRotateHint(()=>openChartModal(marketId,title));
+    _showRotateHint(()=>openChartModal(marketId,title,isSpotRef));
     return;
   }
   // Direct landscape tap: also request fullscreen while gesture is active
