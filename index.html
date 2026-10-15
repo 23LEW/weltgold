@@ -1269,8 +1269,13 @@ async function load(){
 
 async function loadHistory(){
   try{
-    // LBMA-Abruf abgeschaltet (2026-10-14): fuer LBMA-Daten ist eine IBA-Lizenz noetig, der lange Verlauf folgt aus anderen Quellen
-    const historical = [];
+    // Langer Verlauf aus der eigenen API: eigene Daten stuendlich (spaeter Yahoo-Futures und Weltbank davor). Bei Ausfall bleibt nur der Intraday-Teil.
+    let historical = [];
+    try{
+      const rl = await fetch('https://api.goldpremium.org/api/long-history?metal='+metal);
+      const jl = await rl.json();
+      historical = (jl.data||[]).map(p=>({date:p[0].slice(0,10), ts:p[0], gold: metal==='XAG' ? null : p[1], silver: metal==='XAG' ? p[1] : null}));
+    }catch(eL){ console.warn('long history failed',eL); }
     // Also load recent intraday data from our VPS for accurate 1D chart
     try{
       const r2 = await fetch('https://api.goldpremium.org/api/history/comex?hours=240');
@@ -1381,9 +1386,10 @@ function getFilteredHistory(){
     raw.forEach(d=>{ const key=(d.ts||d.date).slice(0,13); if(!byHour[key]) byHour[key]=d; });
     return Object.values(byHour).sort((a,b)=>(a.ts||a.date).localeCompare(b.ts||b.date));
   }
-  const byDay = {};
-  raw.forEach(d=>{ if(!byDay[d.date]) byDay[d.date]=d; });
-  return Object.values(byDay).sort((a,b)=>a.date.localeCompare(b.date));
+  // Eigene Daten (mit Uhrzeit) bleiben stuendlich, aeltere Quellen nur mit Datum bleiben taeglich
+  const byKey = {};
+  raw.forEach(d=>{ const key=(d.ts && d.ts.length>10) ? d.ts.slice(0,13) : d.date; if(!byKey[key]) byKey[key]=d; });
+  return Object.values(byKey).sort((a,b)=>(a.ts||a.date).localeCompare(b.ts||b.date));
 }
 
 function renderMiniCharts(rows, spotUSD){
