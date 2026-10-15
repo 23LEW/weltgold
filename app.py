@@ -1461,7 +1461,12 @@ def fetch_hongkong():
         print(f"HK error: {e}")
         return None
 
+# 2026-10-14: LBMA-Daten erfordern eine IBA-Lizenz, die Abrufe sind abgeschaltet, bis eine Lizenz vorliegt
+LBMA_ENABLED = False
+
 def fetch_lbma():
+    if not LBMA_ENABLED:
+        return None
     try:
         import requests as req2
         r3 = req2.get("https://prices.lbma.org.uk/json/gold_pm.json",
@@ -2495,6 +2500,86 @@ def get_history(market):
         return jsonify({"error": str(e)}), 500
 
 
+_longhist_cache = {}
+
+def _longhist_open(ts):
+    """COMEX-Handelszeit wie im 5D-Chart: Sa aus, So vor 23 UTC aus, Fr ab 22 UTC aus, taegliche Pause 22 UTC."""
+    try:
+        dt = datetime.strptime(ts[:19], "%Y-%m-%dT%H:%M:%S")
+    except ValueError:
+        return False
+    dow = (dt.weekday() + 1) % 7   # JS-Zaehlung: So=0 ... Sa=6
+    h = dt.hour
+    if dow == 6:
+        return False
+    if dow == 0 and h < 23:
+        return False
+    if dow == 5 and h >= 22:
+        return False
+    if h == 22:
+        return False
+    return True
+
+@app.route("/api/long-history")
+def get_long_history():
+    # Verlauf fuer die langen Bereiche des Verlaufscharts, eigene Daten (COMEX-Futures) seit Beginn der Datenbank.
+    # Standard: ein Wert pro Stunde. Mit from und to: volle Aufloesung fuer ein Fenster von hoechstens 45 Tagen.
+    # Spaetere Quellen (Yahoo-Futures, Weltbank vor 2026-03-23) werden hier ergaenzt.
+    try:
+        metal = request.args.get('metal', 'XAU')
+        field = 'silver_usd_oz' if metal == 'XAG' else 'gold_usd_oz'
+        minv = 1 if metal == 'XAG' else 100
+        d_from = request.args.get('from')
+        d_to = request.args.get('to')
+        if d_from and d_to:
+            try:
+                a = datetime.strptime(d_from, "%Y-%m-%d")
+                b = datetime.strptime(d_to, "%Y-%m-%d")
+            except ValueError:
+                return jsonify({"error": "bad date"}), 400
+            if b < a or (b - a).days > 45:
+                return jsonify({"error": "window must be 0 to 45 days"}), 400
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            c.execute(f"SELECT ts, {field} FROM price_history WHERE market='comex' AND {field} > ? AND ts >= ? AND ts <= ? ORDER BY ts ASC",
+                      (minv, d_from + "T00:00:00Z", d_to + "T23:59:59Z"))
+            rows = c.fetchall()
+            conn.close()
+            data = []
+            last = None
+            for ts, v in rows:
+                if not _longhist_open(ts):
+                    continue
+                if v == last:
+                    continue
+                last = v
+                data.append([ts, round(float(v), 2)])
+            return jsonify({"metal": metal, "res": "full", "data": data, "count": len(data)})
+        now = time.time()
+        hit = _longhist_cache.get(metal)
+        if hit and now - hit[0] < 3600:
+            return jsonify(hit[1])
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute(f"""
+            SELECT ts, {field} FROM price_history
+            WHERE market='comex' AND {field} > ?
+              AND ts IN (SELECT MAX(ts) FROM price_history
+                         WHERE market='comex' AND {field} > ?
+                         GROUP BY substr(ts,1,13))
+            ORDER BY ts ASC
+        """, (minv, minv))
+        rows = c.fetchall()
+        conn.close()
+        data = [[ts, round(float(v), 2)] for ts, v in rows if _longhist_open(ts)]
+        result = {"metal": metal, "res": "hour", "data": data, "count": len(data),
+                  "source": "GoldPremium, COMEX futures, last value per hour"}
+        _longhist_cache[metal] = (now, result)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/premium-history")
 def get_premium_history():
     try:
@@ -2518,7 +2603,7 @@ def get_premium_history():
             comex_by_date = {d: v for d, v in c.fetchall() if v}
 
             for market in ['istanbul', 'dubai', 'switzerland', 'germany', 'usa', 'australia', 'canada', 'russia_dealer', 'shanghai']:
-                dow_filter = "AND strftime('%w', ts) NOT IN ('1','2')" if market in ('canada', 'dubai') else ""
+                dow_filter = ""  # Filter entfernt 2026-09-19, urspruenglicher Grund nicht rekonstruierbar, siehe CHANGES.md/KNOWN_ISSUES.md
                 c.execute(f"""
                     SELECT date(ts), AVG(silver_local), local_currency, silver_local_unit
                     FROM price_history
@@ -2694,6 +2779,8 @@ def get_ratio_history():
                 # Lange Zeitraeume: SP500 aus sp500_history + LBMA gold per Tag matchen
                 import time as _time
                 now = _time.time()
+                if not LBMA_ENABLED:
+                    return jsonify([])
                 gold_map = cache.get("lbma_gold_map")
                 gold_map_ts = cache.get("lbma_gold_map_ts", 0)
                 if not gold_map or (now - gold_map_ts) >= 3600:
@@ -2739,6 +2826,8 @@ def get_ratio_history():
         else:
             import time as _time
             now = _time.time()
+            if not LBMA_ENABLED:
+                return jsonify([])
             if cache["lbma_ratio"] and (now - cache["lbma_ratio_ts"]) < 3600:
                 lbma_data = cache["lbma_ratio"]
             else:
