@@ -1269,13 +1269,8 @@ async function load(){
 
 async function loadHistory(){
   try{
-    // Load ALL historical from LBMA (1968 to today) - gold or silver depending on metal
-    const lbmaUrl = metal==='XAG' ? 'https://prices.lbma.org.uk/json/silver.json' : 'https://prices.lbma.org.uk/json/gold_pm.json';
-    const r = await fetch(lbmaUrl);
-    const j = await r.json();
-    const minPrice = metal==='XAG' ? 0.5 : 10;
-    const historical = j.filter(d=>d.v && d.v[0]>minPrice && new Date(d.d).getDay()!==0 && new Date(d.d).getDay()!==6)
-      .map(d=>({date:d.d, ts:d.d+'T00:00:00Z', gold: metal==='XAG' ? null : d.v[0], silver: metal==='XAG' ? d.v[0] : null}));
+    // LBMA-Abruf abgeschaltet (2026-10-14): fuer LBMA-Daten ist eine IBA-Lizenz noetig, der lange Verlauf folgt aus anderen Quellen
+    const historical = [];
     // Also load recent intraday data from our VPS for accurate 1D chart
     try{
       const r2 = await fetch('https://api.goldpremium.org/api/history/comex?hours=240');
