@@ -1586,11 +1586,36 @@ async function loadMiniHistory(){
   }
 }
 
-function renderSpotChart(){ try {
+function spotZoomComplete(chart, filtered){
+  if(currentRange==='1D' || currentRange==='5D') return;
+  if(window._spotZoomBusy || window._spotZoomData) return;
+  const xs = chart.scales && chart.scales.x;
+  if(!xs || xs.min==null || xs.max==null) return;
+  const i0 = Math.max(0, Math.floor(xs.min));
+  const i1 = Math.min(filtered.length-1, Math.ceil(xs.max));
+  const a = filtered[i0], b = filtered[i1];
+  if(!a || !b) return;
+  const from = (a.ts||a.date).slice(0,10), to = (b.ts||b.date).slice(0,10);
+  const days = (new Date(to) - new Date(from)) / 86400000;
+  if(isNaN(days) || days > 14) return;
+  window._spotZoomBusy = true;
+  fetch('https://api.goldpremium.org/api/long-history?metal='+metal+'&from='+from+'&to='+to)
+    .then(r=>r.json())
+    .then(j=>{
+      const pts = (j.data||[]).map(p=>({date:p[0].slice(0,10), ts:p[0], gold: metal==='XAG' ? null : p[1], silver: metal==='XAG' ? p[1] : null}));
+      if(pts.length > (i1-i0+1)) renderSpotChart(pts);
+    })
+    .catch(e=>console.warn('zoom detail failed',e))
+    .finally(()=>{ window._spotZoomBusy = false; });
+}
+
+function renderSpotChart(zoomData){ try {
+  zoomData = Array.isArray(zoomData) ? zoomData : null;
+  window._spotZoomData = zoomData;
   const ctx = document.getElementById('chart-spot').getContext('2d');
   if(chartSpot)chartSpot.destroy();
 
-  const filtered = getFilteredHistory();
+  const filtered = zoomData || getFilteredHistory();
   const isGold = metal==='XAU';
   const color = isGold ? '#F5C842' : '#B8CCD8';
   const fillColor = isGold ? 'rgba(212,175,90,0.08)' : 'rgba(184,204,216,0.08)';
@@ -1617,7 +1642,7 @@ function renderSpotChart(){ try {
         }
         return '';
       });
-    } else if(currentRange==='5D'){
+    } else if(currentRange==='5D' || zoomData){
       const labelsRaw5D = filtered.map(d=>d.ts||d.date);
       labels = labelsRaw5D.map((lbl, idx) => {
         const day=lbl.slice(0,10);
@@ -1662,17 +1687,18 @@ function renderSpotChart(){ try {
             title: ctx => {
               const d = filtered[ctx[0].dataIndex];
               if(!d) return ctx[0].label||'';
-              if(currentRange==='1D'||currentRange==='5D') return d.ts ? d.ts.slice(0,16).replace('T',' ') + ' UTC' : (d.date||ctx[0].label);
+              if(currentRange==='1D'||currentRange==='5D'||zoomData) return d.ts ? d.ts.slice(0,16).replace('T',' ') + ' UTC' : (d.date||ctx[0].label);
+              if(d.ts && d.ts.length>10) return d.ts.slice(0,16).replace('T',' ') + ' UTC';
               return d.date || ctx[0].label;
             },
             label: ctx => ctx.parsed.y != null ? `$${fmt(ctx.parsed.y,2)} ${unitLabel}` : ''
           }
         },
         zoom:{
-          zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x'},
+          zoom:{drag:{enabled:true,backgroundColor:'rgba(212,175,90,0.15)',borderColor:'rgba(212,175,90,0.5)',borderWidth:1},pinch:{enabled:true},mode:'x',onZoomComplete:({chart})=>{ try{ spotZoomComplete(chart,filtered); }catch(eZ){ console.warn(eZ); } }},
           pan:{enabled:false}
         },
-        verticalGrid:{enabled:currentRange==='1D'||currentRange==='5D'}
+        verticalGrid:{enabled:currentRange==='1D'||currentRange==='5D'||!!zoomData}
       },
       scales:{
         x:{
@@ -1688,12 +1714,12 @@ function renderSpotChart(){ try {
         },
         x:{...CHART_OPTS.scales.x,
           ticks:{...CHART_OPTS.scales.x.ticks,
-            maxTicksLimit: (currentRange==='1D'||currentRange==='5D') ? 200 : 8,
-            autoSkip: currentRange!=='1D'&&currentRange!=='5D',
+            maxTicksLimit: (currentRange==='1D'||currentRange==='5D'||zoomData) ? 200 : 8,
+            autoSkip: currentRange!=='1D'&&currentRange!=='5D'&&!zoomData,
             maxRotation: 0,
             callback: function(val,idx){
               const lbl = labels[idx];
-              if(currentRange==='1D'||currentRange==='5D') return lbl||'';
+              if(currentRange==='1D'||currentRange==='5D'||zoomData) return lbl||'';
               return lbl;
             }
           },
@@ -1705,7 +1731,7 @@ function renderSpotChart(){ try {
       },
     }
   });
-  document.getElementById('chart-spot').addEventListener('dblclick', ()=>{ if(chartSpot) chartSpot.resetZoom(); });
+  document.getElementById('chart-spot').addEventListener('dblclick', ()=>{ if(window._spotZoomData){ renderSpotChart(); } else if(chartSpot) chartSpot.resetZoom(); });
 
   // Update stats
   const validVals = values.filter(v=>v!=null);
