@@ -1040,6 +1040,15 @@ async function load(){
         spot.XAG_chp = vps.spot.XAG_chp;
         spot.XAU_chp_eur = vps.spot.XAU_chp_eur;
         spot.XAG_chp_eur = vps.spot.XAG_chp_eur;
+        // COMEX Futures: Kurs, Bid, Ask und Kontraktname vom Server (Yahoo)
+        spot.GC = vps.spot.GC ?? spot.GC;
+        spot.SI = vps.spot.SI ?? spot.SI;
+        spot.GC_bid = vps.spot.GC_bid;
+        spot.GC_ask = vps.spot.GC_ask;
+        spot.SI_bid = vps.spot.SI_bid;
+        spot.SI_ask = vps.spot.SI_ask;
+        spot.GC_contract = vps.spot.GC_contract;
+        spot.SI_contract = vps.spot.SI_contract;
       }
 
       // Client-side per-currency chp (Frankfurter fallback if server didn't provide)
