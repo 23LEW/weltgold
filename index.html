@@ -972,7 +972,7 @@ function calcMarket(m){
   };
 
   const vps = vpsMap[m.id] || {};
-  const usdOz  = isGold ? (vps.g  || spotUSD*(1+m.calcPremium)) : (vps.s  || null);
+  const usdOz  = isGold ? (vps.g  || (spot.XAU_ask||spotUSD)*(1+m.calcPremium)) : (vps.s  || null);
   const bidOz  = isGold ? (vps.gBid || null) : (vps.sBid || null);
   const askOz  = isGold ? (vps.gAsk || usdOz) : (vps.s || null);
 
@@ -2038,6 +2038,8 @@ function render(){
 
   // Rows — exchanges (COMEX spot row + others)
   const exchangeRows = EXCHANGES.map(m=>{
+    const kAsk = isGold ? (spot.XAU_ask||spotUSD) : (spot.XAG_ask||spotUSD);
+    const kBid = isGold ? (spot.XAU_bid||spotUSD) : (spot.XAG_bid||spotUSD);
     if(m.id==='kitco'){
       const gc = spotUSD;
       const diff = 0;
@@ -2046,10 +2048,15 @@ function render(){
     }
     if(m.id==='comex'){
       const gc = isGold ? (spot.GC || spotUSD) : (spot.SI || spotUSD);
-      const spotRef = isGold ? spotUSD : (spot.XAG || spotUSD);
-      const diff = (gc - spotRef) * getCurrencyRate();
-      const pct = spotRef ? (gc - spotRef) / spotRef * 100 : 0;
-      return {...m, localPrice:gc, usdOz:gc, diff, pct, eurOz:fx.EUR?gc*fx.EUR:null, isFutures:true, istLive:false, istClosed:false};
+      const cAsk = isGold ? spot.GC_ask : spot.SI_ask;
+      const cBid = isGold ? spot.GC_bid : spot.SI_bid;
+      const contract = (isGold ? spot.GC_contract : spot.SI_contract) || null;
+      const askPx = cAsk || gc;
+      const diff = (askPx - kAsk) * getCurrencyRate();
+      const pct = kAsk ? (askPx - kAsk) / kAsk * 100 : 0;
+      const bidDiff = cBid ? (cBid - kBid) * getCurrencyRate() : null;
+      const bidPct = (cBid && kBid) ? (cBid - kBid) / kBid * 100 : null;
+      return {...m, localPrice:askPx, usdOz:askPx, bidOz:(cBid||null), diff, pct, bidDiff, bidPct, contract, noBid:!cBid, eurOz:fx.EUR?askPx*fx.EUR:null, isFutures:true, istLive:false, istClosed:false};
     }
     // HKGX hat kein Silber - bei XAG ausblenden
     if(m.id==='hkgx' && metal==='XAG') return null;
@@ -2057,8 +2064,8 @@ function render(){
     if(!calc)return null;
     const {localPrice,usdOz,bidOz} = calc;
     const spotBidRefEx = isGold ? (spot.XAU_bid||spotUSD) : (spot.XAG_bid||spotUSD);
-    const diff = (usdOz - spotUSD)*getCurrencyRate();
-    const pct = (usdOz - spotUSD)/spotUSD*100;
+    const diff = (usdOz - kAsk)*getCurrencyRate();
+    const pct = (usdOz - kAsk)/kAsk*100;
     const bidDiff = bidOz != null ? (bidOz - spotBidRefEx)*getCurrencyRate() : null;
     const bidPct  = bidOz != null ? (bidOz - spotBidRefEx)/spotBidRefEx*100 : null;
     return {...m, localPrice, usdOz, bidOz, diff, pct, bidDiff, bidPct, eurOz:fx.EUR?usdOz*fx.EUR:null, istLive:false, istClosed:false};
@@ -2238,8 +2245,12 @@ function render(){
     let priceCell;
     if(r.noSilver){
       priceCell = `<div class="plocal${svCls}" style="color:var(--text3);font-size:11px;padding:4px 0">No silver price available</div>`;
+    } else if(r.isFutures && tradeDir==='sell' && r.noBid){
+      priceCell = `<div class="plocal${svCls}" style="color:var(--text3);font-size:11px;padding:4px 0;font-style:italic">No Bid price listed</div>`;
     } else if(r.isFutures){
-      priceCell = `<div class="plocal${svCls}">$${fmt(r.usdOz,2)}</div><div class="punit">USD/oz · Futures FM</div>`;
+      const fpx0 = (tradeDir==='sell' && r.bidOz) ? r.bidOz : r.usdOz;
+      const clab = ((r.contract||'').replace(/^(Gold|Silver)\s+/i,'')) || 'FM';
+      priceCell = `<div class="plocal${svCls}">$${fmt(fpx0,2)}</div><div class="punit">USD/oz · Futures ${clab}</div>`;
     } else {
       priceCell = `<div class="plocal${svCls}">${sym} ${lp}</div><div class="punit">${r.unitLabel}</div>`;
     }
@@ -2247,8 +2258,11 @@ function render(){
     let usdCell2;
     if(r.noSilver){
       usdCell2 = `<div class="pusd" style="color:var(--text3)">—</div>`;
+    } else if(r.isFutures && tradeDir==='sell' && r.noBid){
+      usdCell2 = `<div class="pusd" style="color:var(--text3)">—</div>`;
     } else if(r.isFutures){
-      usdCell2 = `<div class="pusd">${getCurrencySym()}${fmt(isGram?r.usdOz*KGFACTOR*getCurrencyRate():r.usdOz*getCurrencyRate(),2)}</div><div class="punit">Futures</div>`;
+      const fpx = (tradeDir==='sell' && r.bidOz) ? r.bidOz : r.usdOz;
+      usdCell2 = `<div class="pusd">${getCurrencySym()}${fmt(isGram?fpx*KGFACTOR*getCurrencyRate():fpx*getCurrencyRate(),2)}</div><div class="punit">${(tradeDir==='sell'&&r.bidOz)?'Bid':'Ask'} · Futures</div>`;
     } else if(r.id==='hkgx' && hkgxLive?.bid && metal==='XAU'){
       const hb=hkgxLive.bid, ha=hkgxLive.ask;
       usdCell2 = `<div class="pusd">${getCurrencySym()}${fmt(isGram?hb*KGFACTOR*getCurrencyRate():hb*getCurrencyRate(),2)}</div><div class="punit">Bid</div><div class="pusd" style="margin-top:4px">${getCurrencySym()}${fmt(isGram?ha*KGFACTOR*getCurrencyRate():ha*getCurrencyRate(),2)}</div><div class="punit">Ask</div>`;
@@ -2259,7 +2273,7 @@ function render(){
     const exDiff = isSellEx && r.bidDiff != null ? r.bidDiff : r.diff;
     const exPct  = isSellEx && r.bidPct  != null ? r.bidPct  : r.pct;
     const premCls = exDiff != null ? (exDiff > 0.5 ? 'pos' : exDiff < -0.5 ? 'neg' : 'neu') : 'neu';
-    const premCell = r.noSilver
+    const premCell = (r.noSilver || (r.isFutures && tradeDir==='sell' && r.noBid))
       ? `<span class="badge neu">—</span>`
       : r.isFutures
         ? `<span class="badge neu" style="display:block;margin-bottom:3px">${exDiff>=0?'+':'-'}${getCurrencySym()}${fmt(Math.abs(exDiff),2)}</span><span class="badge neu" title="Futures basis vs spot">${exPct>=0?'+':''}${exPct.toFixed(2)}% basis</span>`
