@@ -692,23 +692,80 @@ def fetch_spot():
         print(f"Kitco error: {e}")
         return None
 
+_comex_ba_cache = {"ts": 0, "vals": {}}
+
+def _fetch_comex_bid_ask(gc_price, si_price):
+    """Bid und Ask des vordersten COMEX-Kontrakts (GC=F, SI=F) von Yahoos Webseite (Playwright).
+    Die Chart-Abfrage liefert keine Werte, die Kursabfrage verlangt Anmeldung (HTTP 401).
+    Bei Fehler oder unplausiblen Werten None, der letzte gute Wert gilt hoechstens 45 Minuten."""
+    empty = {"GC_bid": None, "GC_ask": None, "SI_bid": None, "SI_ask": None}
+    now = time.time()
+    try:
+        from playwright.sync_api import sync_playwright
+        out = dict(empty)
+        with sync_playwright() as p:
+            b = p.chromium.launch(headless=True)
+            try:
+                pg = b.new_page(user_agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36")
+                for key, sym, ref in (("GC", "GC%3DF", gc_price), ("SI", "SI%3DF", si_price)):
+                    if not ref:
+                        continue
+                    try:
+                        pg.goto(f"https://finance.yahoo.com/quote/{sym}/", timeout=45000, wait_until="domcontentloaded")
+                        pg.wait_for_timeout(5000)
+                        t = pg.inner_text("body")
+                        vals = {}
+                        for lbl in ("Bid", "Ask"):
+                            m = re.search(r'(?:^|\n)' + lbl + r'\s*\n\s*([\d,]+(?:\.\d+)?)', t)
+                            vals[lbl] = float(m.group(1).replace(",", "")) if m else None
+                        bid, ask = vals["Bid"], vals["Ask"]
+                        if bid and ask and bid <= ask and abs(bid - ref) / ref < 0.01 and abs(ask - ref) / ref < 0.01:
+                            out[key + "_bid"] = bid
+                            out[key + "_ask"] = ask
+                        else:
+                            print(f"COMEX bid/ask {key}: leer oder unplausibel (bid={bid}, ask={ask}, ref={ref})", flush=True)
+                    except Exception as e1:
+                        print(f"COMEX bid/ask {key} error: {e1}", flush=True)
+            finally:
+                b.close()
+        if out["GC_bid"] or out["SI_bid"]:
+            _comex_ba_cache["ts"] = now
+            _comex_ba_cache["vals"] = dict(out)
+            print(f"COMEX Bid/Ask: GC {out['GC_bid']}/{out['GC_ask']} SI {out['SI_bid']}/{out['SI_ask']}", flush=True)
+            return out
+    except Exception as e:
+        print(f"COMEX bid/ask error: {e}", flush=True)
+    if now - _comex_ba_cache["ts"] < 2700 and _comex_ba_cache["vals"]:
+        return dict(_comex_ba_cache["vals"])
+    return empty
+
 def fetch_comex_futures():
     """COMEX front month futures: Yahoo Finance (primaer), Stooq als Reserve.
     Hinweis: Stooq hat seinen /q/l/-Endpoint im Juni 2026 entfernt -> Yahoo ist
     jetzt primaer. Stooq bleibt drin, falls die API zurueckkommt."""
     gc_price = None
     si_price = None
+    gc_name = None
+    si_name = None
     # Primaer: Yahoo Finance
     try:
         r = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1m&range=1d",
                          headers={"User-Agent": "Mozilla/5.0"}, timeout=(5, 10))
-        gc_price = r.json()['chart']['result'][0]['meta'].get('regularMarketPrice')
+        _gm = r.json()['chart']['result'][0]['meta']
+        gc_price = _gm.get('regularMarketPrice')
+        gc_name = _gm.get('shortName')
         r2 = requests.get("https://query1.finance.yahoo.com/v8/finance/chart/SI=F?interval=1m&range=1d",
                           headers={"User-Agent": "Mozilla/5.0"}, timeout=(5, 10))
-        si_price = r2.json()['chart']['result'][0]['meta'].get('regularMarketPrice')
+        _sm = r2.json()['chart']['result'][0]['meta']
+        si_price = _sm.get('regularMarketPrice')
+        si_name = _sm.get('shortName')
         if gc_price and gc_price > 100:
             print(f"COMEX Futures (Yahoo): GC={gc_price} SI={si_price}")
-            return {"GC": round(gc_price, 2), "SI": round(si_price, 4) if si_price else None, "source": "cmegroup.com"}
+            res = {"GC": round(gc_price, 2), "SI": round(si_price, 4) if si_price else None, "source": "cmegroup.com"}
+            res.update(_fetch_comex_bid_ask(gc_price, si_price))
+            res["GC_contract"] = gc_name
+            res["SI_contract"] = si_name
+            return res
     except Exception as e:
         print(f"COMEX Yahoo error: {e} - trying Stooq fallback")
     # Reserve: Stooq (Endpunkt im Juni 2026 down, koennte zurueckkommen)
@@ -2096,10 +2153,16 @@ def update():
     if comex_futures and prices.get("spot"):
         cache["last_gc"] = comex_futures.get("GC")
         cache["last_si"] = comex_futures.get("SI")
+        cache["last_gc_ba"] = {k: comex_futures.get(k) for k in ("GC_bid", "GC_ask", "SI_bid", "SI_ask", "GC_contract", "SI_contract")}
+        cache["last_gc_ba_ts"] = time.time()
         print(f"COMEX Futures: GC={comex_futures.get('GC')} SI={comex_futures.get('SI')} USD/oz")
     if prices.get("spot") and cache.get("last_gc"):
         prices["spot"]["GC"] = cache["last_gc"]
         prices["spot"]["SI"] = cache["last_si"]
+        if time.time() - cache.get("last_gc_ba_ts", 0) < 2700:
+            for _k, _v in (cache.get("last_gc_ba") or {}).items():
+                if _v:
+                    prices["spot"][_k] = _v
 
     # S&P 500 — wird separat in sp500_history Tabelle gespeichert (fuer Gold/SP500 Ratio)
     sp500_value = fetch_sp500()
