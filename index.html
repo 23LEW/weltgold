@@ -2059,7 +2059,8 @@ function render(){
       return {...m, localPrice:gc, usdOz:gc, diff, pct, eurOz:fx.EUR?gc*fx.EUR:null, isSpot:true, istLive:false, istClosed:false};
     }
     if(m.id==='comex'){
-      const gc = isGold ? (spot.GC || spotUSD) : (spot.SI || spotUSD);
+      const gc = isGold ? spot.GC : spot.SI;
+      if(!gc) return {...m, localPrice:null, usdOz:null, bidOz:null, askOz:null, noSilver:true, isFutures:true, diff:0, pct:0, eurOz:null, istLive:false, istClosed:false};
       const cAsk = isGold ? spot.GC_ask : spot.SI_ask;
       const cBid = isGold ? spot.GC_bid : spot.SI_bid;
       const contract = (isGold ? spot.GC_contract : spot.SI_contract) || null;
@@ -2256,7 +2257,7 @@ function render(){
     const svCls = metal==='XAG' ? ' sv' : '';
     let priceCell;
     if(r.noSilver){
-      priceCell = `<div class="plocal${svCls}" style="color:var(--text3);font-size:11px;padding:4px 0">No silver price available</div>`;
+      priceCell = `<div class="plocal${svCls}" style="color:var(--text3);font-size:11px;padding:4px 0">${r.isFutures ? 'No futures price available' : 'No silver price available'}</div>`;
     } else if(r.isFutures && tradeDir==='sell' && r.noBid){
       priceCell = `<div class="plocal${svCls}" style="color:var(--text3);font-size:11px;padding:4px 0;font-style:italic">No Bid price listed</div>`;
     } else if(r.isFutures){
