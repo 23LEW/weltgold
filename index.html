@@ -96,6 +96,8 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 .spots{display:flex;gap:6px;margin-bottom:0;flex-shrink:0}
 .spot{background:var(--bg3);padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border3);opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s;width:fit-content}
 .spot.show{opacity:1;transform:none}
+/* 2026-10-17: LBMA-Zeile ausgeblendet, bis eine IBA-Lizenz vorliegt. Zum Wiedereinschalten diese Regel loeschen. */
+tr[data-market="lbma"]{display:none!important}
 .spot::before{display:none}
 .spot-label{font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
 .spot-price{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--gold);line-height:1;letter-spacing:-1px;transition:color .3s}
