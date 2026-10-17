@@ -788,7 +788,7 @@ try { istHistory = JSON.parse(localStorage.getItem('ist_history')||'[]'); } catc
 // Exchange & Benchmark Prices
 const EXCHANGES = [
   {id:'kitco', name:'World Spot Price · Kitco', city:'Live OTC Cash Market', flag:'🌍', currency:'USD', unitLabel:'USD/oz', calcPremium:0, isReference:true, historyId:'comex'},
-  {id:'comex', name:'COMEX · New York', city:'CME Group / Futures Exchange', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0, isReference:true},
+  {id:'comex', name:'COMEX · New York', city:'CME Group / Futures Exchange', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0, isReference:true, note:'Front futures contract (Yahoo GC=F and SI=F), the contract month is shown under the price. A futures price includes the cost of carry versus spot, so the difference to the Kitco spot price is not a dealer premium and changes when the contract rolls to the next month.'},
   {id:'lbma', name:'LBMA · London', city:'London Bullion Market Association', flag:'🇬🇧', currency:'USD', unitLabel:'USD/oz', calcPremium:0},
   {id:'shanghai', name:'SGE · Shanghai', city:'Shanghai Gold Exchange', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/gram', calcPremium:0},
   {id:'hkgx', name:'HKGX · Hong Kong', city:'Hong Kong Gold Exchange', flag:'🇭🇰', currency:'USD', unitLabel:'USD/oz', calcPremium:0},
@@ -2052,7 +2052,8 @@ function render(){
     const kAsk = isGold ? (spot.XAU_ask||spotUSD) : (spot.XAG_ask||spotUSD);
     const kBid = isGold ? (spot.XAU_bid||spotUSD) : (spot.XAG_bid||spotUSD);
     if(m.id==='kitco'){
-      const gc = spotUSD;
+      const isSellK = (typeof tradeDir !== 'undefined' && tradeDir==='sell');
+      const gc = isSellK ? kBid : kAsk;
       const diff = 0;
       const pct = 0;
       return {...m, localPrice:gc, usdOz:gc, diff, pct, eurOz:fx.EUR?gc*fx.EUR:null, isSpot:true, istLive:false, istClosed:false};
@@ -2240,12 +2241,12 @@ function render(){
     const sym = CS[r.currency]||r.currency;
     const isGold2 = metal==='XAU';
     const lp = r.isSpot
-      ? (isGram ? fmt(spotUSD*KGFACTOR*getCurrencyRate(),2) : fmt(spotUSD*getCurrencyRate(),2))
+      ? (isGram ? fmt(r.usdOz*KGFACTOR*getCurrencyRate(),2) : fmt(r.usdOz*getCurrencyRate(),2))
       : fmt(r.localPrice,2);
     const srcBadge = r.id==='kitco'
       ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">kitco.com</span></span>`
       : r.isFutures
-      ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">cmegroup.com</span></span>`
+      ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">finance.yahoo.com</span></span>`
       : r.id==='lbma'     && lbmaLive?.usd_oz        ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> DAILY</span><span class="bsep"> · </span><span class="bsrc">lbma.org.uk</span></span>`
       : r.id==='shanghai' && shanghaiLive?.cny_gram   ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> DAILY</span><span class="bsep"> · </span><span class="bsrc">sge.com.cn</span></span>`
       : r.id==='hkgx'    && hkgxLive?.ask             ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">hkgx.com.hk</span></span>`
