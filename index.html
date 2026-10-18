@@ -2897,7 +2897,11 @@ function positionRatioForDevice(){
   if(typeof updateStickyTop==='function') updateStickyTop();
 }
 function syncCardHeights(){
-  if(window.innerWidth<=768) return;
+  if(window.innerWidth<=768){
+    // Handy: feste Hoehen aus dem Desktop-Layout entfernen, sonst ragt die Sprachauswahl aus der Waehrungskarte
+    ['ratio-display','sp500-display','lang-card','currency-row'].forEach(id=>{const c=document.getElementById(id); if(c){c.style.height='';c.style.minHeight='';}});
+    return;
+  }
   const ids=['ratio-display','sp500-display','lang-card','currency-row'];
   const cards=ids.map(id=>document.getElementById(id));
   if(cards.some(c=>!c)) return;
