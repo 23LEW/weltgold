@@ -98,6 +98,11 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 .spot.show{opacity:1;transform:none}
 /* 2026-10-17: LBMA-Zeile ausgeblendet, bis eine IBA-Lizenz vorliegt. Zum Wiedereinschalten diese Regel loeschen. */
 tr[data-market="lbma"]{display:none!important}
+/* 2026-10-18: Ratio-Fenster im niedrigen Handy-Querformat: Karte fuellt den Bildschirm, der Chart bekommt die restliche Hoehe */
+@media (max-height:500px) and (orientation:landscape){
+#ratio-modal>div,#sp500-modal>div{max-height:100vh!important;height:100vh!important;width:100%!important;max-width:none!important;border-radius:0!important;padding:8px 12px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;box-sizing:border-box!important}
+#ratio-modal .chart-wrap,#sp500-modal .chart-wrap{flex:1 1 0!important;height:auto!important;min-height:0!important}
+}
 .spot::before{display:none}
 .spot-label{font-size:13px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
 .spot-price{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--gold);line-height:1;letter-spacing:-1px;transition:color .3s}
@@ -700,7 +705,7 @@ footer a:hover{text-decoration:underline}
       <canvas id="chart-ratio"></canvas>
     </div>
     <div class="rnote" style="font-size:10px;color:var(--text3);line-height:1.4;text-align:center;margin-top:6px">oz silver per oz gold · monthly averages until 2000 (World Bank), then COMEX futures (not spot) via Yahoo, GoldPremium since 2026 · gold is flat at 35 USD before 1968 in the source</div>
-    <div class="rzoom" style="font-size:10px;color:var(--text2);text-align:center;margin-top:2px">Drag to zoom · Double-click to reset</div>
+    <div class="rzoom" style="font-size:13px;color:var(--text2);text-align:center;margin-top:2px">Drag to zoom · Double-click to reset</div>
   </div>
 </div>
 
@@ -723,7 +728,7 @@ footer a:hover{text-decoration:underline}
       <canvas id="chart-sp500"></canvas>
     </div>
     <div class="rnote" style="font-size:10px;color:var(--text3);line-height:1.4;text-align:center;margin-top:6px">S&amp;P 500 in oz of gold · monthly averages until 2000 (gold: World Bank), then daily closes (gold: COMEX futures via Yahoo, GoldPremium since 2026)</div>
-    <div class="rzoom" style="font-size:10px;color:var(--text2);text-align:center;margin-top:2px">Drag to zoom · Double-click to reset</div>
+    <div class="rzoom" style="font-size:13px;color:var(--text2);text-align:center;margin-top:2px">Drag to zoom · Double-click to reset</div>
   </div>
 </div>
 
