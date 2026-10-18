@@ -156,11 +156,14 @@ def save_prices(prices):
             return None
 
         # COMEX Futures Front Month (GC/SI from stooq/CME)
-        gc = prices.get("spot", {}).get("GC") or spot_xau
-        si = prices.get("spot", {}).get("SI") or spot_xag
+        gc = prices.get("spot", {}).get("GC")
+        si = prices.get("spot", {}).get("SI")
         basis_pct = round((gc - spot_xau) / spot_xau * 100, 4) if spot_xau and gc else 0.0
-        c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?,?)",
-            (ts, 'comex', gc, gc, si, si, basis_pct, 'USD', 'oz', 'oz'))
+        if gc:
+            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                (ts, 'comex', gc, gc, si, si, basis_pct, 'USD', 'oz', 'oz'))
+        else:
+            print("COMEX: kein frischer Kurs, Zeile nicht gespeichert", flush=True)
 
         # Kitco (World Spot Price)
         kit = prices.get("spot", {})
@@ -2156,13 +2159,15 @@ def update():
         cache["last_gc_ba"] = {k: comex_futures.get(k) for k in ("GC_bid", "GC_ask", "SI_bid", "SI_ask", "GC_contract", "SI_contract")}
         cache["last_gc_ba_ts"] = time.time()
         print(f"COMEX Futures: GC={comex_futures.get('GC')} SI={comex_futures.get('SI')} USD/oz")
-    if prices.get("spot") and cache.get("last_gc"):
+    if prices.get("spot") and cache.get("last_gc") and time.time() - cache.get("last_gc_ba_ts", 0) < 1800:
         prices["spot"]["GC"] = cache["last_gc"]
         prices["spot"]["SI"] = cache["last_si"]
         if time.time() - cache.get("last_gc_ba_ts", 0) < 2700:
             for _k, _v in (cache.get("last_gc_ba") or {}).items():
                 if _v:
                     prices["spot"][_k] = _v
+    elif cache.get("last_gc"):
+        print("COMEX: kein frischer Kurs seit mehr als 30 Minuten, nicht weitergegeben", flush=True)
 
     # S&P 500 — wird separat in sp500_history Tabelle gespeichert (fuer Gold/SP500 Ratio)
     sp500_value = fetch_sp500()
@@ -2183,24 +2188,9 @@ def update():
 
     if ist:
         prices["istanbul"] = ist
-    elif spot and fx:
-        prices["istanbul"] = {
-            "gold_try_gram": round((spot["XAU"] / GRAM) * fx["TRY"], 2),
-            "silver_try_gram": round((spot["XAG"] / GRAM) * fx["TRY"], 2) if spot.get("XAG") else None,
-            "source": "calculated",
-            "is_calculated": True
-        }
 
     if india_gjc:
         prices["india_gjc"] = india_gjc
-    elif spot and fx:
-        inr_gram = round((spot["XAU"] / GRAM) * fx.get("INR", 83) * 1.13, 2)
-        prices["india_gjc"] = {
-            "gold_inr_gram_ask": inr_gram,
-            "gold_inr_gram_bid": round(inr_gram * (1 - 0.033), 2),
-            "source": "calculated",
-            "is_calculated": True
-        }
 
     if india_mumbai:
         prices["india_mumbai"] = india_mumbai
@@ -2213,14 +2203,6 @@ def update():
 
     if hk:
         prices["hongkong"] = hk
-    elif spot and fx:
-        TAEL = 37.429
-        prices["hongkong"] = {
-            "gold_hkd_tael_bid": round((spot["XAU"] / GRAM) * TAEL * fx["HKD"], 2) if fx.get("HKD") else None,
-            "gold_hkd_tael_ask": round((spot["XAU"] / GRAM) * TAEL * fx["HKD"], 2) if fx.get("HKD") else None,
-            "source": "calculated",
-            "is_calculated": True
-        }
     if lbma:
         prices["lbma"] = lbma
     if sge:
@@ -2240,68 +2222,23 @@ def update():
 
     if japan:
         prices["japan"] = japan
-    elif spot and fx:
-        prices["japan"] = {
-            "gold_jpy_gram_bid": round((spot["XAU"] / GRAM) * fx["JPY"] * 1.005, 2) if fx.get("JPY") else None,
-            "gold_jpy_gram_ask": round((spot["XAU"] / GRAM) * fx["JPY"] * 1.005, 2) if fx.get("JPY") else None,
-            "source": "calculated",
-            "is_calculated": True
-        }
 
     if philoro:
         prices["switzerland"] = philoro
-    elif spot and fx:
-        prices["switzerland"] = {
-            "gold_chf_oz_bid": round(spot["XAU"] * fx.get("CHF", 0.89) * 1.005, 2),
-            "gold_chf_oz_ask": round(spot["XAU"] * fx.get("CHF", 0.89) * 1.02, 2),
-            "source": "calculated",
-            "is_calculated": True
-        }
 
     if germany:
         prices["germany"] = germany
-    elif spot and fx:
-        prices["germany"] = {
-            "gold_eur_oz_bid": round(spot["XAU"] * fx.get("EUR", 0.92) * 1.005, 2),
-            "gold_eur_oz_ask": round(spot["XAU"] * fx.get("EUR", 0.92) * 1.02, 2),
-            "source": "calculated",
-            "is_calculated": True
-        }
 
     if russia:
         prices["russia"] = russia
     if russia_dealer:
         prices["russia_dealer"] = russia_dealer
-    elif spot and fx:
-        prices["russia"] = {
-            "gold_rub_gram": round((spot["XAU"] / GRAM) * fx.get("RUB", 90), 2) if fx.get("RUB") else None,
-            "silver_rub_gram": round((spot["XAG"] / GRAM) * fx.get("RUB", 90), 2) if fx.get("RUB") and spot.get("XAG") else None,
-            "source": "calculated",
-            "is_calculated": True
-        }
 
     if dubai:
         prices["dubai"] = dubai
-    elif spot and fx:
-        _aed_rate = fx.get("AED", 3.6725)
-        prices["dubai"] = {
-            "gold_aed_kg_ask": round((spot["XAU"] / GRAM) * 1000 * _aed_rate, 2) if spot.get("XAU") else None,
-            "silver_aed_kg_ask": round((spot["XAG"] / GRAM) * 1000 * _aed_rate, 2) if spot.get("XAG") else None,
-            "source": "calculated",
-            "is_calculated": True
-        }
 
     if uk_royalmint:
         prices["uk_royalmint"] = uk_royalmint
-    elif spot and fx:
-        prices["uk_royalmint"] = {
-            "gold_gbp_oz_ask": round(spot["XAU"] * fx.get("GBP", 0.79) * 1.01, 2),
-            "gold_gbp_oz_bid": round(spot["XAU"] * fx.get("GBP", 0.79) * 0.995, 2),
-            "silver_gbp_oz_ask": round(spot["XAG"] * fx.get("GBP", 0.79) * 1.01, 2) if spot.get("XAG") else None,
-            "silver_gbp_oz_bid": round(spot["XAG"] * fx.get("GBP", 0.79) * 0.995, 2) if spot.get("XAG") else None,
-            "source": "calculated",
-            "is_calculated": True
-        }
 
 
     # ============================================================
@@ -2563,6 +2500,39 @@ def get_history(market):
         return jsonify({"error": str(e)}), 500
 
 
+_longhist_file = {"mtime": 0, "data": None}
+
+def _longhist_old(metal):
+    """Alte Teile des langen Verlaufs aus der einmal gebauten Datei (build_longhistory.py):
+    Weltbank monatlich, Yahoo COMEX-Futures taeglich. Bei Fehler leer, der Rest bleibt wie er ist."""
+    try:
+        path = "/opt/goldpremium/longhistory.json"
+        m = os.path.getmtime(path)
+        if _longhist_file["data"] is None or m != _longhist_file["mtime"]:
+            with open(path, "r", encoding="utf-8") as fh:
+                _longhist_file["data"] = json.load(fh)
+            _longhist_file["mtime"] = m
+        blk = _longhist_file["data"].get(metal) or {}
+        return [list(p) for p in (blk.get("monthly") or [])] + [list(p) for p in (blk.get("daily") or [])]
+    except Exception as e:
+        print(f"longhistory error: {e}", flush=True)
+        return []
+
+# Ausfall des COMEX-Abrufs im Juni 2026: Zeilen mit eingefrorenem Kurs werden hier uebersprungen
+# (die Datenbank bleibt unveraendert). Stattdessen gelten die Yahoo-Tagesschluesse aus longhistory.json
+# (Block gaps). Begruendung und Pruefung: CHANGES.md vom 2026-10-17.
+_GAP_START = "2026-06-08T06:03:58Z"
+_GAP_END = "2026-06-11T06:30:25Z"
+
+def _longhist_gaps(metal):
+    try:
+        _longhist_old(metal)
+        d = _longhist_file["data"] or {}
+        return [list(p) for p in ((d.get("gaps") or {}).get(metal) or [])]
+    except Exception as e:
+        print(f"longhistory gaps error: {e}", flush=True)
+        return []
+
 _longhist_cache = {}
 
 def _longhist_open(ts):
@@ -2613,10 +2583,16 @@ def get_long_history():
             for ts, v in rows:
                 if not _longhist_open(ts):
                     continue
+                if _GAP_START < ts <= _GAP_END:
+                    continue
                 if v == last:
                     continue
                 last = v
                 data.append([ts, round(float(v), 2)])
+            for gts, gv in _longhist_gaps(metal):
+                if d_from + "T00:00:00Z" <= gts <= d_to + "T23:59:59Z":
+                    data.append([gts, gv])
+            data.sort(key=lambda p: p[0])
             return jsonify({"metal": metal, "res": "full", "data": data, "count": len(data)})
         now = time.time()
         hit = _longhist_cache.get(metal)
@@ -2634,9 +2610,13 @@ def get_long_history():
         """, (minv, minv))
         rows = c.fetchall()
         conn.close()
-        data = [[ts, round(float(v), 2)] for ts, v in rows if _longhist_open(ts)]
-        result = {"metal": metal, "res": "hour", "data": data, "count": len(data),
-                  "source": "GoldPremium, COMEX futures, last value per hour"}
+        old = _longhist_old(metal)
+        own = [[ts, round(float(v), 2)] for ts, v in rows if _longhist_open(ts) and not (_GAP_START < ts <= _GAP_END)]
+        own += _longhist_gaps(metal)
+        own.sort(key=lambda p: p[0])
+        data = old + own
+        result = {"metal": metal, "res": "hour", "data": data, "count": len(data), "old_count": len(old),
+                  "source": "World Bank monthly (to 2000-08), Yahoo COMEX futures daily (to 2026), GoldPremium hourly since"}
         _longhist_cache[metal] = (now, result)
         return jsonify(result)
     except Exception as e:
@@ -2812,6 +2792,84 @@ def get_digest():
         return jsonify({"error": str(e)}), 500
 
 
+_ratio_cache = {}
+
+def _ratio_prices(metal):
+    """Gold oder Silber: (Monatsdurchschnitte, Tageskurse) aus der einmal gebauten Datei
+    (Weltbank bis 08/2000, Yahoo-Futures taeglich), den Lueckenpunkten und unseren eigenen
+    Tageswerten. Keine externen Abrufe."""
+    _longhist_old(metal)
+    blk = ((_longhist_file["data"] or {}).get(metal)) or {}
+    monthly = {p[0][:7]: float(p[1]) for p in (blk.get("monthly") or [])}
+    daily = {p[0][:10]: float(p[1]) for p in (blk.get("daily") or [])}
+    field = 'silver_usd_oz' if metal == 'XAG' else 'gold_usd_oz'
+    minv = 1 if metal == 'XAG' else 100
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute(f"SELECT ts, {field} FROM price_history WHERE market='comex' AND {field} > ? ORDER BY ts ASC", (minv,))
+    for ts, v in c.fetchall():
+        if _GAP_START < ts <= _GAP_END:
+            continue
+        try:
+            if datetime.strptime(ts[:10], "%Y-%m-%d").weekday() >= 5:
+                continue
+        except ValueError:
+            continue
+        daily[ts[:10]] = float(v)
+    conn.close()
+    for gts, gv in _longhist_gaps(metal):
+        daily[gts[:10]] = float(gv)
+    return monthly, daily
+
+def _ratio_long(kind, range_):
+    """Lange Bereiche (1y, 10y, max) der Ratio-Charts: vor 09/2000 Monatsdurchschnitte auf beiden
+    Seiten, danach taegliche Werte. Eine Stunde zwischengespeichert."""
+    now = time.time()
+    hit = _ratio_cache.get(kind)
+    if hit and now - hit[0] < 3600:
+        series = hit[1]
+    else:
+        g_mon, g_day = _ratio_prices('XAU')
+        if not g_day:
+            return []
+        out = []
+        if kind == 'gold_silver':
+            s_mon, s_day = _ratio_prices('XAG')
+            if not s_day:
+                return []
+            first = max(min(g_day), min(s_day))
+            for m in sorted(g_mon):
+                if m in s_mon and m + "-15" < first and s_mon[m] > 0:
+                    out.append({"ts": m + "-15", "ratio": round(g_mon[m] / s_mon[m], 4)})
+            for d in sorted(g_day):
+                if d >= first and d in s_day and s_day[d] > 0:
+                    out.append({"ts": d, "ratio": round(g_day[d] / s_day[d], 4)})
+        else:
+            first = min(g_day)
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            c.execute("SELECT ts, value FROM sp500_history ORDER BY ts ASC")
+            sp = {}
+            for ts, v in c.fetchall():
+                sp[ts[:10]] = float(v)
+            conn.close()
+            by_month = {}
+            for d, v in sp.items():
+                by_month.setdefault(d[:7], []).append(v)
+            for m in sorted(g_mon):
+                if m in by_month and m + "-15" < first and g_mon[m] > 0:
+                    avg = sum(by_month[m]) / len(by_month[m])
+                    out.append({"ts": m + "-15", "ratio": round(avg / g_mon[m], 4)})
+            for d in sorted(sp):
+                if d >= first and d in g_day and g_day[d] > 0:
+                    out.append({"ts": d, "ratio": round(sp[d] / g_day[d], 4)})
+        series = out
+        _ratio_cache[kind] = (now, series)
+    from datetime import timedelta
+    years = {'1y': 1, '10y': 10, 'max': 200}.get(range_, 200)
+    cutoff = (datetime.now() - timedelta(days=years * 365)).strftime('%Y-%m-%d')
+    return [p for p in series if p["ts"] >= cutoff]
+
 @app.route("/api/ratio-history")
 def get_ratio_history():
     range_ = request.args.get('range', '30d')
@@ -2839,36 +2897,8 @@ def get_ratio_history():
                 result = [{"ts": ts, "ratio": round(sp / g, 4)} for ts, sp, g in rows if g and g > 0]
                 return jsonify(result)
             else:
-                # Lange Zeitraeume: SP500 aus sp500_history + LBMA gold per Tag matchen
-                import time as _time
-                now = _time.time()
-                if not LBMA_ENABLED:
-                    return jsonify([])
-                gold_map = cache.get("lbma_gold_map")
-                gold_map_ts = cache.get("lbma_gold_map_ts", 0)
-                if not gold_map or (now - gold_map_ts) >= 3600:
-                    gr = requests.get("https://prices.lbma.org.uk/json/gold_pm.json",
-                                      headers={"User-Agent": "Mozilla/5.0", "Referer": "https://www.lbma.org.uk/"}, timeout=(5, 20))
-                    gold_map = {e['d']: float(e['v'][0])
-                                for e in gr.json()
-                                if e.get('v') and e['v'][0] and float(e['v'][0]) > 100}
-                    cache["lbma_gold_map"] = gold_map
-                    cache["lbma_gold_map_ts"] = now
-                from datetime import timedelta
-                years = {'1y': 1, '10y': 10, 'max': 200}.get(range_, 200)
-                cutoff = (datetime.now() - timedelta(days=years * 365)).strftime('%Y-%m-%d')
-                conn = sqlite3.connect(DB_PATH)
-                c = conn.cursor()
-                c.execute("SELECT ts, value FROM sp500_history WHERE ts >= ? ORDER BY ts ASC",
-                          (cutoff + "T00:00:00Z",))
-                rows = c.fetchall()
-                conn.close()
-                result = []
-                for ts, value in rows:
-                    date_str = ts[:10]
-                    if date_str in gold_map:
-                        result.append({"ts": date_str, "ratio": round(value / gold_map[date_str], 4)})
-                return jsonify(result)
+                # Lange Zeitraeume: Gold aus der einmal gebauten Datei (Weltbank, Yahoo) plus eigene Tageswerte
+                return jsonify(_ratio_long("gold_sp500", range_))
 
         # ------- Gold / Silver (bestehende Logik) -------
         if range_ in ('1d', '5d', '30d', '3m'):
@@ -2887,29 +2917,8 @@ def get_ratio_history():
             result = [{"ts": ts, "ratio": round(g/s, 4)} for ts, g, s in rows if s and s > 0]
             return jsonify(result)
         else:
-            import time as _time
-            now = _time.time()
-            if not LBMA_ENABLED:
-                return jsonify([])
-            if cache["lbma_ratio"] and (now - cache["lbma_ratio_ts"]) < 3600:
-                lbma_data = cache["lbma_ratio"]
-            else:
-                gr = requests.get("https://prices.lbma.org.uk/json/gold_pm.json",
-                                  headers={"User-Agent": "Mozilla/5.0", "Referer": "https://www.lbma.org.uk/"}, timeout=(5, 20))
-                sr = requests.get("https://prices.lbma.org.uk/json/silver.json",
-                                  headers={"User-Agent": "Mozilla/5.0", "Referer": "https://www.lbma.org.uk/"}, timeout=(5, 20))
-                gold_map = {e['d']: float(e['v'][0]) for e in gr.json() if e.get('v') and e['v'][0] and float(e['v'][0]) > 0}
-                silv_map = {e['d']: float(e['v'][0]) for e in sr.json() if e.get('v') and e['v'][0] and float(e['v'][0]) > 0}
-                lbma_data = sorted([
-                    {"ts": d, "ratio": round(gold_map[d] / silv_map[d], 4)}
-                    for d in gold_map if d in silv_map and silv_map[d] > 0 and gold_map[d] > 100
-                ], key=lambda x: x["ts"])
-                cache["lbma_ratio"] = lbma_data
-                cache["lbma_ratio_ts"] = now
-            from datetime import timedelta
-            years = {'1y': 1, '10y': 10, 'max': 200}.get(range_, 200)
-            cutoff = (datetime.now() - timedelta(days=years * 365)).strftime('%Y-%m-%d')
-            return jsonify([p for p in lbma_data if p["ts"] >= cutoff])
+            # Lange Zeitraeume: Gold und Silber aus der einmal gebauten Datei (Weltbank, Yahoo) plus eigene Tageswerte
+            return jsonify(_ratio_long("gold_silver", range_))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
