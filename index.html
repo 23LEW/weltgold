@@ -96,8 +96,6 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 .spots{display:flex;gap:6px;margin-bottom:0;flex-shrink:0}
 .spot{background:var(--bg3);padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border3);opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s;width:fit-content}
 .spot.show{opacity:1;transform:none}
-/* 2026-10-17: LBMA-Zeile ausgeblendet, bis eine IBA-Lizenz vorliegt. Zum Wiedereinschalten diese Regel loeschen. */
-tr[data-market="lbma"]{display:none!important}
 /* 2026-10-18: Ratio-Fenster im niedrigen Handy-Querformat: Karte fuellt den Bildschirm, der Chart bekommt die restliche Hoehe */
 @media (max-height:500px) and (orientation:landscape){
 #ratio-modal>div,#sp500-modal>div{max-height:100vh!important;height:100vh!important;width:100%!important;max-width:none!important;border-radius:0!important;padding:8px 12px!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;box-sizing:border-box!important}
@@ -433,12 +431,6 @@ footer a:hover{text-decoration:underline}
       <td class="r"><div class="pusd">$4,406.90</div><div class="punit">Ref</div></td>
       <td class="r"><span class="badge neu">—</span></td>
       <td class="chart-td" onclick="openChartModal('comex','🇺🇸 COMEX · New York')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-comex" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
-    </tr><tr class="" data-market="lbma">
-      <td><div class="mkt"><span class="flag">🇬🇧</span><div><div class="mname">LBMA · London</div><div class="mcity">London Bullion Market Assoc.</div><div style="margin-top:4px"></div></div></div></td>
-      <td><div class="plocal">$ 141.69</div><div class="punit">USD/oz</div></td>
-      <td class="r"><div class="pusd">$4,406.90</div></td>
-      <td class="r"><span class="badge neu" style="display:block;margin-bottom:3px">$0.00</span><span class="badge neu">0.00%</span></td>
-      <td class="chart-td" onclick="openChartModal('lbma','🇬🇧 LBMA · London')" style="cursor:pointer" title="Tap to expand"><div class="mini-chart-wrap"><canvas id="mini-lbma" height="60"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Tap to expand</div></td>
     </tr><tr class="" data-market="hongkong">
       <td><div class="mkt"><span class="flag">🇭🇰</span><div><div class="mname">Hong Kong · CGSE</div><div class="mcity">Chinese Gold &amp; Silver Exchange</div><div style="margin-top:4px"></div></div></div></td>
       <td><div class="plocal">HK$ 34,548.54</div><div class="punit">HKD/tael</div></td>
@@ -546,7 +538,7 @@ footer a:hover{text-decoration:underline}
   </div>
   <div style="font-size:10px;color:var(--text3);text-align:right;margin-bottom:4px">Drag to zoom · Double-click to reset</div>
   <div class="chart-wrap" onclick="if(window.innerWidth<=768&&window.innerHeight>window.innerWidth)_spotChartFullscreen()"><canvas id="chart-spot" style="display: block; box-sizing: border-box; height: 220px; width: 1222px;" width="2444" height="440"></canvas></div>
-  <div id="chart-foot" style="font-size:10px;color:var(--text3);line-height:1.5;margin-top:8px">Source: The World Bank: Commodity Price Data (The Pink Sheet), monthly averages 1960 to Aug 2000 · COMEX front-month futures (Yahoo Finance), daily close, Aug 2000 to Mar 2026 (silver: Apr 2026) · GoldPremium data since Mar 2026 (silver: Apr 2026). Futures prices are not spot prices and are not adjusted for contract rolls. 8 to 10 Jun 2026: daily closes (data feed outage). Full LBMA price history: <a href="https://www.lbma.org.uk/prices-and-data/lbma-precious-metal-prices" target="_blank" rel="noopener noreferrer" style="color:var(--text2)">lbma.org.uk</a></div>
+  <div id="chart-foot" style="font-size:10px;color:var(--text3);line-height:1.5;margin-top:8px">Source: The World Bank: Commodity Price Data (The Pink Sheet), monthly averages 1960 to Aug 2000 · COMEX front-month futures (Yahoo Finance), daily close, Aug 2000 to Mar 2026 (silver: Apr 2026) · GoldPremium data since Mar 2026 (silver: Apr 2026). Futures prices are not spot prices and are not adjusted for contract rolls. 8 to 10 Jun 2026: daily closes (data feed outage).</div>
 </div>
 
 <div style="margin-top:12px">
@@ -774,7 +766,7 @@ let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
 let tradeDir = 'buy'; // 'buy' or 'sell'
 const KGFACTOR = 1000/G;
-let spot = null, fx = null, hkgxLive = null, russiaDealer = null, istanbul = null, gjcLive = null, mumbaiLive = null, ibjaLive = null, hkLive = null, japanLive = null, germanyLive = null, philoroLive = null, russiaLive = null, dubaiLive = null, usaLive = null, sdbullionLive = null, lbmaLive = null, shanghaiLive = null, canadaLive = null, australiaLive = null, royalmintLive = null, chinagoldLive = null;
+let spot = null, fx = null, hkgxLive = null, russiaDealer = null, istanbul = null, gjcLive = null, mumbaiLive = null, ibjaLive = null, hkLive = null, japanLive = null, germanyLive = null, philoroLive = null, russiaLive = null, dubaiLive = null, usaLive = null, sdbullionLive = null, shanghaiLive = null, canadaLive = null, australiaLive = null, royalmintLive = null, chinagoldLive = null;
 let displayCurrency = 'USD';
 const CURRENCIES = {USD:{sym:'$',name:'USD'},EUR:{sym:'€',name:'EUR'},GBP:{sym:'£',name:'GBP'},JPY:{sym:'JP¥',name:'JPY'},CNY:{sym:'CN¥',name:'CNY'},TRY:{sym:'₺',name:'TRY'},AED:{sym:'د.إ',name:'AED'},INR:{sym:'₹',name:'INR'},RUB:{sym:'₽',name:'RUB'},AUD:{sym:'A$',name:'AUD'},HKD:{sym:'HK$',name:'HKD'},CHF:{sym:'Fr.',name:'CHF'}};
 let histData = []; // historical spot prices
@@ -791,7 +783,6 @@ try { istHistory = JSON.parse(localStorage.getItem('ist_history')||'[]'); } catc
 const EXCHANGES = [
   {id:'kitco', name:'World Spot Price · Kitco', city:'Live OTC Cash Market', flag:'🌍', currency:'USD', unitLabel:'USD/oz', calcPremium:0, isReference:true, historyId:'comex'},
   {id:'comex', name:'COMEX · New York', city:'CME Group / Futures Exchange', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0, isReference:true, note:'Front futures contract (Yahoo GC=F and SI=F), the contract month is shown under the price. A futures price includes the cost of carry versus spot, so the difference to the Kitco spot price is not a dealer premium and changes when the contract rolls to the next month.'},
-  {id:'lbma', name:'LBMA · London', city:'London Bullion Market Association', flag:'🇬🇧', currency:'USD', unitLabel:'USD/oz', calcPremium:0},
   {id:'shanghai', name:'SGE · Shanghai', city:'Shanghai Gold Exchange', flag:'🇨🇳', currency:'CNY', unitLabel:'CNY/gram', calcPremium:0},
   {id:'hkgx', name:'HKGX · Hong Kong', city:'Hong Kong Gold Exchange', flag:'🇭🇰', currency:'USD', unitLabel:'USD/oz', calcPremium:0},
   {id:'india_ibja', name:'IBJA · India', city:'India Bullion & Jewellers Assoc.', flag:'🇮🇳', currency:'INR', unitLabel:'INR/10g', calcPremium:0, per10g:true, samePrice:true, historyId:'india', note:'India applies GST (3%) plus an import duty on gold that has been raised significantly during 2026 amid currency pressures — contributing to a naturally higher premium than in duty-free markets.'},
@@ -933,7 +924,6 @@ function calcMarket(m){
                    gAsk: hkLive?.ask ? (hkLive.is_oz ? hkLive.ask/(fx.HKD||7.78) : (hkLive.ask/37.429)*G/(fx.HKD||7.78)) : null },
     hkgx:        { g: hkgxLive?.ask || null, s: hkgxLive?.silver_ask || null,
                    gBid: hkgxLive?.bid || null, sBid: hkgxLive?.silver_bid || null },
-    lbma:        { g: lbmaLive?.usd_oz || null, s: lbmaLive?.silver_usd_oz || null },
     india_ibja:  { g: ibjaLive?.oz || null, s: ibjaLive?.silver_oz || null,
                    gBid: ibjaLive?.oz || null, sBid: ibjaLive?.silver_oz || null },
     usa:         { g: usaLive?.oz_ask || null, s: usaLive?.silver_oz_ask || null,
@@ -981,7 +971,7 @@ function calcMarket(m){
   const askOz  = isGold ? (vps.gAsk || usdOz) : (vps.s || null);
 
   // Kein Silberpreis vorhanden → null zurückgeben (wird als "No silver" angezeigt)
-  const isExchange = ['lbma','hkgx','shanghai','comex'].includes(m.id);
+  const isExchange = ['hkgx','shanghai','comex'].includes(m.id);
   if(!usdOz){
     if(isExchange) return {localPrice:null, usdOz:null, bidOz:null, askOz:null, noSilver:true};
     return null;
@@ -1179,12 +1169,6 @@ async function load(){
       if(cgd && cgd.gold_cny_gram_ask && !cgd.is_calculated){
         chinagoldLive = {ask: cgd.gold_cny_gram_ask, bid: cgd.gold_cny_gram_bid||null, source: cgd.source};
       } else { chinagoldLive = null; }
-
-      // LBMA
-      const lb = vps?.lbma;
-      if(lb && lb.gold_usd_oz && !lb.is_calculated){
-        lbmaLive = {usd_oz: lb.gold_usd_oz, eur_oz: lb.gold_eur_oz, gbp_oz: lb.gold_gbp_oz, silver_usd_oz: lb.silver_usd_oz, date: lb.date, fix: lb.fix};
-      } else { lbmaLive = null; }
 
       // Dubai GVS
       const au = vps?.australia;
@@ -1541,7 +1525,7 @@ let miniHistCache = {};
 let modalGridIndices = [];
 
 async function loadMiniHistory(){
-  const markets = ['comex','lbma','istanbul','india_gjc','india_mumbai','india','japan','germany','switzerland','uk_royalmint','russia_dealer','dubai','hongkong','usa','us_sdbullion','canada','australia','shanghai','hkgx','chinagold'];
+  const markets = ['comex','istanbul','india_gjc','india_mumbai','india','japan','germany','switzerland','uk_royalmint','russia_dealer','dubai','hongkong','usa','us_sdbullion','canada','australia','shanghai','hkgx','chinagold'];
   const hours = {'1d':24,'5d':120,'30d':720,'1y':8760}[modalRange]||24;
   for(const m of markets){
     try{
@@ -1577,7 +1561,7 @@ async function loadMiniHistory(){
       }
       const absPriceMarkets = ['comex'];
       const hasSilverData = raw.some(d=>(d.silver_usd_oz!=null&&d.silver_usd_oz>0)||(d.silver_local!=null&&d.silver_local>0));
-      const filtered_raw = m==='lbma' ? raw : raw.filter((d,i)=>{ if(i===0) return true; if(metal==='XAG'&&hasSilverData) return (d.silver_usd_oz||d.silver_local)!==(raw[i-1].silver_usd_oz||raw[i-1].silver_local); if(absPriceMarkets.includes(m)) return d.gold_usd_oz!==raw[i-1].gold_usd_oz; return d.premium_pct!==raw[i-1].premium_pct; });
+      const filtered_raw = raw.filter((d,i)=>{ if(i===0) return true; if(metal==='XAG'&&hasSilverData) return (d.silver_usd_oz||d.silver_local)!==(raw[i-1].silver_usd_oz||raw[i-1].silver_local); if(absPriceMarkets.includes(m)) return d.gold_usd_oz!==raw[i-1].gold_usd_oz; return d.premium_pct!==raw[i-1].premium_pct; });
       const toRender = downsampleData(filtered_raw, modalRange);
       // Insert null gaps where time difference > 2 hours (only for short ranges)
       const with_gaps = [];
@@ -1772,7 +1756,7 @@ function renderSilverPremiumChart(){ try {
   fetch('https://api.goldpremium.org/api/premium-history?metal=XAG&days=30')
     .then(r=>r.json())
     .then(data=>{
-      const MKTNAMES={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',us_sdbullion:'SD Bullion',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',hongkong:'CGSE',japan:'Tanaka',lbma:'LBMA',comex:'COMEX'};
+      const MKTNAMES={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',us_sdbullion:'SD Bullion',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',hongkong:'CGSE',japan:'Tanaka',comex:'COMEX'};
       const datasets = Object.entries(data).map(([market, points])=>({
         label: MKTNAMES[market]||market.charAt(0).toUpperCase()+market.slice(1),
         data: points.map(p=>({x:p.date, y:p.premium})),
@@ -1816,7 +1800,7 @@ function renderGlobalPremiumChart(){ try {
     .then(r=>r.json())
     .then(data=>{
       const colors = MARKET_COLORS;
-      const MKTNAMES2={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',us_sdbullion:'SD Bullion',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',hongkong:'CGSE',japan:'Tanaka',lbma:'LBMA',comex:'COMEX'};
+      const MKTNAMES2={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',us_sdbullion:'SD Bullion',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',hongkong:'CGSE',japan:'Tanaka',comex:'COMEX'};
       const datasets = Object.entries(data).map(([market, points])=>({
         label: MKTNAMES2[market]||market.charAt(0).toUpperCase()+market.slice(1),
         data: points.map(p=>({x:p.date, y:p.premium})),
@@ -2250,7 +2234,6 @@ function render(){
       ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">kitco.com</span></span>`
       : r.isFutures
       ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">finance.yahoo.com</span></span>`
-      : r.id==='lbma'     && lbmaLive?.usd_oz        ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> DAILY</span><span class="bsep"> · </span><span class="bsrc">lbma.org.uk</span></span>`
       : r.id==='shanghai' && shanghaiLive?.cny_gram   ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> DAILY</span><span class="bsep"> · </span><span class="bsrc">sge.com.cn</span></span>`
       : r.id==='hkgx'    && hkgxLive?.ask             ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">hkgx.com.hk</span></span>`
       : r.id==='russia'   && (russiaLive?.gold_rub_gram || russiaLive) ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> DAILY</span><span class="bsep"> · </span><span class="bsrc">moex.com</span></span>`
@@ -2307,7 +2290,7 @@ function render(){
   const _npTxt = metal==='XAG' ? 'No silver price available' : 'No price currently available';
   const _npRow = m => `<tr data-np="1"><td><div class="mkt"><span class="flag">${m.flag}</span><div><div class="mname">${m.name}</div><div class="mcity">${m.city||''}</div></div></div></td><td colspan="4" style="text-align:center;color:var(--text3);font-size:12px;font-style:italic;vertical-align:middle">${_npTxt}</td></tr>`;
   const _hasPrice = m => { const c = calcMarket(m); return !!(c && c.usdOz != null); };
-  htmlEx += EXCHANGES.filter(m=>m.id!=='kitco' && m.id!=='comex' && m.id!=='lbma' && !_hasPrice(m)).map(_npRow).join('');
+  htmlEx += EXCHANGES.filter(m=>m.id!=='kitco' && m.id!=='comex' && !_hasPrice(m)).map(_npRow).join('');
   html += MARKETS.filter(m=>!_hasPrice(m)).map(_npRow).join('');
   document.getElementById('tbody-exchanges').innerHTML=htmlEx;
   document.getElementById('tbody-dealers').innerHTML=html;
