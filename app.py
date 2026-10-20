@@ -347,14 +347,6 @@ def save_prices(prices):
             c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                 (ts, 'russia_dealer', usd_oz, gold, silver, silver_usd, calc_premium(usd_oz), 'RUB', 'gram', 'gram', calc_silver_premium(silver_usd)))
 
-        # LBMA
-        lbma = prices.get("lbma")
-        if lbma and not lbma.get("is_calculated"):
-            gold = lbma.get("gold_usd_oz")
-            silver = lbma.get("silver_usd_oz")
-            c.execute("INSERT INTO price_history (ts,market,gold_usd_oz,gold_local,silver_local,silver_usd_oz,premium_pct,local_currency,gold_local_unit,silver_local_unit,silver_premium_pct) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                (ts, 'lbma', gold, gold, silver, silver, calc_premium(gold), 'USD', 'oz', 'oz', calc_silver_premium(silver)))
-
         # HKGX
         hkgx = prices.get("hkgx")
         if hkgx and not hkgx.get("is_calculated"):
@@ -1521,41 +1513,6 @@ def fetch_hongkong():
         print(f"HK error: {e}")
         return None
 
-# 2026-10-14: LBMA-Daten erfordern eine IBA-Lizenz, die Abrufe sind abgeschaltet, bis eine Lizenz vorliegt
-LBMA_ENABLED = False
-
-def fetch_lbma():
-    if not LBMA_ENABLED:
-        return None
-    try:
-        import requests as req2
-        r3 = req2.get("https://prices.lbma.org.uk/json/gold_pm.json",
-                      headers={"User-Agent": "Mozilla/5.0",
-                               "Referer": "https://www.lbma.org.uk/"}, timeout=10)
-        data = r3.json()
-        # Format: {"d": "2026-04-27", "v": [am_usd, am_gbp, am_eur]}
-        # v[0] = AM fix USD/oz
-        latest = data[-1]
-        price = float(latest["v"][0])
-        if price > 100:
-            print(f"LBMA gold PM: {price} USD/oz")
-            result = {"gold_usd_oz": price, "source": "lbma.org.uk", "is_calculated": False}
-            try:
-                rs = req2.get("https://prices.lbma.org.uk/json/silver.json",
-                              headers={"User-Agent": "Mozilla/5.0",
-                                       "Referer": "https://www.lbma.org.uk/"}, timeout=10)
-                sdata = rs.json()
-                silver = float(sdata[-1]["v"][0])
-                if silver > 1:
-                    result["silver_usd_oz"] = silver
-                    print(f"LBMA silver: {silver} USD/oz")
-            except: pass
-            return result
-        return None
-    except Exception as e:
-        print(f"LBMA error: {e}")
-        return None
-
 
 def _fetch_sge_au_fixing():
     """Fallback fuer SGE-Gold: offizielles 上海金/SHAU Au-Fixing von sge.com.cn
@@ -2082,7 +2039,7 @@ def update():
             _conn = sqlite3.connect(DB_PATH)
             _c = _conn.cursor()
             _c.execute("""SELECT gold_usd_oz FROM price_history
-                          WHERE market IN ('lbma','comex')
+                          WHERE market = 'comex'
                             AND gold_usd_oz IS NOT NULL
                             AND ts < datetime('now','-12 hours')
                           ORDER BY ts DESC LIMIT 1""")
@@ -2102,7 +2059,6 @@ def update():
     uk_royalmint = fetch_uk_royalmint()
     india = fetch_india()
     hk = fetch_hongkong()
-    lbma = fetch_lbma()
     sge = fetch_shanghai()
     # China Gold nur alle 30 Min abfragen (Preis traege, spart Bright-Data-Kosten).
     # An fetch-freien Zyklen bleibt der letzte Wert ueber die DB-Injection in /api/prices sichtbar.
@@ -2203,8 +2159,6 @@ def update():
 
     if hk:
         prices["hongkong"] = hk
-    if lbma:
-        prices["lbma"] = lbma
     if sge:
         prices["shanghai"] = sge
     if chinagold:
@@ -2262,7 +2216,6 @@ def update():
         "istanbul":      ("gold_try_gram",     "TRY", "gram", "silver_try_gram",    "TRY", "gram"),
         "india_gjc":     ("gold_inr_gram_ask",  "INR", "gram", "silver_inr_kg_ask",  "INR", "kg"),
         "hongkong":      ("gold_hkd_oz_ask",   "HKD", "oz",   None,                 None,  None),
-        "lbma":          ("gold_usd_oz",       "USD", "oz",   "silver_usd_oz",      "USD", "oz"),
         "hkgx":          ("gold_usd_oz_ask",   "USD", "oz",   None,                 None,  None),
         "australia":     ("gold_aud_kg_ask",   "AUD", "kg",   "silver_aud_kg",      "AUD", "kg"),
         "usa":           ("gold_usd_oz_ask",   "USD", "oz",   "silver_usd_kg_ask",  "USD", "kg"),
@@ -2475,8 +2428,14 @@ def get_prices():
         print(f"ChinaGold DB error: {e}")
     return jsonify({"data": data, "last_updated": cache["last_updated"], "status": "ok"})
 
+# 2026-10-20: Die IBA erlaubt keine oeffentliche Anzeige der LBMA-Daten (Antwort auf unsere Lizenzanfrage).
+# Die gespeicherten Zeilen bleiben in der Datenbank, werden aber nicht mehr herausgegeben.
+HIDDEN_MARKETS = {"lbma"}
+
 @app.route("/api/history/<market>")
 def get_history(market):
+    if market in HIDDEN_MARKETS:
+        return jsonify({"market": market, "data": [], "count": 0})
     try:
         hours = int(request.args.get('hours', 24))
         conn = sqlite3.connect(DB_PATH)
