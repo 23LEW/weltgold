@@ -1,0 +1,22 @@
+# Backend und interne Dokumente: nicht oeffentlich (2026-10-21)
+app.py
+app.py.*
+health_check.py
+royalmint_scraper.py
+docs/OPS_RUNBOOK.md
+docs/SOURCES.md
+docs/ARCHITECTURE.md
+docs/KNOWN_ISSUES.md
+docs/WORKING_RULES.md
+prices.db
+*.bak*
+*.pem
+fix_*.py
+add_*.py
+remove_*.py
+hide_*.py
+new_*.js
+index_test.html*
+tools/
+__pycache__/
+.DS_Store
