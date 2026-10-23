@@ -417,7 +417,7 @@ footer a:hover{text-decoration:underline}
 <table>
 <thead id="tbl-main-thead">
   <tr>
-    <th data-i18n="thExchange">Exchange</th>
+    <th data-i18n="thExchange" style="font-size:16px;font-weight:700;color:var(--text)">Exchange</th>
     <th id="th-local-ex" data-i18n="thLocalPrice" style="white-space:nowrap;width:1%;padding-right:12px">Local Price</th>
     <th class="r th-usd" id="th-usd-ex" data-i18n="thUsdPrice">Price (USD) / oz</th>
     <th class="r"><span data-i18n="thPremium">Premium %</span> <span title="Price premium vs. spot price (Kitco). Positive = physical costs more than spot; negative = below spot." style="cursor:help;color:var(--text3);font-size:11px;font-weight:400">ⓘ</span></th>
@@ -453,7 +453,7 @@ footer a:hover{text-decoration:underline}
 <tbody id="tbl-dealers">
   <tr>
     <td colspan="5" style="padding:14px 16px 10px;background:var(--bg);border-top:3px solid var(--border);border-bottom:1px solid var(--border)">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text2)" data-i18n="secDealers">Physical Dealer Prices</div>
+      <div style="font-size:16px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text)" data-i18n="secDealers">Physical Dealer Prices</div>
     </td>
   </tr>
 </tbody>
@@ -1444,13 +1444,16 @@ function renderMiniCharts(rows, spotUSD){
       return;
     }
     const labels = mData.map(d=>{
-      if(modalRange==='1d') return d.ts.slice(11,16);
-      if(modalRange==='5d') return d.ts.slice(5,10);
+      if(MINI_RANGE==='1d') return d.ts.slice(11,16);
+      if(MINI_RANGE==='5d') return d.ts.slice(5,10);
       return d.ts.slice(0,10);
     });
     let vals;
     if(metal==='XAG'){
-      const silverVals = mData.map(d=> d.silver_usd_oz!=null&&d.silver_usd_oz>0 ? d.silver_usd_oz : (d.silver_local!=null&&d.silver_local>0 ? d.silver_local : null));
+      const _sellS = tradeDir==="sell";
+      const silverVals = r.isSpot
+        ? mData.map(d=> { const v = (_sellS && d.silver_local_bid!=null) ? d.silver_local_bid : d.silver_usd_oz; return (v!=null && v>0) ? v : null; })
+        : mData.map(d=> { const v = (_sellS && d.silver_bid_premium_pct!=null) ? d.silver_bid_premium_pct : d.silver_premium_pct; return (v!=null && isFinite(v)) ? v : null; });
       const hasSilver = silverVals.some(v=>v!=null);
       if(!hasSilver){
         const ctx2 = canvas.getContext('2d');
@@ -1463,7 +1466,7 @@ function renderMiniCharts(rows, spotUSD){
       }
       vals = silverVals;
     } else if(r.isSpot){
-      vals = mData.map(d=> d.gold_usd_oz!=null ? d.gold_usd_oz : null);
+      vals = mData.map(d=> { const v = (tradeDir==="sell" && d.bid_usd_oz!=null) ? d.bid_usd_oz : d.gold_usd_oz; return v!=null ? v : null; });
     } else {
       vals = mData.map(d=> tradeDir==="sell" && d.bid_premium_pct!=null ? d.bid_premium_pct : d.premium_pct);
     }
@@ -1489,7 +1492,7 @@ function renderMiniCharts(rows, spotUSD){
               title: ctx => {
                 const d = mData[ctx[0].dataIndex];
                 if(!d) return '';
-                if(modalRange==='1d'||modalRange==='5d') return d.ts.slice(0,16).replace('T',' ') + ' UTC';
+                if(MINI_RANGE==='1d'||MINI_RANGE==='5d') return d.ts.slice(0,16).replace('T',' ') + ' UTC';
                 return d.ts.slice(0,10);
               },
               label: ctx => isPremiumChart ? `${ctx.parsed.y>0?'+':''}${ctx.parsed.y?.toFixed(2)}%` : `$${ctx.parsed.y?.toFixed(2)}`
@@ -1502,13 +1505,16 @@ function renderMiniCharts(rows, spotUSD){
             ticks:{
               color:'#666',
               font:{size:8},
-              maxRotation:0,
+              maxRotation:0, autoSkip:false,
               callback: function(val, idx) {
                 const lbl = this.getLabelForValue(val);
                 if(!lbl) return null;
                 const hh = parseInt(lbl.slice(0,2));
                 const mm = parseInt(lbl.slice(3,5));
-                if(mm===0 && hh%4===0) return lbl;
+                if(isNaN(hh)) return null;
+                const _pl = val>0 ? this.getLabelForValue(val-1) : null;
+                const _ph = _pl ? parseInt(_pl.slice(0,2)) : -1;
+                if(_ph<0 || Math.floor(hh/4)!==Math.floor(_ph/4)) return lbl;
                 return null;
               }
             },
@@ -1524,9 +1530,33 @@ function renderMiniCharts(rows, spotUSD){
 let miniHistCache = {};
 let modalGridIndices = [];
 
+// Mini-Chart 1D: je 3 aufeinanderfolgende Punkte zu einem mitteln (nur Darstellung, nicht ueber Luecken > 2 h)
+const MINI_RANGE = '1d'; // fester Zeitraum der Mini-Charts (unabhaengig vom Zeitraum-Schalter des grossen Charts)
+const SMOOTH_MINI = ['comex','istanbul'];
+function smoothMini(rows, m){
+  if(MINI_RANGE!=='1d' || !SMOOTH_MINI.includes(m) || !rows || rows.length<3) return rows;
+  const F=['premium_pct','bid_premium_pct','silver_premium_pct','silver_bid_premium_pct','gold_usd_oz','bid_usd_oz','silver_usd_oz','gold_local','silver_local'];
+  const out=[]; let g=[];
+  const flush=()=>{
+    if(!g.length) return;
+    const o={...g[Math.floor(g.length/2)]};
+    F.forEach(f=>{
+      const v=g.map(d=>d[f]).filter(x=>x!=null&&!isNaN(x));
+      if(v.length) o[f]=v.reduce((a,b)=>a+b,0)/v.length;
+    });
+    out.push(o); g=[];
+  };
+  rows.forEach(d=>{
+    if(g.length && ((new Date(d.ts)-new Date(g[g.length-1].ts))/3600000>2 || g.length>=3)) flush();
+    g.push(d);
+  });
+  flush();
+  return out;
+}
+
 async function loadMiniHistory(){
-  const markets = ['comex','istanbul','india_gjc','india_mumbai','india','japan','germany','switzerland','uk_royalmint','russia_dealer','dubai','hongkong','usa','us_sdbullion','canada','australia','shanghai','hkgx','chinagold'];
-  const hours = {'1d':24,'5d':120,'30d':720,'1y':8760}[modalRange]||24;
+  const markets = ['kitco','comex','istanbul','india_gjc','india_mumbai','india','japan','germany','switzerland','uk_royalmint','russia_dealer','dubai','hongkong','usa','us_sdbullion','canada','australia','shanghai','hkgx','chinagold'];
+  const hours = {'1d':24,'5d':120,'30d':720,'1y':8760}[MINI_RANGE]||24;
   for(const m of markets){
     try{
       const r = await fetch(`https://api.goldpremium.org/api/history/${m}?hours=${hours}`);
@@ -1544,7 +1574,7 @@ async function loadMiniHistory(){
         return true;
       });
       // Wochenend-Fallback: wenn 1D-Filter alles killt (Sa/So), Freitagsdaten via 72h-Retry holen
-      if(raw.length < 2 && modalRange==='1d'){
+      if(raw.length < 2 && MINI_RANGE==='1d'){
         try{
           const r2 = await fetch(`https://api.goldpremium.org/api/history/${m}?hours=72`);
           const j2 = await r2.json();
@@ -1561,11 +1591,11 @@ async function loadMiniHistory(){
       }
       const absPriceMarkets = ['comex'];
       const hasSilverData = raw.some(d=>(d.silver_usd_oz!=null&&d.silver_usd_oz>0)||(d.silver_local!=null&&d.silver_local>0));
-      const filtered_raw = raw.filter((d,i)=>{ if(i===0) return true; if(metal==='XAG'&&hasSilverData) return (d.silver_usd_oz||d.silver_local)!==(raw[i-1].silver_usd_oz||raw[i-1].silver_local); if(absPriceMarkets.includes(m)) return d.gold_usd_oz!==raw[i-1].gold_usd_oz; return d.premium_pct!==raw[i-1].premium_pct; });
-      const toRender = downsampleData(filtered_raw, modalRange);
+      const filtered_raw = raw.filter((d,i)=>{ if(i===0) return true; if(m==='kitco') return (metal==='XAG' ? d.silver_usd_oz!==raw[i-1].silver_usd_oz : d.gold_usd_oz!==raw[i-1].gold_usd_oz); if(metal==='XAG'&&hasSilverData) return (d.silver_premium_pct==null || d.silver_premium_pct!==raw[i-1].silver_premium_pct); if(absPriceMarkets.includes(m)) return d.gold_usd_oz!==raw[i-1].gold_usd_oz; return d.premium_pct!==raw[i-1].premium_pct; });
+      const toRender = smoothMini(downsampleData(filtered_raw, MINI_RANGE), m);
       // Insert null gaps where time difference > 2 hours (only for short ranges)
       const with_gaps = [];
-      if(modalRange==='1d'||modalRange==='5d'){
+      if(MINI_RANGE==='1d'||MINI_RANGE==='5d'){
         for(let i=0;i<toRender.length;i++){
           if(i>0){
             const diff=(new Date(toRender[i].ts)-new Date(toRender[i-1].ts))/3600000;
