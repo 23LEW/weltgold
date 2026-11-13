@@ -35,10 +35,15 @@ jobs:
         if: github.event_name == 'push'
         run: |
           want=$(sha1sum index.html | cut -d' ' -f1)
+          echo "Soll: sha1=$want bytes=$(wc -c index.html | awk '{print $1}')"
           for i in $(seq 1 24); do
-            have=$(curl -fsS "https://goldpremium.org/?nocache=$(date +%s)" | sha1sum | cut -d' ' -f1 || true)
-            [ "$have" = "$want" ] && echo "Live-Stand entspricht dem Push" && exit 0
-            echo "Warte ($i/24) ..."; sleep 15
+            code=$(curl -sS -o served.html -D headers.txt -w '%{http_code}' "https://goldpremium.org/?nocache=$(date +%s)" || echo "curl-fehler")
+            have=$(sha1sum served.html 2>/dev/null | cut -d' ' -f1)
+            echo "Versuch $i: HTTP $code, bytes=$(wc -c served.html 2>/dev/null | awk '{print $1}'), sha1=$have"
+            if [ "$i" = "1" ]; then grep -iE '^(HTTP|server|via|cf-ray|x-cache|content-encoding)' headers.txt || true; fi
+            if [ "$code" = "403" ]; then echo "Die Live-Seite lehnt Anfragen vom GitHub-Runner ab (HTTP 403)"; exit 1; fi
+            if [ "$have" = "$want" ]; then echo "Live-Stand entspricht dem Push"; exit 0; fi
+            sleep 15
           done
           echo "Live-Stand weicht nach 6 Minuten ab"; exit 1
       - run: npm run test:live
