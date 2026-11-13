@@ -7,7 +7,9 @@ const URL_ = process.argv[2] || process.env.SITE_URL || 'https://goldpremium.org
 
 (async()=>{
   const browser = await chromium.launch(launchOptions());
-  const page = await browser.newPage({ viewport:{width:1400,height:1000} });
+  // Service Worker blocken: getestet werden die Achsen, nicht der Offline-Cache
+  const context = await browser.newContext({ viewport:{width:1400,height:1000}, serviceWorkers:'block' });
+  const page = await context.newPage();
   const errs = [];
   page.on('pageerror', e=>errs.push('PAGEERROR: '+String(e).slice(0,200)));
   page.on('console', m=>{ if(m.type()==='error') errs.push('console: '+m.text().slice(0,200)); });
