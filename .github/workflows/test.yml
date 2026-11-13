@@ -1,0 +1,44 @@
+name: Website-Tests
+on:
+  # nach jedem Push auf main: zuerst der deterministische Test gegen den Repo-Stand
+  push:
+    branches: [main]
+  # taeglicher Lauf gegen die Live-Seite (Datenprobleme, Ausfaelle, externe Aenderungen)
+  schedule:
+    - cron: '17 5 * * *'
+  # manuell startbar (Actions-Reiter > Run workflow)
+  workflow_dispatch:
+
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:synthetic
+
+  live:
+    # Live-Test erst, wenn GitHub Pages den neuen Stand ausgeliefert hat: wartet bis zu 6 Min. auf die Zeitachsen-Marke
+    # (bei reinen Test-/Doku-Pushes entfaellt das Warten, weil die Marke schon live ist)
+    runs-on: ubuntu-latest
+    needs: synthetic
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+      - name: Warten bis Pages den aktuellen Stand ausliefert
+        if: github.event_name == 'push'
+        run: |
+          want=$(sha1sum index.html | cut -d' ' -f1)
+          for i in $(seq 1 24); do
+            have=$(curl -fsS "https://goldpremium.org/?nocache=$(date +%s)" | sha1sum | cut -d' ' -f1 || true)
+            [ "$have" = "$want" ] && echo "Live-Stand entspricht dem Push" && exit 0
+            echo "Warte ($i/24) ..."; sleep 15
+          done
+          echo "Live-Stand weicht nach 6 Minuten ab"; exit 1
+      - run: npm run test:live
