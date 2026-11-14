@@ -133,8 +133,6 @@ tr[data-market].mkt-selected td{background:rgba(180,180,180,0.12)!important}
 tr[data-market].mkt-selected .mname::before{content:'✓ ';color:var(--gold)}
 #compare-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:10px 24px;z-index:9998;gap:12px;align-items:center;justify-content:space-between}
 #compare-bar-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex:1;min-width:0}
-tr.lo td:first-child{border-left:2px solid var(--green)}
-tr.hi td:first-child{border-left:2px solid var(--red)}
 .mkt{display:flex;align-items:center;gap:12px}
 .flag{font-size:22px}
 .mname{font-size:21px;font-weight:600;color:var(--text)}
@@ -1481,6 +1479,22 @@ function renderMiniCharts(rows, spotUSD){
     if(canvas._chartInst) canvas._chartInst.destroy();
     const show1DAxis = true; // Mini-Charts zeigen immer 1D
     if(show1DAxis){ canvas.height = 80; canvas.style.height = '80px'; } else { canvas.height = 60; canvas.style.height = '60px'; }
+    // FIX_B Punkt 1: Etikett = erster Messpunkt je 4-Stunden-Fenster (UTC), aber nur mit Mindestabstand (ca. 32 px) zum zuletzt gesetzten Etikett
+    const _lblKeep = new Set();
+    {
+      const _n = labels.length;
+      const _pxIdx = _n>1 ? ((canvas.clientWidth||300)-25)/(_n-1) : 999;
+      const _minIdx = Math.max(1, Math.ceil(32/_pxIdx));
+      let _last = -1e9;
+      labels.forEach((l,i)=>{
+        const hh = parseInt(String(l).slice(0,2));
+        if(isNaN(hh)) return;
+        const ph = i>0 ? parseInt(String(labels[i-1]).slice(0,2)) : -1;
+        if(ph<0 || Math.floor(hh/4)!==Math.floor(ph/4)){
+          if(i-_last>=_minIdx){ _lblKeep.add(i); _last=i; }
+        }
+      });
+    }
     canvas._chartInst = new Chart(canvas, {
       type:'line',
       data:{labels, datasets:[{data:vals, borderColor:color, borderWidth:1.5, pointRadius:0, fill:false, tension:0, spanGaps:metal==='XAG'}]},
@@ -1509,15 +1523,7 @@ function renderMiniCharts(rows, spotUSD){
               font:{size:8},
               maxRotation:0, autoSkip:false,
               callback: function(val, idx) {
-                const lbl = this.getLabelForValue(val);
-                if(!lbl) return null;
-                const hh = parseInt(lbl.slice(0,2));
-                const mm = parseInt(lbl.slice(3,5));
-                if(isNaN(hh)) return null;
-                const _pl = val>0 ? this.getLabelForValue(val-1) : null;
-                const _ph = _pl ? parseInt(_pl.slice(0,2)) : -1;
-                if(_ph<0 || Math.floor(hh/4)!==Math.floor(_ph/4)) return lbl;
-                return null;
+                return _lblKeep.has(val) ? this.getLabelForValue(val) : null;
               }
             },
             grid:{display:false}
@@ -1561,8 +1567,12 @@ async function loadMiniHistory(){
   const hours = {'1d':24,'5d':120,'30d':720,'1y':8760}[MINI_RANGE]||24;
   for(const m of markets){
     try{
-      const r = await fetch(`https://api.goldpremium.org/api/history/${m}?hours=${hours}`);
-      const j = await r.json();
+      // FIX_B Punkt 2: bei Fehler (Netz, HTTP-Status, kein JSON) einmal wiederholen
+      const _histUrl = `https://api.goldpremium.org/api/history/${m}?hours=${hours}`;
+      const _histGet = async ()=>{ const r = await fetch(_histUrl); if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); };
+      let j;
+      try{ j = await _histGet(); }
+      catch(e1){ await new Promise(res=>setTimeout(res,1500)); j = await _histGet(); }
       // Filter weekends and duplicate prices
       let raw = (j.data || []).filter(d=>{
         const dt = new Date(d.ts);
@@ -1611,7 +1621,11 @@ async function loadMiniHistory(){
       miniHistCache[m] = with_gaps;
       miniHistCache[m+"_raw"] = toRender;
       if(m==='india'){ miniHistCache['india_ibja'] = with_gaps; miniHistCache['india_ibja_raw'] = filtered_raw; }
-    }catch(e){ miniHistCache[m] = []; }
+    }catch(e){
+      // FIX_B Punkt 2: Warnung in die Konsole; vorhandenen Cache behalten statt zu leeren
+      console.warn('Mini history failed for '+m, e);
+      if(!miniHistCache[m]) miniHistCache[m] = [];
+    }
   }
 }
 
@@ -2065,7 +2079,13 @@ function render(){
     const istLive = m.id==='istanbul'&&istanbul?.status==='live';
     const istClosed = m.id==='istanbul'&&istanbul?.status==='closed';
     return {...m, localPrice, usdOz, bidOz, diff, pct, eurOz, istLive, istClosed};
-  }).filter(Boolean).sort((a,b)=>a.usdOz-b.usdOz);
+  }).filter(Boolean).sort((a,b)=>{
+    if(tradeDir!=='sell') return a.usdOz-b.usdOz;
+    // FIX_B Punkt 3: Sell-Modus = hoechster Bid zuerst, Zeilen ohne Bid ans Ende (dort weiter nach Ask)
+    const hbA = !!a.bidOz && !a.noBid, hbB = !!b.bidOz && !b.noBid;
+    if(hbA!==hbB) return hbA ? -1 : 1;
+    return hbA ? (b.bidOz-a.bidOz) : (a.usdOz-b.usdOz);
+  });
 
   // Rows — exchanges (COMEX spot row + others)
   const exchangeRows = EXCHANGES.map(m=>{
