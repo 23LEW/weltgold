@@ -8,7 +8,7 @@ function loadPlaywright(){
 
 // CHROMIUM_PATH nur setzen, wenn ein vorinstallierter Browser verwendet werden soll (z.B. lokale Entwicklung).
 function launchOptions(){
-  const o = { args: ['--no-sandbox'] };
+  const o = { args: ['--no-sandbox', '--disable-blink-features=AutomationControlled'] };
   if (process.env.CHROMIUM_PATH) o.executablePath = process.env.CHROMIUM_PATH;
   return o;
 }

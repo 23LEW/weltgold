@@ -8,7 +8,9 @@ const URL_ = process.argv[2] || process.env.SITE_URL || 'https://goldpremium.org
 (async()=>{
   const browser = await chromium.launch(launchOptions());
   // Service Worker blocken: getestet werden die Achsen, nicht der Offline-Cache
-  const context = await browser.newContext({ viewport:{width:1400,height:1000}, serviceWorkers:'block' });
+  // Wie ein normaler Desktop-Browser auftreten: Cloudflare vor der Seite lehnt "HeadlessChrome" aus Rechenzentren mit HTTP 403 ab
+  const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
+  const context = await browser.newContext({ viewport:{width:1400,height:1000}, serviceWorkers:'block', userAgent: UA, locale:'de-DE', timezoneId:'Europe/Berlin' });
   const page = await context.newPage();
   const errs = [];
   page.on('pageerror', e=>errs.push('PAGEERROR: '+String(e).slice(0,200)));
