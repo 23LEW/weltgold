@@ -20,3 +20,7 @@ index_test.html*
 tools/
 __pycache__/
 .DS_Store
+
+# Einmalige Reparaturskripte und Leerdatei (2026-11-14)
+patch_*.py
+/main
