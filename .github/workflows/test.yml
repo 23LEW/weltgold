@@ -27,23 +27,28 @@ jobs:
     needs: synthetic
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: npm install
       - run: npx playwright install --with-deps chromium
-      - name: Warten bis Pages den aktuellen Stand ausliefert
+      - name: Warten bis Pages die geaenderten Zeilen ausliefert
         if: github.event_name == 'push'
+        env:
+          BEFORE: ${{ github.event.before }}
         run: |
-          want=$(sha1sum index.html | cut -d' ' -f1)
-          echo "Soll: sha1=$want bytes=$(wc -c index.html | awk '{print $1}')"
+          # Cloudflare sitzt vor Pages und fuegt pro Abruf eigene Skripte ein, ein Hash-Vergleich ist daher unmoeglich.
+          # Stattdessen: alle in diesem Push zur index.html hinzugefuegten Zeilen (ab 20 Zeichen) muessen in der ausgelieferten Seite stehen.
+          git diff --unified=0 "$BEFORE" "$GITHUB_SHA" -- index.html 2>/dev/null | grep '^+[^+]' | cut -c2- | awk 'length($0)>=20' > added.txt || true
+          n=$(wc -l < added.txt | tr -d ' ')
+          echo "In diesem Push hinzugefuegte Zeilen der index.html (ab 20 Zeichen): $n"
+          if [ "$n" = "0" ]; then echo "Keine Aenderung an der Seite, kein Warten noetig"; exit 0; fi
           for i in $(seq 1 24); do
-            code=$(curl -sS -o served.html -D headers.txt -w '%{http_code}' "https://goldpremium.org/?nocache=$(date +%s)" || echo "curl-fehler")
-            have=$(sha1sum served.html 2>/dev/null | cut -d' ' -f1)
-            echo "Versuch $i: HTTP $code, bytes=$(wc -c served.html 2>/dev/null | awk '{print $1}'), sha1=$have"
-            if [ "$i" = "1" ]; then grep -iE '^(HTTP|server|via|cf-ray|x-cache|content-encoding)' headers.txt || true; fi
-            if [ "$code" = "403" ]; then echo "Die Live-Seite lehnt Anfragen vom GitHub-Runner ab (HTTP 403)"; exit 1; fi
-            if [ "$have" = "$want" ]; then echo "Live-Stand entspricht dem Push"; exit 0; fi
+            code=$(curl -sS -o served.html -w '%{http_code}' "https://goldpremium.org/?nocache=$(date +%s)" || echo "curl-fehler")
+            missing=$(grep -cvxFf served.html added.txt || true)
+            echo "Versuch $i: HTTP $code, bytes=$(wc -c served.html 2>/dev/null | awk '{print $1}'), fehlende Zeilen=$missing von $n"
+            if [ "$code" = "200" ] && [ "$missing" = "0" ]; then echo "Live-Stand enthaelt die Aenderungen des Pushs"; exit 0; fi
             sleep 15
           done
-          echo "Live-Stand weicht nach 6 Minuten ab"; exit 1
+          echo "Live-Stand enthaelt die Aenderungen nach 6 Minuten nicht"; exit 1
       - run: npm run test:live
