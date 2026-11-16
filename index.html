@@ -858,7 +858,8 @@ function taxTag(id){
   const spec = (TAX_INFO[metal]||{})[id];
   if(!spec) return '';
   const t = TRANSLATIONS[currentLang]||TRANSLATIONS.en;
-  const lines = spec.map(([k,r])=>String(t[k]||TRANSLATIONS.en[k]||'').replace('{r}',r)).filter(Boolean);
+  // Royal Mint: "(+20 % at checkout)" gibt es nur mit Warenkorb, im Sell-Modus nicht
+  const lines = spec.filter(([k])=>!(k==='taxExclVatCo' && tradeDir==='sell')).map(([k,r])=>String(t[k]||TRANSLATIONS.en[k]||'').replace('{r}',r)).filter(Boolean);
   return lines.length ? `<div class="mtax">${lines.join('<br>')}</div>` : '';
 }
 
