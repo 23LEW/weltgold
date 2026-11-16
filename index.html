@@ -1377,7 +1377,8 @@ async function load(){
       console.warn('VPS fetch failed',e);
     }
 
-    document.getElementById('upd').textContent=((TRANSLATIONS[currentLang]||TRANSLATIONS.en).updatedLabel||'Updated:')+' '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC';
+    // Kopfzeile: Zeit des letzten Serverzyklus aus der Schnittstelle (last_updated), nicht die Browseruhr
+    document.getElementById('upd').textContent=((TRANSLATIONS[currentLang]||TRANSLATIONS.en).updatedLabel||'Updated:')+' '+(apiRef!==null?new Date(apiRef).toISOString().slice(11,16)+' UTC':'\u2013');
     render();
     try{ await loadHistory(); }catch(he){ console.warn('History failed',he); }
     try{ await loadMiniHistory(); render(); }catch(me){ console.warn('Mini history failed',me); }
