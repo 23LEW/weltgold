@@ -27,15 +27,16 @@
 <meta name="apple-mobile-web-app-title" content="GoldPremium">
 
 
-<script src="https://api.goldpremium.org/static/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3/dist/chartjs-plugin-annotation.min.js"></script>
+<script src="https://api.goldpremium.org/static/chart.umd.min.js" integrity="sha384-bs/nf9FbdNouRbMiFcrcZfLXYPKiPaGVGplVbv7dLGECccEXDW+S3zjqSKR5ZEaD" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js" integrity="sha384-Cs3dgUx6+jDxxuqHvVH8Onpyj2LF1gKZurLDlhqzuJmUqVYMJ0THTWpxK5Z086Zm" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js" integrity="sha384-zPzbVRXfR492Sd5D+HydTYCxxgHAfgVO8KERbLlpeH5unsmbAEXrscGUUqLZG9BM" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js" integrity="sha384-cVMg8E3QFwTvGCDuK+ET4PD341jF3W8nO1auiXfuZNQkzbUUiBGLsIQUE+b1mxws" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js" integrity="sha384-3N9GHhCtN3CQef6tNfqgZlv7sQLYIkcChN+uaTZ7xVdzKYp/SjBNPxa92+hM7EAY" crossorigin="anonymous"></script>
 <script>
 if(typeof Chart==='undefined'){
   var s=document.createElement('script');
   s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+  s.integrity='sha384-bs/nf9FbdNouRbMiFcrcZfLXYPKiPaGVGplVbv7dLGECccEXDW+S3zjqSKR5ZEaD'; s.crossOrigin='anonymous';
   document.head.appendChild(s);
 }
 </script>
@@ -801,8 +802,6 @@ let chartSpot = null, chartIst = null, chartAll = null, chartSilverPremium = nul
 const CS = {USD:'$',EUR:'€',GBP:'£',TRY:'₺',CNY:'¥',INR:'₹',JPY:'¥',HKD:'HK$',AED:'د.إ',CHF:'Fr.'};
 
 // Istanbul session history
-let istHistory = [];
-try { istHistory = JSON.parse(localStorage.getItem('ist_history')||'[]'); } catch(e){}
 
 // Exchange & Benchmark Prices
 const EXCHANGES = [
@@ -1042,10 +1041,10 @@ function calcMarket(m){
                    s: mumbaiLive?.silver_oz_ask || null,
                    gBid: mumbaiLive?.oz_bid || null,
                    sBid: mumbaiLive?.silver_oz_bid || null },
-    hongkong:    { g: hkLive?.ask ? per(hkLive.is_oz ? hkLive.ask : (hkLive.ask/37.429)*G, 'HKD') : null,
+    hongkong:    { g: per(hkLive?.ask, 'HKD'),
                    s: null,
-                   gBid: hkLive?.bid ? per(hkLive.is_oz ? hkLive.bid : (hkLive.bid/37.429)*G, 'HKD') : null,
-                   gAsk: hkLive?.ask ? per(hkLive.is_oz ? hkLive.ask : (hkLive.ask/37.429)*G, 'HKD') : null },
+                   gBid: per(hkLive?.bid, 'HKD'),
+                   gAsk: per(hkLive?.ask, 'HKD') },
     hkgx:        { g: hkgxLive?.ask || null, s: hkgxLive?.silver_ask || null,
                    gBid: hkgxLive?.bid || null, sBid: hkgxLive?.silver_bid || null },
     india_ibja:  { g: ibjaLive?.oz || null, s: ibjaLive?.silver_oz || null,
@@ -1184,12 +1183,6 @@ async function load(){
         const silverSell = ist.silver_try_gram_sell || silver;
         istanbul={gold,goldBuy,goldSell,silver,silverBuy,silverSell,usdOzBid,usdOzAsk,status:'live',ts:new Date().toISOString()};
         try{localStorage.setItem('ist_last',JSON.stringify(istanbul));}catch(e){}
-        const istUSD=fx.TRY>0?(gold/fx.TRY)*G:null;   // ohne Kurs kein Wert (kein Ersatzkurs)
-        const prem=(istUSD==null||!(ns.XAU>0))?null:Math.round((istUSD-ns.XAU)*100)/100;
-        const t=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-        istHistory.push({t,p:prem});
-        if(istHistory.length>40)istHistory=istHistory.slice(-40);
-        try{localStorage.setItem('ist_history',JSON.stringify(istHistory));}catch(e){}
       } else {
         let last=null;
         try{last=JSON.parse(localStorage.getItem('ist_last')||'null');}catch(e){}
@@ -1243,8 +1236,8 @@ async function load(){
 
       // Hong Kong CGSE
       const hk = vps?.hongkong;
-      if(hk && (hk.gold_hkd_oz_bid || hk.gold_hkd_tael_bid) && !hk.is_calculated){
-        hkLive = {bid: hk.gold_hkd_oz_bid || hk.gold_hkd_tael_bid, ask: hk.gold_hkd_oz_ask || hk.gold_hkd_tael_ask, is_oz: !!hk.gold_hkd_oz_bid, source: hk.source};
+      if(hk && hk.gold_hkd_oz_bid && !hk.is_calculated){
+        hkLive = {bid: hk.gold_hkd_oz_bid, ask: hk.gold_hkd_oz_ask, source: hk.source};
       } else {
         hkLive = null;
       }
@@ -2075,6 +2068,7 @@ function fitUsdPrice(){
   const supU=elU.parentElement.querySelector('sup');
   if(supU) supU.style.fontSize=fs+'px';
 }
+function escHtml(t){ return String(t==null?'':t).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function spotSourceLabel(){
   return spotSource==='gold-api' ? 'gold-api.com (backup)' : spotSource==='mixed' ? 'kitco.com + gold-api.com (backup)' : 'kitco.com';
 }
@@ -2463,7 +2457,7 @@ function render(){
       priceCell = `<div class="plocal${svCls}" style="color:var(--text3);font-size:11px;padding:4px 0;font-style:italic">No Bid price listed</div>`;
     } else if(r.isFutures){
       const fpx0 = (tradeDir==='sell' && r.bidOz) ? r.bidOz : r.usdOz;
-      const clab = ((r.contract||'').replace(/^(Gold|Silver)\s+/i,'')) || 'FM';
+      const clab = escHtml(((r.contract||'').replace(/^(Gold|Silver)\s+/i,'')) || 'FM');
       priceCell = `<div class="plocal${svCls}">$${fmt(fpx0,2)}</div><div class="punit">USD/oz · Futures ${clab}</div>`;
     } else {
       priceCell = `<div class="plocal${svCls}">${sym} ${lp}</div><div class="punit">${r.currency}/${isGram?'kg':'oz'}</div>`;
