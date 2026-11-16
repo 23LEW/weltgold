@@ -8,7 +8,9 @@ const path = require('path');
 const { loadPlaywright, launchOptions, readModuleFile, pearson, READ_AXIS, NOISE } = require('./helpers');
 const { chromium } = loadPlaywright();
 
-const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+// Die Seite prueft ihre fremden Skripte per integrity (SRI). Der Test liefert eigene Dateien aus (node_modules, andere Version),
+// daher werden die integrity-Attribute hier entfernt; die echten Pruefsummen prueft der Live-Test gegen die ausgelieferte Seite.
+const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8').replace(/ integrity="[^"]*"/g, '');
 const chartjs = readModuleFile('chart.js/dist/chart.umd.js');
 const adapter = readModuleFile('chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.js');
 
