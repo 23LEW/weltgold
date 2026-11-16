@@ -790,6 +790,7 @@ let unit = 'oz'; // 'oz' or 'gram'
 let tradeDir = 'buy'; // 'buy' or 'sell'
 let mktMeta = {}, apiRef = null; // Messzeit je Markt aus /api/prices (fetched_at, cached, source_ts_iso)
 const KGFACTOR = 1000/G;
+let spotSource = 'kitco';   // Herkunft des Weltmarktpreises: 'kitco' (eigene API), 'gold-api' (Reserve) oder 'mixed'
 let spot = null, fx = null, hkgxLive = null, russiaDealer = null, russiaRetail = null, istanbul = null, gjcLive = null, mumbaiLive = null, ibjaLive = null, hkLive = null, japanLive = null, germanyLive = null, philoroLive = null, russiaLive = null, dubaiLive = null, usaLive = null, sdbullionLive = null, shanghaiLive = null, canadaLive = null, australiaLive = null, royalmintLive = null, chinagoldLive = null;
 let displayCurrency = 'USD';
 const CURRENCIES = {USD:{sym:'$',name:'USD'},EUR:{sym:'€',name:'EUR'},GBP:{sym:'£',name:'GBP'},JPY:{sym:'JP¥',name:'JPY'},CNY:{sym:'CN¥',name:'CNY'},TRY:{sym:'₺',name:'TRY'},AED:{sym:'د.إ',name:'AED'},INR:{sym:'₹',name:'INR'},RUB:{sym:'₽',name:'RUB'},AUD:{sym:'A$',name:'AUD'},HKD:{sym:'HK$',name:'HKD'},CHF:{sym:'Fr.',name:'CHF'}};
@@ -1118,15 +1119,12 @@ function calcMarket(m){
 async function load(){
   try{
     document.getElementById('err').style.display='none';
-    // Fetch spot (gold-api) + FX in parallel, then VPS for Istanbul + Kitco bid/ask
-    const [gr, sr, fxr] = await Promise.all([
-      fetch('https://api.gold-api.com/price/XAU').then(r=>r.json()),
-      fetch('https://api.gold-api.com/price/XAG').then(r=>r.json()),
-      fetch('https://api.goldpremium.org/api/fx').then(r=>r.json())
-    ]);
+    // Wechselkurse und Weltmarktpreis kommen aus der eigenen API; gold-api.com wird nur als gekennzeichnete Reserve geholt (R13)
+    const fxr = await fetch('https://api.goldpremium.org/api/fx').then(r=>r.json());
     // Bestehende chp_xxx Werte erhalten
     const prevChpVals = Object.fromEntries(Object.entries(spot||{}).filter(([k])=>k.startsWith('XAU_chp_')||k.startsWith('XAG_chp_')));
-    spot = {XAU:gr.price, XAG:sr.price, XAU_bid:gr.price, XAU_ask:gr.price, XAG_bid:sr.price, XAG_ask:sr.price, XAU_chp:gr.chp, XAU_ch:gr.ch, XAG_chp:sr.chp, XAG_ch:sr.ch, ...prevChpVals};
+    const ns = {...prevChpVals};   // neuer Stand wird lokal aufgebaut; spot (global) wird erst am Ende ersetzt, bei Fehlschlag bleibt der alte Preis (R13)
+    spotSource = 'kitco';
     fx = {...fxr, USD:1};
 
     // VPS: Istanbul live price + Kitco spot bid/ask
@@ -1143,56 +1141,34 @@ async function load(){
 
       // Update spot bid/ask + change from Kitco via VPS
       if(vps?.spot?.XAU){  // Lockere Bedingung - nur XAU muss vorhanden sein
-        spot.XAU = vps.spot.XAU || spot.XAU;
-        spot.XAU_bid = vps.spot.XAU_bid;
-        spot.XAU_ask = vps.spot.XAU_ask;
-        spot.XAU_ch = vps.spot.XAU_ch;
-        spot.XAU_chp = vps.spot.XAU_chp;
+        spotSource = vps.spot.is_fallback ? 'gold-api' : 'kitco';   // is_fallback: der Server selbst nutzt gold-api.com statt Kitco
+        ns.XAU = vps.spot.XAU || ns.XAU;
+        ns.XAU_bid = vps.spot.XAU_bid;
+        ns.XAU_ask = vps.spot.XAU_ask;
+        ns.XAU_ch = vps.spot.XAU_ch;
+        ns.XAU_chp = vps.spot.XAU_chp;
         // Alle Währungs-chp Werte übertragen
-        Object.keys(vps.spot).filter(k=>k.startsWith('XAU_chp_')||k.startsWith('XAG_chp_')).forEach(k=>spot[k]=vps.spot[k]);
-        spot.XAU_high = vps.spot.XAU_high;
-        spot.XAU_low = vps.spot.XAU_low;
-        spot.XAG_high = vps.spot.XAG_high;
-        spot.XAG_low = vps.spot.XAG_low;
-        spot.XAG = vps.spot.XAG || spot.XAG;
-        spot.XAG_bid = vps.spot.XAG_bid || spot.XAG;
-        spot.XAG_ask = vps.spot.XAG_ask || spot.XAG;
-        spot.XAG_ch = vps.spot.XAG_ch;
-        spot.XAG_chp = vps.spot.XAG_chp;
-        spot.XAU_chp_eur = vps.spot.XAU_chp_eur;
-        spot.XAG_chp_eur = vps.spot.XAG_chp_eur;
+        Object.keys(vps.spot).filter(k=>k.startsWith('XAU_chp_')||k.startsWith('XAG_chp_')).forEach(k=>ns[k]=vps.spot[k]);
+        ns.XAU_high = vps.spot.XAU_high;
+        ns.XAU_low = vps.spot.XAU_low;
+        ns.XAG_high = vps.spot.XAG_high;
+        ns.XAG_low = vps.spot.XAG_low;
+        ns.XAG = vps.spot.XAG || ns.XAG;
+        ns.XAG_bid = vps.spot.XAG_bid || ns.XAG;
+        ns.XAG_ask = vps.spot.XAG_ask || ns.XAG;
+        ns.XAG_ch = vps.spot.XAG_ch;
+        ns.XAG_chp = vps.spot.XAG_chp;
+        ns.XAU_chp_eur = vps.spot.XAU_chp_eur;
+        ns.XAG_chp_eur = vps.spot.XAG_chp_eur;
         // COMEX Futures: Kurs, Bid, Ask und Kontraktname vom Server (Yahoo)
-        spot.GC = vps.spot.GC ?? spot.GC;
-        spot.SI = vps.spot.SI ?? spot.SI;
-        spot.GC_bid = vps.spot.GC_bid;
-        spot.GC_ask = vps.spot.GC_ask;
-        spot.SI_bid = vps.spot.SI_bid;
-        spot.SI_ask = vps.spot.SI_ask;
-        spot.GC_contract = vps.spot.GC_contract;
-        spot.SI_contract = vps.spot.SI_contract;
-      }
-
-      // Client-side per-currency chp (Frankfurter fallback if server didn't provide)
-      if (!spot.XAU_chp_eur && spot.XAU_ch != null) {
-        (async () => {
-          try {
-            const d = new Date(); d.setDate(d.getDate()-1);
-            while(d.getDay()===0||d.getDay()===6) d.setDate(d.getDate()-1);
-            const yest = d.toISOString().split('T')[0];
-            const fr = await fetch(`https://api.frankfurter.dev/v1/${yest}?base=USD&symbols=EUR,GBP,JPY,CNY,TRY,INR,AUD,HKD,CHF`);
-            const fd = await fr.json();
-            const fxY = fd.rates || {};
-            const xauY = spot.XAU - spot.XAU_ch;
-            const xagY = (spot.XAG != null && spot.XAG_ch != null) ? spot.XAG - spot.XAG_ch : null;
-            ['EUR','GBP','JPY','CNY','TRY','INR','AUD','HKD','CHF'].forEach(cur => {
-              const lc = cur.toLowerCase(), fxT = fx[cur], fxYc = fxY[cur];
-              if(!fxT||!fxYc||!xauY) return;
-              spot[`XAU_chp_${lc}`] = (spot.XAU*fxT - xauY*fxYc) / (xauY*fxYc) * 100;
-              if(xagY && spot.XAG) spot[`XAG_chp_${lc}`] = (spot.XAG*fxT - xagY*fxYc) / (xagY*fxYc) * 100;
-            });
-            render();
-          } catch(e) { console.warn('Frankfurter chp fallback:', e); }
-        })();
+        ns.GC = vps.spot.GC ?? ns.GC;
+        ns.SI = vps.spot.SI ?? ns.SI;
+        ns.GC_bid = vps.spot.GC_bid;
+        ns.GC_ask = vps.spot.GC_ask;
+        ns.SI_bid = vps.spot.SI_bid;
+        ns.SI_ask = vps.spot.SI_ask;
+        ns.GC_contract = vps.spot.GC_contract;
+        ns.SI_contract = vps.spot.SI_contract;
       }
 
       // Istanbul
@@ -1209,7 +1185,7 @@ async function load(){
         istanbul={gold,goldBuy,goldSell,silver,silverBuy,silverSell,usdOzBid,usdOzAsk,status:'live',ts:new Date().toISOString()};
         try{localStorage.setItem('ist_last',JSON.stringify(istanbul));}catch(e){}
         const istUSD=fx.TRY>0?(gold/fx.TRY)*G:null;   // ohne Kurs kein Wert (kein Ersatzkurs)
-        const prem=istUSD==null?null:Math.round((istUSD-spot.XAU)*100)/100;
+        const prem=(istUSD==null||!(ns.XAU>0))?null:Math.round((istUSD-ns.XAU)*100)/100;
         const t=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
         istHistory.push({t,p:prem});
         if(istHistory.length>40)istHistory=istHistory.slice(-40);
@@ -1380,6 +1356,45 @@ async function load(){
       gjcLive = null;
       console.warn('VPS fetch failed',e);
     }
+
+    // Reserve (R13): fehlt Gold oder Silber in der eigenen API, direkt bei gold-api.com holen und als Reserve kennzeichnen
+    if(!(ns.XAU>0) || !(ns.XAG>0)){
+      try{
+        const [gr, sr] = await Promise.all([
+          fetch('https://api.gold-api.com/price/XAU').then(r=>r.json()),
+          fetch('https://api.gold-api.com/price/XAG').then(r=>r.json())
+        ]);
+        let _used = [];
+        if(!(ns.XAU>0) && gr && gr.price>0){ Object.assign(ns, {XAU:gr.price, XAU_bid:gr.price, XAU_ask:gr.price, XAU_chp:gr.chp, XAU_ch:gr.ch}); _used.push('XAU'); }
+        if(!(ns.XAG>0) && sr && sr.price>0){ Object.assign(ns, {XAG:sr.price, XAG_bid:sr.price, XAG_ask:sr.price, XAG_chp:sr.chp, XAG_ch:sr.ch}); _used.push('XAG'); }
+        if(_used.length) spotSource = _used.includes('XAU') && _used.includes('XAG') ? 'gold-api' : (spotSource==='gold-api' ? 'gold-api' : 'mixed');
+      }catch(e){ console.warn('Reserve gold-api.com failed', e); }
+    }
+    if(!(ns.XAU>0)) throw new Error('no spot price available');   // weder eigene API noch Reserve: Fehlermeldung
+    spot = ns;   // erst jetzt wird der neue Preis uebernommen
+
+      // Client-side per-currency chp (Frankfurter fallback if server didn't provide)
+      if (!ns.XAU_chp_eur && ns.XAU_ch != null) {
+        (async () => {
+          try {
+            const d = new Date(); d.setDate(d.getDate()-1);
+            while(d.getDay()===0||d.getDay()===6) d.setDate(d.getDate()-1);
+            const yest = d.toISOString().split('T')[0];
+            const fr = await fetch(`https://api.frankfurter.dev/v1/${yest}?base=USD&symbols=EUR,GBP,JPY,CNY,TRY,INR,AUD,HKD,CHF`);
+            const fd = await fr.json();
+            const fxY = fd.rates || {};
+            const xauY = ns.XAU - ns.XAU_ch;
+            const xagY = (ns.XAG != null && ns.XAG_ch != null) ? ns.XAG - ns.XAG_ch : null;
+            ['EUR','GBP','JPY','CNY','TRY','INR','AUD','HKD','CHF'].forEach(cur => {
+              const lc = cur.toLowerCase(), fxT = fx[cur], fxYc = fxY[cur];
+              if(!fxT||!fxYc||!xauY) return;
+              ns[`XAU_chp_${lc}`] = (ns.XAU*fxT - xauY*fxYc) / (xauY*fxYc) * 100;
+              if(xagY && ns.XAG) ns[`XAG_chp_${lc}`] = (ns.XAG*fxT - xagY*fxYc) / (xagY*fxYc) * 100;
+            });
+            render();
+          } catch(e) { console.warn('Frankfurter chp fallback:', e); }
+        })();
+      }
 
     // Kopfzeile: Zeit des letzten Serverzyklus aus der Schnittstelle (last_updated), nicht die Browseruhr
     document.getElementById('upd').textContent=((TRANSLATIONS[currentLang]||TRANSLATIONS.en).updatedLabel||'Updated:')+' '+(apiRef!==null?new Date(apiRef).toISOString().slice(11,16)+' UTC':'\u2013');
@@ -2060,6 +2075,9 @@ function fitUsdPrice(){
   const supU=elU.parentElement.querySelector('sup');
   if(supU) supU.style.fontSize=fs+'px';
 }
+function spotSourceLabel(){
+  return spotSource==='gold-api' ? 'gold-api.com (backup)' : spotSource==='mixed' ? 'kitco.com + gold-api.com (backup)' : 'kitco.com';
+}
 function getCurrencyRate(){
   if(displayCurrency==='USD') return 1;
   return fx[displayCurrency] || 1;
@@ -2138,7 +2156,7 @@ function render(){
     const _sba = document.getElementById('sticky-bidask');
     if(_sba) _sba.innerHTML = `Bid ${getCurrencySym()}${fmt(dBidDisp,dec)}<img class="ba-logo" src="goldpremium_icon.svg?v=4" alt="" style="height:18px;width:auto;vertical-align:middle;margin:0 9px"><span class="ba-dot" style="display:none"> · </span>Ask ${getCurrencySym()}${fmt(dAskDisp,dec)}`;
   }
-  document.getElementById('v-usd-source').textContent = 'Source: kitco.com';
+  document.getElementById('v-usd-source').textContent = 'Source: ' + spotSourceLabel();
   // v-eur-source wird dynamisch in setCurrency gesetzt
 
   // Gold/Silver ratio (Status-Text und Gauge entfernt 2026-05-20)
@@ -2239,7 +2257,7 @@ function render(){
       const gc = isSellK ? kBid : kAsk;
       const diff = 0;
       const pct = 0;
-      return {...m, localPrice:gc, usdOz:gc, diff, pct, eurOz:fx.EUR?gc*fx.EUR:null, isSpot:true, istLive:false, istClosed:false};
+      return {...m, name: spotSource==='kitco' ? m.name : 'World Spot Price \u00b7 ' + spotSourceLabel(), localPrice:gc, usdOz:gc, diff, pct, eurOz:fx.EUR?gc*fx.EUR:null, isSpot:true, istLive:false, istClosed:false};
     }
     if(m.id==='comex'){
       const gc = isGold ? spot.GC : spot.SI;
@@ -2429,7 +2447,7 @@ function render(){
       ? (isGram ? fmt(r.usdOz*KGFACTOR*getCurrencyRate(),2) : fmt(r.usdOz*getCurrencyRate(),2))
       : fmt(r.localPrice,2);
     const srcBadge = r.id==='kitco'
-      ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">kitco.com</span></span>`
+      ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">${spotSourceLabel()}</span></span>`
       : r.isFutures
       ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">finance.yahoo.com</span></span>`
       : r.id==='shanghai' && shanghaiLive?.cny_gram   ? `<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> DAILY</span><span class="bsep"> · </span><span class="bsrc">sge.com.cn</span></span>`
