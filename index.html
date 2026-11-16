@@ -1030,7 +1030,7 @@ function calcMarket(m){
     istanbul:    { g: istanbul?.usdOzAsk || (istanbul?.goldSell ? (istanbul.goldSell/(fx.TRY||1))*G : null),
                    s: (istanbul?.silverSell||istanbul?.silver) ? ((istanbul.silverSell||istanbul.silver)/(fx.TRY||1))*G : null,
                    gBid: istanbul?.usdOzBid || (istanbul?.goldBuy ? (istanbul.goldBuy/(fx.TRY||1))*G : null),
-                   sBid: (istanbul?.silverBuy||istanbul?.silver) ? ((istanbul.silverBuy||istanbul.silver)/(fx.TRY||1))*G : null },
+                   sBid: istanbul?.silverBuy ? (istanbul.silverBuy/(fx.TRY||1))*G : null },
     india_gjc:   { g: gjcLive?.oz_ask || null, s: gjcLive?.silver_oz_ask || null,
                    gBid: gjcLive?.oz_bid || null, sBid: gjcLive?.silver_oz_bid || null },
     india_mumbai:{ g: mumbaiLive?.oz_ask || null,
@@ -1046,9 +1046,9 @@ function calcMarket(m){
     india_ibja:  { g: ibjaLive?.oz || null, s: ibjaLive?.silver_oz || null,
                    gBid: ibjaLive?.oz || null, sBid: ibjaLive?.silver_oz || null },
     usa:         { g: usaLive?.oz_ask || null, s: usaLive?.silver_oz_ask || null,
-                   gBid: usaLive?.oz_bid || null, sBid: usaLive?.silver_oz_bid || null },
+                   gBid: null, sBid: usaLive?.silver_oz_bid || null },   // kein Gold-Bid: die Quelle nennt keinen
     us_sdbullion:{ g: sdbullionLive?.oz_ask || null, s: sdbullionLive?.silver_oz_ask || null,
-                   gBid: sdbullionLive?.oz_bid || null, sBid: sdbullionLive?.silver_oz_bid || null },
+                   gBid: null, sBid: sdbullionLive?.silver_oz_bid || null },
     australia:   { g: australiaLive?.ask ? australiaLive.ask/(fx.AUD||1.55) : null,
                    s: australiaLive?.silver_ask ? australiaLive.silver_ask/(fx.AUD||1.55) : null,
                    gBid: australiaLive?.bid ? australiaLive.bid/(fx.AUD||1.55) : null,
@@ -1195,12 +1195,12 @@ async function load(){
       const ist = vps?.istanbul;
       if(ist && !ist.is_calculated){
         const gold = ist.gold_try_gram;
-        const goldBuy = ist.gold_try_gram_buy || gold;
+        const goldBuy = ist.gold_try_gram_buy || null;
         const goldSell = ist.gold_try_gram_sell || gold;
         const usdOzBid = ist.gold_usd_oz_bid || null;
         const usdOzAsk = ist.gold_usd_oz_ask || null;
         const silver = ist.silver_try_gram;
-        const silverBuy = ist.silver_try_gram_buy || silver;
+        const silverBuy = ist.silver_try_gram_buy || null;
         const silverSell = ist.silver_try_gram_sell || silver;
         istanbul={gold,goldBuy,goldSell,silver,silverBuy,silverSell,usdOzBid,usdOzAsk,status:'live',ts:new Date().toISOString()};
         try{localStorage.setItem('ist_last',JSON.stringify(istanbul));}catch(e){}
@@ -1272,13 +1272,13 @@ async function load(){
       // USA BGASC
       const us = vps?.usa;
       if(us && us.gold_usd_kg_ask && !us.is_calculated){
-        usaLive = {kg_ask: us.gold_usd_kg_ask, kg_bid: us.gold_usd_kg_bid, oz_ask: us.gold_usd_oz_ask, oz_bid: us.gold_usd_oz_bid, silver_oz_ask: us.silver_usd_oz_ask, silver_oz_bid: us.silver_usd_oz_bid, silver_kg_ask: us.silver_usd_kg_ask, source: us.source};
+        usaLive = {kg_ask: us.gold_usd_kg_ask, oz_ask: us.gold_usd_oz_ask, silver_oz_ask: us.silver_usd_oz_ask, silver_oz_bid: us.silver_usd_oz_bid, silver_kg_ask: us.silver_usd_kg_ask, source: us.source};
       } else { usaLive = null; }
 
       // USA SD Bullion
       const usSd = vps?.us_sdbullion;
       if(usSd && usSd.gold_usd_kg_ask && !usSd.is_calculated){
-        sdbullionLive = {kg_ask: usSd.gold_usd_kg_ask, kg_bid: usSd.gold_usd_kg_bid, oz_ask: usSd.gold_usd_oz_ask, oz_bid: usSd.gold_usd_oz_bid, silver_oz_ask: usSd.silver_usd_oz_ask, silver_oz_bid: usSd.silver_usd_oz_bid, silver_kg_ask: usSd.silver_usd_kg_ask, source: usSd.source};
+        sdbullionLive = {kg_ask: usSd.gold_usd_kg_ask, oz_ask: usSd.gold_usd_oz_ask, silver_oz_ask: usSd.silver_usd_oz_ask, silver_oz_bid: usSd.silver_usd_oz_bid, silver_kg_ask: usSd.silver_usd_kg_ask, source: usSd.source};
       } else { sdbullionLive = null; }
 
       // Shanghai SGE
@@ -1582,7 +1582,7 @@ function renderMiniCharts(rows, spotUSD){
       const _sellS = tradeDir==="sell";
       const silverVals = r.isSpot
         ? mData.map(d=> { const v = (_sellS && d.silver_local_bid!=null) ? d.silver_local_bid : d.silver_usd_oz; return (v!=null && v>0) ? v : null; })
-        : mData.map(d=> { const v = (_sellS && d.silver_bid_premium_pct!=null) ? d.silver_bid_premium_pct : d.silver_premium_pct; return (v!=null && isFinite(v)) ? v : null; });
+        : mData.map(d=> { const v = _sellS ? d.silver_bid_premium_pct : d.silver_premium_pct; return (v!=null && isFinite(v)) ? v : null; });   // Sell-Modus: kein Rueckfall auf den Ask-Aufschlag
       const hasSilver = silverVals.some(v=>v!=null);
       if(!hasSilver){
         const ctx2 = canvas.getContext('2d');
@@ -1590,14 +1590,14 @@ function renderMiniCharts(rows, spotUSD){
         ctx2.fillStyle = '#666C78';
         ctx2.font = '9px sans-serif';
         ctx2.textAlign = 'center';
-        ctx2.fillText('No Silver price available', canvas.width/2, canvas.height/2+3);
+        ctx2.fillText(_sellS ? 'No Bid price listed' : 'No Silver price available', canvas.width/2, canvas.height/2+3);
         return;
       }
       vals = silverVals;
     } else if(r.isSpot){
       vals = mData.map(d=> { const v = (tradeDir==="sell" && d.bid_usd_oz!=null) ? d.bid_usd_oz : d.gold_usd_oz; return v!=null ? v : null; });
     } else {
-      vals = mData.map(d=> tradeDir==="sell" && d.bid_premium_pct!=null ? d.bid_premium_pct : d.premium_pct);
+      vals = mData.map(d=> tradeDir==="sell" ? (d.bid_premium_pct ?? null) : d.premium_pct);   // Sell-Modus: kein Rueckfall auf den Ask-Aufschlag
     }
     const color = r.isSpot ? '#F5C842' : '#5B8DEF';
     const isPremiumChart = !r.isSpot;
@@ -2217,7 +2217,8 @@ function render(){
     const eurOz = fx.EUR?usdOz*fx.EUR:null;
     const istLive = m.id==='istanbul'&&istanbul?.status==='live';
     const istClosed = m.id==='istanbul'&&istanbul?.status==='closed';
-    return {...m, localPrice, usdOz, bidOz, diff, pct, eurOz, istLive, istClosed};
+    // Fehlt der Bid (Quelle nennt keinen oder fehlt gerade), gilt "No Bid price listed"; kein Rueckfall auf den Ask
+    return {...m, localPrice, usdOz, bidOz, diff, pct, eurOz, istLive, istClosed, noBid: !!(m.noBid || !bidOz)};
   }).filter(Boolean).sort(_cmpRows);
 
   // Rows — exchanges (COMEX spot row + others)
@@ -2386,7 +2387,7 @@ function render(){
     const spotBidRef = isGold2 ? (spot.XAU_bid||spot.XAU) : (spot.XAG_bid||spot.XAG);
     const spotAskRef = isGold2 ? (spot.XAU_ask||spot.XAU) : (spot.XAG_ask||spot.XAG);
     const comexRef = isSell ? spotBidRef : spotAskRef;
-    const premUsdOz = isSell ? (r.bidOz||r.usdOz) : r.usdOz;
+    const premUsdOz = isSell ? r.bidOz : r.usdOz;   // im Sell-Modus ohne Bid kommt die Zeile nie hierher (siehe noBid unten)
     const premKg = isGram ? premUsdOz*KGFACTOR : premUsdOz;
     const spotKg2 = isGram ? comexRef*KGFACTOR : comexRef;
     const premDiff = (premKg - spotKg2) * getCurrencyRate();
