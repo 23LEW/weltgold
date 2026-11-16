@@ -781,7 +781,7 @@ let metal = 'XAU';
 let unit = 'oz'; // 'oz' or 'gram'
 let tradeDir = 'buy'; // 'buy' or 'sell'
 const KGFACTOR = 1000/G;
-let spot = null, fx = null, hkgxLive = null, russiaDealer = null, istanbul = null, gjcLive = null, mumbaiLive = null, ibjaLive = null, hkLive = null, japanLive = null, germanyLive = null, philoroLive = null, russiaLive = null, dubaiLive = null, usaLive = null, sdbullionLive = null, shanghaiLive = null, canadaLive = null, australiaLive = null, royalmintLive = null, chinagoldLive = null;
+let spot = null, fx = null, hkgxLive = null, russiaDealer = null, russiaRetail = null, istanbul = null, gjcLive = null, mumbaiLive = null, ibjaLive = null, hkLive = null, japanLive = null, germanyLive = null, philoroLive = null, russiaLive = null, dubaiLive = null, usaLive = null, sdbullionLive = null, shanghaiLive = null, canadaLive = null, australiaLive = null, royalmintLive = null, chinagoldLive = null;
 let displayCurrency = 'USD';
 const CURRENCIES = {USD:{sym:'$',name:'USD'},EUR:{sym:'€',name:'EUR'},GBP:{sym:'£',name:'GBP'},JPY:{sym:'JP¥',name:'JPY'},CNY:{sym:'CN¥',name:'CNY'},TRY:{sym:'₺',name:'TRY'},AED:{sym:'د.إ',name:'AED'},INR:{sym:'₹',name:'INR'},RUB:{sym:'₽',name:'RUB'},AUD:{sym:'A$',name:'AUD'},HKD:{sym:'HK$',name:'HKD'},CHF:{sym:'Fr.',name:'CHF'}};
 let histData = []; // historical spot prices
@@ -815,6 +815,7 @@ const MARKETS = [
   {id:'us_sdbullion', name:'SD Bullion · USA', city:'Online Bullion Dealer', flag:'🇺🇸', currency:'USD', unitLabel:'USD/oz', calcPremium:0.02},
   {id:'canada', name:'CB Metals · Canada', city:'Toronto · Online Dealer', flag:'🇨🇦', currency:'CAD', unitLabel:'CAD/kg', calcPremium:0.02, noBid:true},
   {id:'russia_dealer', name:'Region Zoloto · Russia', city:'Moscow · Online Dealer', flag:'🇷🇺', currency:'RUB', unitLabel:'RUB/g', calcPremium:0.02, noBid:true},
+  {id:'russia_retail', name:'Bank Bars · Russia', city:'Moscow · Cheapest listed bank', flag:'🇷🇺', currency:'RUB', unitLabel:'RUB/g', calcPremium:0, noBid:true, note:'Lowest selling price for a 1 kg gold bar among the banks listed on Bankiros.ru (Moscow). Price as quoted by the bank, final price for private buyers, no tax shown separately. Availability and price can differ by branch. Gold only.'},
   {id:'australia', name:'Perth Mint · Australia', city:'Perth · Government Mint', flag:'🇦🇺', currency:'AUD', unitLabel:'AUD/kg', calcPremium:0.01},
   {id:'germany', name:'Degussa · Germany', city:'Frankfurt / München', flag:'🇩🇪', currency:'EUR', unitLabel:'EUR/oz', calcPremium:0.015},
   {id:'switzerland', name:'Philoro · Switzerland', city:'Zürich / Wien / München', flag:'🇨🇭', currency:'CHF', unitLabel:'CHF/oz', calcPremium:0.02},
@@ -996,6 +997,7 @@ function calcMarket(m){
                    sBid: dubaiLive?.silver_bid_usd_oz || null },
     russia_dealer:{ g: russiaDealer?.gold_rub_gram ? (russiaDealer.gold_rub_gram/(fx.RUB||90))*G : null,
                     s: russiaDealer?.silver_rub_gram ? (russiaDealer.silver_rub_gram/(fx.RUB||90))*G : null },
+    russia_retail:{ g: (russiaRetail?.gold_rub_gram && fx.RUB) ? (russiaRetail.gold_rub_gram/fx.RUB)*G : null },
 
     germany:     { g: germanyLive?.ask ? germanyLive.ask/(fx.EUR||1) : null,
                    s: germanyLive?.silver_kg_ask ? germanyLive.silver_kg_ask/KGFACTOR/(fx.EUR||1) : null,
@@ -1242,6 +1244,11 @@ async function load(){
       if(rd?.gold_rub_gram && !rd.is_calculated){
         russiaDealer = {gold_rub_gram: rd.gold_rub_gram, silver_rub_gram: rd.silver_rub_gram, source: rd.source};
       } else { russiaDealer = null; }
+
+      const rr = vps?.russia_retail;
+      if(rr?.gold_rub_gram && !rr.is_calculated){
+        russiaRetail = {gold_rub_gram: rr.gold_rub_gram, source: rr.source};
+      } else { russiaRetail = null; }
 
       const hkgxData = vps?.hkgx;
       if(hkgxData?.gold_usd_oz_bid && hkgxData?.gold_usd_oz_ask){
@@ -1619,7 +1626,7 @@ function smoothMini(rows, m){
 }
 
 async function loadMiniHistory(){
-  const markets = ['kitco','comex','istanbul','india_gjc','india_mumbai','india','japan','germany','switzerland','uk_royalmint','russia_dealer','dubai','hongkong','usa','us_sdbullion','canada','australia','shanghai','hkgx','chinagold'];
+  const markets = ['kitco','comex','istanbul','india_gjc','india_mumbai','india','japan','germany','switzerland','uk_royalmint','russia_dealer','russia_retail','dubai','hongkong','usa','us_sdbullion','canada','australia','shanghai','hkgx','chinagold'];
   const hours = {'1d':24,'5d':120,'30d':720,'1y':8760}[MINI_RANGE]||24;
   for(const m of markets){
     try{
@@ -1855,7 +1862,7 @@ function renderSilverPremiumChart(){ try {
   fetch('https://api.goldpremium.org/api/premium-history?metal=XAG&days=30')
     .then(r=>r.json())
     .then(data=>{
-      const MKTNAMES={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',us_sdbullion:'SD Bullion',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',hongkong:'CGSE',japan:'Tanaka',comex:'COMEX'};
+      const MKTNAMES={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',us_sdbullion:'SD Bullion',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',russia_retail:'Russia Bank Bars',hongkong:'CGSE',japan:'Tanaka',comex:'COMEX'};
       const datasets = Object.entries(data).map(([market, points])=>({
         label: MKTNAMES[market]||market.charAt(0).toUpperCase()+market.slice(1),
         data: points.map(p=>({x:p.date, y:p.premium})),
@@ -1899,7 +1906,7 @@ function renderGlobalPremiumChart(){ try {
     .then(r=>r.json())
     .then(data=>{
       const colors = MARKET_COLORS;
-      const MKTNAMES2={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',us_sdbullion:'SD Bullion',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',hongkong:'CGSE',japan:'Tanaka',comex:'COMEX'};
+      const MKTNAMES2={istanbul:'Nadir',india_gjc:'GJC',germany:'Degussa',switzerland:'Philoro',uk_royalmint:'Royal Mint',dubai:'GVS Trading',usa:'BGASC',us_sdbullion:'SD Bullion',australia:'ABC Bullion',canada:'Canadian Mint',shanghai:'SGE',russia_dealer:'Russia Dealer',russia_retail:'Russia Bank Bars',hongkong:'CGSE',japan:'Tanaka',comex:'COMEX'};
       const datasets = Object.entries(data).map(([market, points])=>({
         label: MKTNAMES2[market]||market.charAt(0).toUpperCase()+market.slice(1),
         data: points.map(p=>({x:p.date, y:p.premium})),
@@ -2226,6 +2233,7 @@ function render(){
     else if(r.id==='canada'   && canadaLive?.cad_kg_ask)     srcBadge='<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">canadianbullion.ca</span></span>';
     else if(r.id==='dubai'    && (dubaiLive?.ask_aed_kg||dubaiLive?.bid_aed_kg)) srcBadge='<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">gvs-trading.ae</span></span>';
     else if(r.id==='russia_dealer' && russiaDealer?.gold_rub_gram) srcBadge='<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">region-zoloto.ru</span></span>';
+    else if(r.id==='russia_retail' && russiaRetail?.gold_rub_gram) srcBadge='<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc"><a href="https://bankiros.ru/metall/zoloto/1kg/moskva" target="_blank" rel="noopener" style="color:inherit" onclick="event.stopPropagation()">bankiros.ru</a></span></span>';
     else if(r.id==='russia'   && russiaLive)  srcBadge='<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> DAILY</span><span class="bsep"> · </span><span class="bsrc">moex.com</span></span>';
     else if(r.id==='germany'  && (germanyLive?.bid||germanyLive?.silver_kg_ask)) srcBadge='<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">degussa.com</span></span>';
     else if(r.id==='switzerland' && (philoroLive?.bid||philoroLive?.silver_kg_ask)) srcBadge='<span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">philoro.ch</span></span>';
@@ -3301,7 +3309,7 @@ loadSp500LiveRatio();
 setInterval(loadSp500LiveRatio, 5*60*1000);
 
 // ── Market Compare ────────────────────────────────────────────
-const MARKET_COLORS={comex:'#E8E8E8',uk_royalmint:'#AEC7E8',usa:'#2CA02C',us_sdbullion:'#D62728',switzerland:'#9467BD',germany:'#8C564B',dubai:'#C67BD4',istanbul:'#D4AF5A',india_ibja:'#FF7F0E',india_gjc:'#FFBB78',india_mumbai:'#E8A33D',japan:'#98DF8A',hongkong:'#BCBD22',hkgx:'#DBDB8D',russia_dealer:'#FF9896',shanghai:'#17BECF',chinagold:'#9EDAE5',australia:'#E377C2',canada:'#C49C94'};
+const MARKET_COLORS={comex:'#E8E8E8',uk_royalmint:'#AEC7E8',usa:'#2CA02C',us_sdbullion:'#D62728',switzerland:'#9467BD',germany:'#8C564B',dubai:'#C67BD4',istanbul:'#D4AF5A',india_ibja:'#FF7F0E',india_gjc:'#FFBB78',india_mumbai:'#E8A33D',japan:'#98DF8A',hongkong:'#BCBD22',hkgx:'#DBDB8D',russia_dealer:'#FF9896',russia_retail:'#C5B0D5',shanghai:'#17BECF',chinagold:'#9EDAE5',australia:'#E377C2',canada:'#C49C94'};
 const COMPARE_LABELS=Object.fromEntries([...EXCHANGES,...MARKETS].map(r=>[r.id,r.flag+' '+r.name]));
 const COMPARE_HISTID=Object.fromEntries([...EXCHANGES,...MARKETS].map(r=>[r.id,r.historyId||r.id]));
 const selectedMarkets=new Set();
