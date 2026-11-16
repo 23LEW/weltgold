@@ -1023,24 +1023,28 @@ function calcMarket(m){
   const isGold = metal==='XAU';
   const spotUSD = isGold ? spot.XAU : spot.XAG;
   if(!spotUSD) return null;
-  const fxRate = fx[m.currency] || 1;
+  // Ohne echten Kurs kein Wert (kein Ersatzkurs): USD hat immer 1, sonst nur ein vorhandener Kurs > 0
+  const fxRate = m.currency==='USD' ? 1 : (fx[m.currency]>0 ? fx[m.currency] : null);
+  if(!fxRate) return null;
+  const R = c => (fx[c]>0 ? fx[c] : null);   // Kurs je Waehrung oder null
+  const per = (v, c, mul) => (v && R(c)) ? v*(mul||1)/R(c) : null;   // Betrag in Landeswaehrung -> USD
 
   // --- Hole gold_usd_oz / silver_usd_oz direkt aus VPS-Daten ---
   const vpsMap = {
-    istanbul:    { g: istanbul?.usdOzAsk || (istanbul?.goldSell ? (istanbul.goldSell/(fx.TRY||1))*G : null),
-                   s: (istanbul?.silverSell||istanbul?.silver) ? ((istanbul.silverSell||istanbul.silver)/(fx.TRY||1))*G : null,
-                   gBid: istanbul?.usdOzBid || (istanbul?.goldBuy ? (istanbul.goldBuy/(fx.TRY||1))*G : null),
-                   sBid: istanbul?.silverBuy ? (istanbul.silverBuy/(fx.TRY||1))*G : null },
+    istanbul:    { g: istanbul?.usdOzAsk || per(istanbul?.goldSell, 'TRY', G),
+                   s: per(istanbul?.silverSell||istanbul?.silver, 'TRY', G),
+                   gBid: istanbul?.usdOzBid || per(istanbul?.goldBuy, 'TRY', G),
+                   sBid: per(istanbul?.silverBuy, 'TRY', G) },
     india_gjc:   { g: gjcLive?.oz_ask || null, s: gjcLive?.silver_oz_ask || null,
                    gBid: gjcLive?.oz_bid || null, sBid: gjcLive?.silver_oz_bid || null },
     india_mumbai:{ g: mumbaiLive?.oz_ask || null,
                    s: mumbaiLive?.silver_oz_ask || null,
                    gBid: mumbaiLive?.oz_bid || null,
                    sBid: mumbaiLive?.silver_oz_bid || null },
-    hongkong:    { g: hkLive?.ask ? (hkLive.is_oz ? hkLive.ask/(fx.HKD||7.78) : (hkLive.ask/37.429)*G/(fx.HKD||7.78)) : null,
+    hongkong:    { g: hkLive?.ask ? per(hkLive.is_oz ? hkLive.ask : (hkLive.ask/37.429)*G, 'HKD') : null,
                    s: null,
-                   gBid: hkLive?.bid ? (hkLive.is_oz ? hkLive.bid/(fx.HKD||7.78) : (hkLive.bid/37.429)*G/(fx.HKD||7.78)) : null,
-                   gAsk: hkLive?.ask ? (hkLive.is_oz ? hkLive.ask/(fx.HKD||7.78) : (hkLive.ask/37.429)*G/(fx.HKD||7.78)) : null },
+                   gBid: hkLive?.bid ? per(hkLive.is_oz ? hkLive.bid : (hkLive.bid/37.429)*G, 'HKD') : null,
+                   gAsk: hkLive?.ask ? per(hkLive.is_oz ? hkLive.ask : (hkLive.ask/37.429)*G, 'HKD') : null },
     hkgx:        { g: hkgxLive?.ask || null, s: hkgxLive?.silver_ask || null,
                    gBid: hkgxLive?.bid || null, sBid: hkgxLive?.silver_bid || null },
     india_ibja:  { g: ibjaLive?.oz || null, s: ibjaLive?.silver_oz || null,
@@ -1049,40 +1053,40 @@ function calcMarket(m){
                    gBid: null, sBid: usaLive?.silver_oz_bid || null },   // kein Gold-Bid: die Quelle nennt keinen
     us_sdbullion:{ g: sdbullionLive?.oz_ask || null, s: sdbullionLive?.silver_oz_ask || null,
                    gBid: null, sBid: sdbullionLive?.silver_oz_bid || null },
-    australia:   { g: australiaLive?.ask ? australiaLive.ask/(fx.AUD||1.55) : null,
-                   s: australiaLive?.silver_ask ? australiaLive.silver_ask/(fx.AUD||1.55) : null,
-                   gBid: australiaLive?.bid ? australiaLive.bid/(fx.AUD||1.55) : null,
-                   sBid: australiaLive?.silver_bid ? australiaLive.silver_bid/(fx.AUD||1.55) : null },
-    canada:      { g: canadaLive?.cad_kg_ask ? canadaLive.cad_kg_ask/(fx.CAD||1.36)/KGFACTOR : null,
-                   s: canadaLive?.silver_cad_kg_ask ? canadaLive.silver_cad_kg_ask/(fx.CAD||1.36)/KGFACTOR : null },
-    dubai:       { g: dubaiLive?.ask_usd_oz || (dubaiLive?.ask_aed_kg ? dubaiLive.ask_aed_kg/(fx.AED||3.6725)/KGFACTOR : null),
+    australia:   { g: per(australiaLive?.ask, 'AUD'),
+                   s: per(australiaLive?.silver_ask, 'AUD'),
+                   gBid: per(australiaLive?.bid, 'AUD'),
+                   sBid: per(australiaLive?.silver_bid, 'AUD') },
+    canada:      { g: canadaLive?.cad_kg_ask ? per(canadaLive.cad_kg_ask/KGFACTOR, 'CAD') : null,
+                   s: canadaLive?.silver_cad_kg_ask ? per(canadaLive.silver_cad_kg_ask/KGFACTOR, 'CAD') : null },
+    dubai:       { g: dubaiLive?.ask_usd_oz || (dubaiLive?.ask_aed_kg ? per(dubaiLive.ask_aed_kg/KGFACTOR, 'AED') : null),
                    s: dubaiLive?.silver_ask_usd_oz || null,
                    gBid: dubaiLive?.bid_usd_oz || null,
                    sBid: dubaiLive?.silver_bid_usd_oz || null },
-    russia_dealer:{ g: russiaDealer?.gold_rub_gram ? (russiaDealer.gold_rub_gram/(fx.RUB||90))*G : null,
-                    s: russiaDealer?.silver_rub_gram ? (russiaDealer.silver_rub_gram/(fx.RUB||90))*G : null },
+    russia_dealer:{ g: per(russiaDealer?.gold_rub_gram, 'RUB', G),
+                    s: per(russiaDealer?.silver_rub_gram, 'RUB', G) },
     russia_retail:{ g: (russiaRetail?.gold_rub_gram && fx.RUB) ? (russiaRetail.gold_rub_gram/fx.RUB)*G : null },
 
-    germany:     { g: germanyLive?.ask ? germanyLive.ask/(fx.EUR||1) : null,
-                   s: germanyLive?.silver_kg_ask ? germanyLive.silver_kg_ask/KGFACTOR/(fx.EUR||1) : null,
-                   gBid: germanyLive?.bid ? germanyLive.bid/(fx.EUR||1) : null,
-                   sBid: germanyLive?.silver_kg_bid ? germanyLive.silver_kg_bid/KGFACTOR/(fx.EUR||1) : null },
-    switzerland: { g: philoroLive?.ask ? philoroLive.ask/(fx.CHF||0.89) : null,
-                   s: philoroLive?.silver_kg_ask ? philoroLive.silver_kg_ask/KGFACTOR/(fx.CHF||0.89) : null,
-                   gBid: philoroLive?.bid ? philoroLive.bid/(fx.CHF||0.89) : null,
-                   sBid: philoroLive?.silver_kg_bid ? philoroLive.silver_kg_bid/KGFACTOR/(fx.CHF||0.89) : null },
-    uk_royalmint:{ g: royalmintLive?.ask ? royalmintLive.ask/(fx.GBP||0.79) : null,
-                   s: royalmintLive?.silver_ask ? royalmintLive.silver_ask/(fx.GBP||0.79) : null,
-                   gBid: royalmintLive?.bid ? royalmintLive.bid/(fx.GBP||0.79) : null,
-                   sBid: royalmintLive?.silver_bid ? royalmintLive.silver_bid/(fx.GBP||0.79) : null },
-    japan:       { g: japanLive?.ask ? (japanLive.ask/(fx.JPY||150))*G : null,
-                   s: japanLive?.silver_ask ? (japanLive.silver_ask/(fx.JPY||150))*G : null,
-                   gBid: japanLive?.bid ? (japanLive.bid/(fx.JPY||150))*G : null,
-                   sBid: japanLive?.silver_bid ? (japanLive.silver_bid/(fx.JPY||150))*G : null },
-    shanghai:    { g: shanghaiLive?.cny_gram ? (shanghaiLive.cny_gram/(fx.CNY||7.2))*G : null,
-                   s: shanghaiLive?.silver_cny_gram ? (shanghaiLive.silver_cny_gram/(fx.CNY||7.2))*G : null },
-    chinagold:   { g: chinagoldLive?.ask ? (chinagoldLive.ask/(fx.CNY||7.2))*G : null,
-                   gBid: chinagoldLive?.bid ? (chinagoldLive.bid/(fx.CNY||7.2))*G : null },
+    germany:     { g: per(germanyLive?.ask, 'EUR'),
+                   s: germanyLive?.silver_kg_ask ? per(germanyLive.silver_kg_ask/KGFACTOR, 'EUR') : null,
+                   gBid: per(germanyLive?.bid, 'EUR'),
+                   sBid: germanyLive?.silver_kg_bid ? per(germanyLive.silver_kg_bid/KGFACTOR, 'EUR') : null },
+    switzerland: { g: per(philoroLive?.ask, 'CHF'),
+                   s: philoroLive?.silver_kg_ask ? per(philoroLive.silver_kg_ask/KGFACTOR, 'CHF') : null,
+                   gBid: per(philoroLive?.bid, 'CHF'),
+                   sBid: philoroLive?.silver_kg_bid ? per(philoroLive.silver_kg_bid/KGFACTOR, 'CHF') : null },
+    uk_royalmint:{ g: per(royalmintLive?.ask, 'GBP'),
+                   s: per(royalmintLive?.silver_ask, 'GBP'),
+                   gBid: per(royalmintLive?.bid, 'GBP'),
+                   sBid: per(royalmintLive?.silver_bid, 'GBP') },
+    japan:       { g: per(japanLive?.ask, 'JPY', G),
+                   s: per(japanLive?.silver_ask, 'JPY', G),
+                   gBid: per(japanLive?.bid, 'JPY', G),
+                   sBid: per(japanLive?.silver_bid, 'JPY', G) },
+    shanghai:    { g: per(shanghaiLive?.cny_gram, 'CNY', G),
+                   s: per(shanghaiLive?.silver_cny_gram, 'CNY', G) },
+    chinagold:   { g: per(chinagoldLive?.ask, 'CNY', G),
+                   gBid: per(chinagoldLive?.bid, 'CNY', G) },
   };
 
   const vps = vpsMap[m.id] || {};
@@ -1204,8 +1208,8 @@ async function load(){
         const silverSell = ist.silver_try_gram_sell || silver;
         istanbul={gold,goldBuy,goldSell,silver,silverBuy,silverSell,usdOzBid,usdOzAsk,status:'live',ts:new Date().toISOString()};
         try{localStorage.setItem('ist_last',JSON.stringify(istanbul));}catch(e){}
-        const istUSD=(gold/(fx.TRY||1))*G;
-        const prem=Math.round((istUSD-spot.XAU)*100)/100;
+        const istUSD=fx.TRY>0?(gold/fx.TRY)*G:null;   // ohne Kurs kein Wert (kein Ersatzkurs)
+        const prem=istUSD==null?null:Math.round((istUSD-spot.XAU)*100)/100;
         const t=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
         istHistory.push({t,p:prem});
         if(istHistory.length>40)istHistory=istHistory.slice(-40);
@@ -1218,8 +1222,8 @@ async function load(){
       // India GJC
       const gjc = vps?.india_gjc;
       if(gjc && gjc.gold_inr_gram_ask && !gjc.is_calculated){
-        const inrRate = fx.INR || 83;
-        gjcLive = {
+        const inrRate = fx.INR;   // ohne Kurs kein Wert (kein Ersatzkurs)
+        gjcLive = !(inrRate>0) ? null : {
           oz_ask: (gjc.gold_inr_gram_ask / inrRate) * G,
           oz_bid: gjc.gold_inr_gram_bid ? (gjc.gold_inr_gram_bid / inrRate) * G : null,
           silver_oz_ask: gjc.silver_inr_kg_ask ? gjc.silver_inr_kg_ask / 32.1507 / inrRate : null,
@@ -1249,8 +1253,8 @@ async function load(){
       // India IBJA
       const ibja = vps?.india;
       if(ibja && ibja.gold_inr_gram && !ibja.is_calculated){
-        const inrRate = fx.INR || 94;
-        ibjaLive = {
+        const inrRate = fx.INR;   // ohne Kurs kein Wert (kein Ersatzkurs)
+        ibjaLive = !(inrRate>0) ? null : {
           oz: (ibja.gold_inr_gram / inrRate) * G,
           silver_oz: ibja.silver_inr_kg ? ibja.silver_inr_kg / 32.1507 / inrRate : null,
           inr_10g: ibja.gold_inr_gram * 10,
@@ -2066,6 +2070,11 @@ function getCurrencySym(){
 
 function render(){
   if(!spot||!fx)return;
+  // Kein Kurs fuer die gewaehlte Anzeigewaehrung: Anzeige in USD (kein Ersatzkurs 1)
+  if(displayCurrency!=='USD' && !(fx[displayCurrency]>0)){
+    displayCurrency='USD';
+    const _cs=document.getElementById('currency-select'); if(_cs) _cs.value='USD';
+  }
   const isGold = metal==='XAU';
   const spotUSD = isGold?spot.XAU:spot.XAG;
   const isGram = unit==='gram'; // gram mode = per 1000g
