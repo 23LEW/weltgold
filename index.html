@@ -560,11 +560,33 @@ footer a:hover{text-decoration:underline}
 </div>
 
 <!-- FED RATIOS: calculated figures, gold vs. Federal Reserve balance sheet (weekly data from /api/fed-ratio) -->
+<style>
+#fedr-info-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;line-height:1;padding:2px 6px;margin-left:2px;vertical-align:middle;border-radius:4px}
+#fedr-info-btn:hover,#fedr-info-btn[aria-expanded="true"]{color:var(--gold)}
+#fedr-info-btn:focus-visible{outline:1px solid var(--gold)}
+#fedr-info{display:none;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:12px;font-size:12px;line-height:1.55;color:var(--text2)}
+#fedr-info.open{display:block}
+#fedr-info h4{margin:0 0 6px;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);font-weight:600}
+#fedr-info h4:not(:first-child){margin-top:12px}
+#fedr-info p{margin:0 0 8px}
+#fedr-info .fedr-ref{font-size:11px;color:var(--text3);margin:0 0 6px}
+#fedr-info table{width:100%;border-collapse:collapse;font-size:11px}
+#fedr-info th,#fedr-info td{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top;font-size:11px;line-height:1.5;color:var(--text2)}
+#fedr-info th{color:var(--text3);font-weight:600}
+@media(max-width:600px){
+#fedr-info thead{display:none}
+#fedr-info table,#fedr-info tbody,#fedr-info tr,#fedr-info td{display:block;width:100%;box-sizing:border-box}
+#fedr-info tr{margin-bottom:8px;border:1px solid var(--border);border-radius:6px;padding:4px 8px}
+#fedr-info td{border:none;padding:3px 0}
+#fedr-info td:first-child{font-weight:600;color:var(--text)}
+#fedr-info td::before{content:attr(data-h);display:block;font-size:10px;font-weight:400;color:var(--text3)}
+}
+</style>
 <div class="chart-container" id="fed-ratio-container" style="margin-top:24px">
   <div class="chart-header">
     <div>
-      <div class="chart-title">Gold vs. Federal Reserve balance sheet · calculated ratios</div>
-      <div class="chart-sub" id="fedr-sub">Calculated figures from measured prices and published balance-sheet data</div>
+      <div class="chart-title"><span id="fedr-title">Gold-to-Currency-in-Circulation Ratio</span><button id="fedr-info-btn" type="button" aria-expanded="false" aria-controls="fedr-info" aria-label="Information" title="Information">ⓘ</button></div>
+      <div class="chart-sub" id="fedr-sub"></div>
     </div>
     <div class="range-btns" id="fedr-tabs">
       <button class="rbtn on" id="fedr-tab-1" type="button">Ratio</button>
@@ -573,36 +595,135 @@ footer a:hover{text-decoration:underline}
       <button class="rbtn" id="fedr-tab-4" type="button">Index</button>
     </div>
   </div>
+  <div id="fedr-info" role="region" aria-label="Information"></div>
   <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
     <div class="ctrl-group" style="display:inline-flex">
       <button class="ctrl-btn on" id="fedr-den-net" type="button" style="background:var(--gold);color:#0E1015">Notes in circulation</button>
       <button class="ctrl-btn" id="fedr-den-ta" type="button">Total assets</button>
     </div>
-    <label id="fedr-base-wrap" style="display:none;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">Start date (= 100)
+    <label id="fedr-base-wrap" style="display:none;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)"><span id="fedr-base-lbl">Start date (= 100)</span>
       <input type="date" id="fedr-base" min="2002-12-18" value="2002-12-18" style="margin-left:6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:'DM Mono',monospace;font-size:11px;padding:3px 6px">
     </label>
   </div>
   <div id="fedr-stats" style="display:flex;gap:20px;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:12px;flex-wrap:wrap"></div>
-  <div style="font-size:10px;color:var(--text3);text-align:right;margin-bottom:4px">Drag to zoom · Double-click to reset</div>
+  <div id="fedr-zoom" style="font-size:10px;color:var(--text3);text-align:right;margin-bottom:4px">Drag to zoom · Double-click to reset</div>
   <div style="position:relative;width:100%;height:clamp(260px,50vh,460px)"><canvas id="chart-fedr"></canvas></div>
+  <div id="fedr-expl" style="font-size:12px;color:var(--text2);line-height:1.55;margin-top:10px"></div>
   <div id="fedr-note" style="font-size:11px;color:var(--text2);line-height:1.5;margin-top:8px"></div>
   <div id="fedr-msg" style="font-size:11px;color:var(--text3);margin-top:6px"></div>
-  <div id="fedr-foot" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;font-size:10px;color:var(--text3);line-height:1.5;margin-top:10px">
-    <div>
-      <strong>Calculated figures, not balance-sheet items.</strong> The Federal Reserve does not own gold. The gold belongs to the U.S. Treasury (261,498,926 troy oz, carried at the statutory USD 42.2222 per oz); the Fed holds gold certificates at that rate, shown as “Gold Certificate Account” (about USD <span id="fedr-gc">11.04</span> billion). The figures are calculated by GoldPremium from measured gold prices and published weekly balance-sheet data (Wednesday levels, H.4.1, USD million). They are not a valuation, a fair-value estimate or a forecast. Gold price: the series of the chart above (COMEX futures via Yahoo Finance, GoldPremium; current value: Kitco). GoldPremium.org is not affiliated with the Federal Reserve. Sources: Board of Governors of the Federal Reserve System (US); U.S. Department of the Treasury; Kitco.
-    </div>
-    <div>
-      <strong>Rechengrößen, keine Bilanzposten.</strong> Die Federal Reserve besitzt kein Gold. Das Gold gehört dem US-Finanzministerium (261.498.926 Feinunzen, bewertet zum gesetzlichen Satz von 42,2222 USD je Unze); die Fed hält dafür Goldzertifikate zu diesem Satz, ausgewiesen als „Gold Certificate Account“ (rund <span id="fedr-gc-de">11,04</span> Mrd. USD). Die Kennzahlen werden von GoldPremium aus gemessenen Goldpreisen und veröffentlichten wöchentlichen Bilanzzahlen berechnet (Mittwochswerte, H.4.1, Mio. USD). Sie sind keine Bewertung, kein fairer Wert und keine Prognose. Goldpreis: die Reihe des Charts oben (COMEX-Futures via Yahoo Finance, GoldPremium; aktueller Wert: Kitco). GoldPremium.org steht in keiner Verbindung zur Federal Reserve. Quellen: Board of Governors of the Federal Reserve System (US); U.S. Department of the Treasury; Kitco.
-    </div>
-  </div>
+  <div id="fedr-foot" style="font-size:10px;color:var(--text3);line-height:1.5;margin-top:10px"></div>
 </div>
 <script>
 (function(){
   var API='https://api.goldpremium.org/api', Q=261498926.241, MIN_DATE='2002-12-18';
-  var DEN={frn_net:'notes in circulation (net of Reserve Bank holdings)', total_assets:'total assets'};
-  var st={tab:1, den:'frn_net', base:MIN_DATE, fed:null, price:null, chart:null, started:false};
+  var st={tab:1, den:'frn_net', base:MIN_DATE, fed:null, price:null, chart:null, started:false, gc:'11.04', err:false};
   function $(id){return document.getElementById(id);}
   function num(v,d){return (typeof fmt==='function')?fmt(v,d):Number(v).toFixed(d);}
+  /*T-BEGIN*/
+  var FOOT_EN="<strong>Calculated figures, not balance-sheet items.</strong> The Federal Reserve does not own gold. The gold belongs to the U.S. Treasury (261,498,926 troy oz, carried at the statutory USD 42.2222 per oz); the Fed holds gold certificates at that rate, shown as “Gold Certificate Account” (about USD {gc} billion). The figures are calculated by GoldPremium from measured gold prices and published weekly balance-sheet data (Wednesday levels, H.4.1, USD million). Gold price: the series of the chart above (COMEX futures via Yahoo Finance, GoldPremium; current value: Kitco). GoldPremium.org is not affiliated with the Federal Reserve. Sources: Board of Governors of the Federal Reserve System (US); U.S. Department of the Treasury; Kitco.", FOOT_DE="<strong>Rechengrößen, keine Bilanzposten.</strong> Die Federal Reserve besitzt kein Gold. Das Gold gehört dem US-Finanzministerium (261.498.926 Feinunzen, bewertet zum gesetzlichen Satz von 42,2222 USD je Unze); die Fed hält dafür Goldzertifikate zu diesem Satz, ausgewiesen als „Gold Certificate Account“ (rund {gc} Mrd. USD). Die Kennzahlen werden von GoldPremium aus gemessenen Goldpreisen und veröffentlichten wöchentlichen Bilanzzahlen berechnet (Mittwochswerte, H.4.1, Mio. USD). Goldpreis: die Reihe des Charts oben (COMEX-Futures via Yahoo Finance, GoldPremium; aktueller Wert: Kitco). GoldPremium.org steht in keiner Verbindung zur Federal Reserve. Quellen: Board of Governors of the Federal Reserve System (US); U.S. Department of the Treasury; Kitco.";
+  var T={
+   en:{
+    title:{frn_net:"Gold-to-Currency-in-Circulation Ratio",total_assets:"Gold-to-Fed Balance Sheet Ratio"},
+    expl:{frn_net:"A macroeconomic valuation indicator that sets the gold price against the physical U.S. cash supply. It shows how highly gold is valued compared with the actual circulation of Federal Reserve notes.",
+          total_assets:"The ratio of the gold price to the total assets of the U.S. central bank (Federal Reserve) serves as a macro indicator for the valuation of gold relative to the central-bank liquidity created. It indicates whether the gold price is historically cheap or expensive compared with the expansion or contraction of U.S. monetary policy."},
+    views:["Ratio","Percent","Coverage value","Index"],
+    den:{frn_net:"Notes in circulation",total_assets:"Total assets"},
+    dn:{frn_net:"notes in circulation (net of Reserve Bank holdings)",total_assets:"total assets"},
+    start:"Start date (= 100)", zoom:"Drag to zoom · Double-click to reset", unavailable:"Data currently unavailable.", infoLbl:"Information",
+    st:{latest:"Latest",goldMkt:"Gold price (market)",spot:function(src,last){return "With current spot ("+src+", Fed data "+last+")";},low:"Low",high:"High",goldIdx:"Gold (index)",idx:"(index)",base:"Base date"},
+    v:[null,
+     {axis:"Index (scaled; denominator in USD bn)",note:"Only the shape of the curve is meaningful, not the absolute value.",leg:function(dn){return ["Gold price ÷ "+dn];},sub:function(dn){return "Gold price (USD/oz) ÷ "+dn+" (USD billion). Calculated figure.";}},
+     {axis:"Percent",note:"The U.S. gold reserve at market prices, measured against the selected denominator.",leg:function(dn){return ["261.5 m oz × gold price ÷ "+dn];},sub:function(dn){return "(261,498,926 oz × gold price) ÷ "+dn+" × 100. Calculated figure.";}},
+     {axis:"USD per fine troy ounce",note:"Implied coverage value = selected denominator ÷ 261,498,926 oz. Calculated figure, not a price.",leg:function(){return ["Implied coverage value","Gold price (market)"];},sub:function(dn){return "Implied coverage value: "+dn+" ÷ 261,498,926 oz, shown with the market gold price on the same axis. Calculated figure.";}},
+     {axis:function(b){return "Index, "+b+" = 100";},note:"The picture depends entirely on the chosen start date.",leg:function(){return ["Gold price","Selected denominator"];},sub:function(dn,b){return "Gold price and "+dn+", both set to 100 on "+b+". The picture depends entirely on the chosen start date. Calculated figure.";}}
+    ],
+    info:function(v){return {
+     frn_net:[
+      {h:"Economic significance",items:[
+       ["A measure of money-supply coverage:","The ratio lets you estimate what an ounce of gold would have to cost in order to theoretically cover a given share of the U.S. cash supply."],
+       ["Inflation and confidence indicator:","A marked rise over longer periods indicates that the gold price is growing faster than physical currency in circulation. This often reflects rising inflation expectations, a loss of confidence in paper currencies, or heavy central-bank gold buying."]]},
+      {h:"Limits",items:[
+       ["Only part of the money supply:","Federal Reserve notes capture physical cash only. They exclude electronic deposits and bank balances (the broader M1 and M2 aggregates), which make up most of today's liquidity."],
+       ["Not a gold-standard price:","To arrive at a calculated “gold standard price” you would divide the money supply by the physical U.S. gold reserves (in ounces), not the current market price of gold by the money supply. That calculation is shown in the “"+v[2]+"” view."]]}],
+     total_assets:[
+      {h:"Key points",items:[
+       ["Relative valuation measure.","The ratio sets the price of a physical store of value (gold) directly against the Fed's total assets (mainly Treasuries and mortgage-backed securities). If the balance sheet grows through asset purchases (quantitative easing), the ratio falls unless the gold price rises to the same degree."],
+       ["Liquidity and inflation-hedge indicator.","A historically low value suggests that the central bank has pumped a great deal of liquidity into the system while the gold price has not yet fully priced that expansion in. A high value conversely signals that gold has already reacted strongly to monetary policy risks, inflation expectations or crises."],
+       ["Cyclical turning points.","Over long horizons (e.g. 10 to 20 years), phases of under- or overvaluation become visible. If the Fed shrinks its balance sheet (quantitative tightening) while the gold price holds steady or rises, the ratio increases noticeably."]]},
+      {h:"Interpretation of the values",ref:"Applies to the “"+v[0]+"” and “"+v[1]+"” views.",table:{
+       head:["Movement of the ratio","Possible cause","Market interpretation"],
+       rows:[["Ratio rises","The gold price rises faster than the Fed balance sheet, or the Fed shrinks its balance sheet.","Gold gains value relative to U.S. central-bank liquidity; often a sign of strong demand for hedging, or of tighter monetary policy alongside a robust gold price."],
+             ["Ratio falls","The Fed expands its balance sheet sharply (e.g. through crisis programmes) while gold stagnates.","Gold lags money creation; can be read as potential catch-up."]]}}]
+    };},
+    foot:function(gc){return FOOT_EN.replace("{gc}",gc);}
+   },
+   de:{
+    title:{frn_net:"Gold-zu-Bargeld-Verhältnis",total_assets:"Verhältnis Goldpreis zu Fed-Bilanzsumme"},
+    expl:{frn_net:"Ein makroökonomischer Bewertungsindikator, der den Goldpreis ins Verhältnis zur physischen US-Bargeldmenge setzt. Er zeigt, wie hoch Gold im Vergleich zum tatsächlichen Umlauf an Federal-Reserve-Banknoten bewertet ist.",
+          total_assets:"Das Verhältnis aus Goldpreis und der Bilanzsumme der US-Notenbank (Federal Reserve) dient als Makro-Indikator für die Bewertung von Gold im Verhältnis zur geschaffenen Zentralbankliquidität. Es zeigt an, ob der Goldpreis im Vergleich zur Ausweitung oder Schrumpfung der US-Geldpolitik historisch günstig oder teuer bewertet ist."},
+    views:["Ratio","Percent","Coverage value","Index"],
+    den:{frn_net:"Notenumlauf",total_assets:"Bilanzsumme"},
+    dn:{frn_net:"Notenumlauf (netto, abzüglich Bestände der Reserve Banks)",total_assets:"Bilanzsumme"},
+    start:"Startdatum (= 100)", zoom:"Zum Zoomen ziehen · Doppelklick zum Zurücksetzen", unavailable:"Daten derzeit nicht verfügbar.", infoLbl:"Information",
+    st:{latest:"Aktuell",goldMkt:"Goldpreis (Markt)",spot:function(src,last){return "Mit aktuellem Spot ("+src+", Fed-Daten "+last+")";},low:"Tief",high:"Hoch",goldIdx:"Gold (Index)",idx:"(Index)",base:"Basisdatum"},
+    v:[null,
+     {axis:"Index (skaliert; Nenner in Mrd. USD)",note:"Aussagekräftig ist allein der Verlauf, nicht der Absolutwert.",leg:function(dn){return ["Goldpreis ÷ "+dn];},sub:function(dn){return "Goldpreis (USD/Unze) ÷ "+dn+" (Mrd. USD). Rechengröße.";}},
+     {axis:"Prozent",note:"Die US-Goldreserve zu Marktpreisen, gemessen am gewählten Nenner.",leg:function(dn){return ["261,5 Mio. Unzen × Goldpreis ÷ "+dn];},sub:function(dn){return "(261.498.926 Unzen × Goldpreis) ÷ "+dn+" × 100. Rechengröße.";}},
+     {axis:"USD je Feinunze",note:"Rechnerischer Deckungswert = gewählter Nenner ÷ 261.498.926 oz. Rechengröße, kein Kurs.",leg:function(){return ["Rechnerischer Deckungswert","Goldpreis (Markt)"];},sub:function(dn){return "Rechnerischer Deckungswert: "+dn+" ÷ 261.498.926 Unzen, dargestellt mit dem Marktgoldpreis auf derselben Achse. Rechengröße.";}},
+     {axis:function(b){return "Index, "+b+" = 100";},note:"Das Bild hängt vollständig vom gewählten Startdatum ab.",leg:function(){return ["Goldpreis","Gewählter Nenner"];},sub:function(dn,b){return "Goldpreis und "+dn+", beide am "+b+" auf 100 gesetzt. Das Bild hängt vollständig vom gewählten Startdatum ab. Rechengröße.";}}
+    ],
+    info:function(v){return {
+     frn_net:[
+      {h:"Ökonomische Bedeutung",items:[
+       ["Massstab für Geldmengen-Deckung:","Die Kennzahl lässt abschätzen, wie viel eine Unze Gold kosten müsste, um einen bestimmten Teil der US-Dollar-Bargeldmenge theoretisch zu decken."],
+       ["Inflations- und Vertrauensindikator:","Steigt der Wert über längere Zeiträume deutlich an, deutet dies darauf hin, dass der Goldpreis schneller wächst als der physische Bargeldumlauf. Dies spiegelt oft steigende Inflationserwartungen, Vertrauensverluste in Papierwährungen oder starke Goldkäufe von Zentralbanken wider."]]},
+      {h:"Grenzen der Aussagekraft",items:[
+       ["Nur ein Teil der Geldmenge:","Die Federal-Reserve-Banknoten erfassen lediglich das physische Bargeld. Sie ignorieren elektronisches Buchgeld und Bankguthaben (wie die breiteren Geldmengen M1 oder M2), die den Grossteil der heutigen Liquidität ausmachen."],
+       ["Kein direkter Goldstandard-Preis:","Um einen rechnerischen „Goldstandard-Preis“ zu ermitteln, müsste man die Geldmenge durch die physischen Goldreserven der USA (in Unzen) teilen, nicht den aktuellen Marktpreis des Goldes durch die Geldmenge. Diese Rechnung zeigt die Ansicht „"+v[2]+"“."]]}],
+     total_assets:[
+      {h:"Zentrale Aussagen der Kennzahl",items:[
+       ["Relatives Bewertungsmass.","Die Kennzahl setzt den Preis einer physischen Wertanlage (Gold) ins direkte Verhältnis zur gesamten Bilanzsumme der Fed (hauptsächlich Staatsanleihen und hypothekenbesicherte Wertpapiere). Steigt die Bilanzsumme durch Anleihekäufe (Quantitative Easing), sinkt das Verhältnis, sofern der Goldpreis nicht im gleichen Masse mitsteigt."],
+       ["Liquiditäts- und Inflationsschutz-Indikator.","Ein historisch niedriger Wert deutet darauf hin, dass die Zentralbank viel Liquidität in das System gepumpt hat, der Goldpreis diese Ausweitung aber noch nicht vollständig eingepreist hat. Ein hoher Wert signalisiert umgekehrt, dass Gold bereits stark auf geldpolitische Risiken, Inflationserwartungen oder Krisen reagiert hat."],
+       ["Zyklische Trendwechsel.","Im langfristigen Vergleich (z. B. über 10 bis 20 Jahre) lassen sich Phasen von Unter- oder Überbewertung erkennen. Wenn die Fed ihre Bilanz abbaut (Quantitative Tightening) und der Goldpreis gleichzeitig stabil bleibt oder steigt, erhöht sich die Kennzahl spürbar."]]},
+      {h:"Interpretation der Werte",ref:"Gilt für die Ansichten „"+v[0]+"“ und „"+v[1]+"“.",table:{
+       head:["Entwicklung der Kennzahl","Mögliche Ursache","Marktinterpretation"],
+       rows:[["Kennzahl steigt","Goldpreis steigt schneller als die Fed-Bilanz oder die Fed baut ihre Bilanz ab.","Gold gewinnt relativ zur US-Zentralbankliquidität an Wert; oft ein Zeichen für hohe Nachfrage nach Absicherung oder straffere Geldpolitik bei gleichzeitig robustem Goldpreis."],
+             ["Kennzahl sinkt","Die Fed weitet ihre Bilanz stark aus (z. B. durch Krisenprogramme), während Gold stagniert.","Gold hinkt der Geldschöpfung hinterher; lässt sich als potenzielle Aufholchance lesen."]]}}]
+    };},
+    foot:function(gc){return FOOT_DE.replace("{gc}",gc.replace(".",","));}
+   }
+  };
+  /*T-END*/
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function lang(){ var c=(typeof currentLang!=='undefined')?currentLang:'en'; return T[c]?c:'en'; }
+  function L(){ return T[lang()]; }
+  function infoHtml(){
+    var lg=L(), blocks=lg.info(lg.views)[st.den], h='';
+    blocks.forEach(function(b){
+      h+='<h4>'+esc(b.h)+'</h4>';
+      (b.items||[]).forEach(function(it){ h+='<p><strong>'+esc(it[0])+'</strong> '+esc(it[1])+'</p>'; });
+      if(b.ref) h+='<p class="fedr-ref">'+esc(b.ref)+'</p>';
+      if(b.table){
+        h+='<table><thead><tr>'+b.table.head.map(function(c){return '<th>'+esc(c)+'</th>';}).join('')+'</tr></thead><tbody>';
+        b.table.rows.forEach(function(r){ h+='<tr>'+r.map(function(c,i){return '<td data-h="'+esc(b.table.head[i])+'">'+esc(c)+'</td>';}).join('')+'</tr>'; });
+        h+='</tbody></table>';
+      }
+    });
+    return h;
+  }
+  function applyStatic(){
+    var lg=L(), i;
+    $('fedr-title').textContent=lg.title[st.den];
+    $('fedr-expl').textContent=lg.expl[st.den];
+    for(i=1;i<=4;i++) $('fedr-tab-'+i).textContent=lg.views[i-1];
+    $('fedr-den-net').textContent=lg.den.frn_net; $('fedr-den-ta').textContent=lg.den.total_assets;
+    $('fedr-base-lbl').textContent=lg.start; $('fedr-zoom').textContent=lg.zoom;
+    var b=$('fedr-info-btn'); b.setAttribute('aria-label',lg.infoLbl); b.title=lg.infoLbl; $('fedr-info').setAttribute('aria-label',lg.infoLbl);
+    $('fedr-info').innerHTML=infoHtml();
+    $('fedr-foot').innerHTML=lg.foot(st.gc);
+    $('fedr-msg').textContent=st.err?lg.unavailable:'';
+  }
+  function setInfo(open){ $('fedr-info').classList.toggle('open',open); $('fedr-info-btn').setAttribute('aria-expanded',open?'true':'false'); }
 
   function load(){
     if(st.started) return; st.started=true;
@@ -621,11 +742,10 @@ footer a:hover{text-decoration:underline}
       }
       st.price=p;
       var gc=st.fed.gold_cert[st.fed.gold_cert.length-1]/1000;
-      $('fedr-gc').textContent=gc.toFixed(2);
-      $('fedr-gc-de').textContent=gc.toFixed(2).replace('.',',');
+      st.gc=gc.toFixed(2); st.err=false; applyStatic();
       var last=D[D.length-1]; $('fedr-base').max=last;
       draw();
-    }).catch(function(e){ st.started=false; $('fedr-msg').textContent='Data currently unavailable.'; console.warn('fed ratio',e); });
+    }).catch(function(e){ st.started=false; st.err=true; $('fedr-msg').textContent=L().unavailable; console.warn('fed ratio',e); });
   }
 
   function series(){
@@ -647,14 +767,16 @@ footer a:hover{text-decoration:underline}
   }
 
   function draw(){
-    var s=series(), f=st.fed, T=st.tab, last=f.dates[f.dates.length-1];
-    var gold='#F5C842', silv='#B8CCD8', ds, ylab, sub, tf, note=['',''];
-    var dn=DEN[st.den];
-    if(T===1){ ds=[{label:'Gold price ÷ '+dn, data:s.A, c:gold}]; ylab='Index (scaled; denominator in USD bn)'; note=['Only the shape of the curve is meaningful, not the absolute value.','Aussagekräftig ist allein der Verlauf, nicht der Absolutwert. Achse: Index (skaliert; Nenner in Mrd. USD).']; sub='Gold price (USD/oz) ÷ '+dn+' (USD billion). Calculated figure.'; tf=function(v){return num(v,3);}; }
-    else if(T===2){ ds=[{label:'261.5 m oz × gold price ÷ '+dn, data:s.A, c:gold}]; ylab='Percent'; note=['The U.S. gold reserve at market prices, measured against the selected denominator.','Die US-Goldreserve zu Marktpreisen, gemessen am gewählten Nenner. Achse: Prozent.']; sub='(261,498,926 oz × gold price) ÷ '+dn+' × 100. Calculated figure.'; tf=function(v){return num(v,1)+' %';}; }
-    else if(T===3){ ds=[{label:'Implied coverage value', data:s.A, c:silv},{label:'Gold price (market)', data:s.B, c:gold}]; ylab='USD per fine troy ounce'; sub='Implied coverage value: '+dn+' ÷ 261,498,926 oz, shown with the market gold price on the same axis. Calculated figure.'; note=['Implied coverage value = selected denominator ÷ 261,498,926 oz. Calculated figure, not a price.','Rechnerischer Deckungswert = gewählter Nenner ÷ 261.498.926 oz. Linien: Rechnerischer Deckungswert / Goldpreis (Markt). Rechengröße, kein Kurs. Achse: USD je Feinunze.']; tf=function(v){return '$'+num(v,0);}; }
-    else { ds=[{label:'Gold price', data:s.A, c:gold},{label:'Selected denominator', data:s.B, c:silv}]; ylab='Index, '+s.base+' = 100'; note=['The picture depends entirely on the chosen start date.','Das Bild hängt vollständig vom gewählten Startdatum ab. Linien: Goldpreis / Gewählter Nenner.']; sub='Gold price and '+dn+', both set to 100 on '+s.base+'. The picture depends entirely on the chosen start date. Calculated figure.'; tf=function(v){return num(v,1);}; }
-    $('fedr-sub').textContent=sub; $('fedr-note').innerHTML=note[0]+'<br><span style="color:var(--text3)">'+note[1]+'</span>';
+    var s=series(), f=st.fed, T=st.tab, last=f.dates[f.dates.length-1], lg=L(), V=lg.v[T];
+    var gold='#F5C842', silv='#B8CCD8', ds, ylab, sub, tf, note, lab;
+    var dn=lg.dn[st.den];
+    lab=V.leg(dn);
+    if(T===1){ ds=[{label:lab[0], data:s.A, c:gold}]; tf=function(v){return num(v,3);}; }
+    else if(T===2){ ds=[{label:lab[0], data:s.A, c:gold}]; tf=function(v){return num(v,1)+' %';}; }
+    else if(T===3){ ds=[{label:lab[0], data:s.A, c:silv},{label:lab[1], data:s.B, c:gold}]; tf=function(v){return '$'+num(v,0);}; }
+    else { ds=[{label:lab[0], data:s.A, c:gold},{label:lab[1], data:s.B, c:silv}]; tf=function(v){return num(v,1);}; }
+    ylab=(typeof V.axis==='function')?V.axis(s.base):V.axis; sub=V.sub(dn,s.base); note=V.note;
+    $('fedr-sub').textContent=sub; $('fedr-note').textContent=note;
     $('fedr-base-wrap').style.display=(T===4)?'inline-block':'none';
 
     // Kennzahlen
@@ -663,14 +785,14 @@ footer a:hover{text-decoration:underline}
     if(vals.length){
       var lastV=vals[vals.length-1];
       if(T<4){
-        h+=stat('Latest ('+last+')', tf(lastV)); if(T===3) h+=stat('Gold price (market)', '$'+num(s.B[s.B.length-1],0));
+        h+=stat(lg.st.latest+' ('+last+')', tf(lastV)); if(T===3) h+=stat(lg.st.goldMkt, '$'+num(s.B[s.B.length-1],0));
         if(T<=2){
           var sp=(typeof spot!=='undefined' && spot && spot.XAU)?spot.XAU:null, n=f[st.den][f[st.den].length-1]*1e6;
-          if(sp){ var nv=(T===1)? sp/(n/1e9) : Q*sp/n*100; var src=(typeof spotSourceLabel==='function')?spotSourceLabel():'kitco.com'; h+=stat('With current spot ('+src+', Fed data '+last+')', tf(nv)); }
+          if(sp){ var nv=(T===1)? sp/(n/1e9) : Q*sp/n*100; var src=(typeof spotSourceLabel==='function')?spotSourceLabel():'kitco.com'; h+=stat(lg.st.spot(src,last), tf(nv)); }
         }
-        h+=stat('Low', tf(Math.min.apply(null,vals)))+stat('High', tf(Math.max.apply(null,vals)));
+        h+=stat(lg.st.low, tf(Math.min.apply(null,vals)))+stat(lg.st.high, tf(Math.max.apply(null,vals)));
       } else {
-        h+=stat('Gold (index)', num(vals[vals.length-1],1))+stat(dn+' (index)', num(s.B[s.B.length-1],1))+stat('Base date', s.base);
+        h+=stat(lg.st.goldIdx, num(vals[vals.length-1],1))+stat(dn+' '+lg.st.idx, num(s.B[s.B.length-1],1))+stat(lg.st.base, s.base);
       }
     }
     el.innerHTML=h;
@@ -699,7 +821,9 @@ footer a:hover{text-decoration:underline}
 
   function setTab(t){ st.tab=t; for(var i=1;i<=4;i++) $('fedr-tab-'+i).classList.toggle('on',i===t); if(st.fed) draw(); }
   function setDen(d){ st.den=d; var a=$('fedr-den-net'), b=$('fedr-den-ta'); [a,b].forEach(function(x){ x.classList.remove('on'); x.style.background=''; x.style.color=''; });
-    var on=(d==='frn_net')?a:b; on.classList.add('on'); on.style.background='var(--gold)'; on.style.color='#0E1015'; if(st.fed) draw(); }
+    var on=(d==='frn_net')?a:b; on.classList.add('on'); on.style.background='var(--gold)'; on.style.color='#0E1015'; applyStatic(); if(st.fed) draw(); }
+
+  document.addEventListener('gp-lang',function(){ applyStatic(); if(st.fed) draw(); });
 
   function init(){
     for(var i=1;i<=4;i++){ (function(t){ $('fedr-tab-'+t).addEventListener('click',function(){ setTab(t); }); })(i); }
@@ -707,6 +831,10 @@ footer a:hover{text-decoration:underline}
     $('fedr-den-ta').addEventListener('click',function(){ setDen('total_assets'); });
     $('fedr-base').addEventListener('change',function(){ var v=this.value; if(!v||v<MIN_DATE) v=MIN_DATE; if(st.fed && v>st.fed.last) v=st.fed.last; st.base=v; this.value=v; if(st.fed) draw(); });
     $('chart-fedr').addEventListener('dblclick',function(){ if(st.chart && st.chart.resetZoom) st.chart.resetZoom(); });
+    $('fedr-info-btn').addEventListener('click',function(e){ e.stopPropagation(); setInfo(!$('fedr-info').classList.contains('open')); });
+    document.addEventListener('click',function(e){ if(!$('fedr-info').classList.contains('open')) return; if(e.target.closest && e.target.closest('#fedr-info-btn,#fedr-info,#fedr-den-net,#fedr-den-ta')) return; setInfo(false); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape' && $('fedr-info').classList.contains('open')){ setInfo(false); $('fedr-info-btn').focus(); } });
+    applyStatic();
     var box=$('fed-ratio-container');
     if('IntersectionObserver' in window){
       var io=new IntersectionObserver(function(en){ if(en[0].isIntersecting){ io.disconnect(); load(); } },{rootMargin:'400px'});
@@ -3217,6 +3345,7 @@ function setLang(code){
   document.getElementById('lang-menu').style.display='none';
   const rtEl=document.querySelector('[data-i18n="ratioTitle"]');
   if(rtEl) rtEl.style.fontSize={de:'10px',ru:'8px'}[code]||'13px';
+  document.dispatchEvent(new CustomEvent('gp-lang',{detail:code}));
   if(typeof render==='function') render();
 }
 function toggleLangMenu(e){
