@@ -167,6 +167,17 @@ tr[data-market].mkt-selected .mname::before{content:'✓ ';color:var(--gold)}
 .rbtn{padding:5px 12px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;border:none;border-radius:4px;color:var(--text3);cursor:pointer;transition:all .15s}
 .rbtn:hover{color:var(--text)}
 .rbtn.on{background:var(--bg3);color:var(--text);font-weight:600}
+/* Vollbild-Overlay (Spot und Fed-Ratio): Flex-Layout, der Chart-Wrapper füllt den Rest, keine geschätzten Höhen (Auftrag 3) */
+.gp-fs>.chart-container{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:0;margin:0!important;border:0;border-radius:0;background:transparent}
+.gp-fs .chart-header{flex-shrink:0;align-items:center;flex-wrap:wrap;gap:4px 10px;margin-bottom:4px}
+.gp-fs .chart-header>div:first-child{flex:1 1 auto;min-width:0}
+.gp-fs .chart-sub,.gp-fs #fedr-info-btn{display:none}
+.gp-fs .gp-fs-bar{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.gp-fs .rbtn,.gp-fs .ctrl-btn{padding:4px 10px;font-size:12px}
+.gp-fs #fedr-ctrl{margin-bottom:0!important}
+.gp-fs #fedr-base-wrap{margin-bottom:4px}
+.gp-fs .chart-wrap,.gp-fs #fedr-wrap{flex:1 1 0;min-height:0;height:auto!important;overflow:hidden}
+@media(max-width:1000px){.gp-fs .chart-header>div:first-child{display:none}}
 /* Kompakte ctrl-btn Variante für Chart-Steuerelemente */
 .chart-ctrl .ctrl-btn{padding:4px 10px;font-size:13px;border-radius:4px}
 #rbtn-modal-toggle-price,#rbtn-modal-toggle-premium,#rbtn-cmp-mode-price,#rbtn-cmp-mode-premium{font-size:21px;padding:6px 16px}
@@ -799,7 +810,7 @@ footer a:hover{text-decoration:underline}
     st.chart=new Chart(ctx,{
       type:'line',
       data:{labels:s.lab, datasets:ds.map(function(d){ return {label:d.label,data:d.data,borderColor:d.c,backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,pointHoverRadius:4,fill:false,tension:0,spanGaps:false}; })},
-      options:Object.assign({},O,{
+      options:(typeof _gpFsOpts==='function'?_gpFsOpts:function(o){return o;})(Object.assign({},O,{
         plugins:Object.assign({},O.plugins,{
           legend:{display:ds.length>1,labels:{color:'#D0CCC4',font:{family:'DM Mono',size:10},boxWidth:12}},
           tooltip:Object.assign({},O.plugins.tooltip,{callbacks:{label:function(c){ return c.parsed.y!=null ? c.dataset.label+': '+tf(c.parsed.y) : ''; }}}),
@@ -810,7 +821,7 @@ footer a:hover{text-decoration:underline}
           x:{type:'time',time:{unit:'year',tooltipFormat:'dd MMM yyyy',displayFormats:{year:'yyyy'}},ticks:{color:'#666C78',maxTicksLimit:8,maxRotation:0,font:{size:11}},grid:{display:false}},
           y:Object.assign({},O.scales.y,{title:{display:true,text:ylab,color:'#666C78',font:{family:'DM Mono',size:10}}})
         }
-      })
+      }))
     });
   }
 
@@ -2141,7 +2152,7 @@ function renderSpotChart(zoomData){ try {
       labels,
       datasets
     },
-    options:{...CHART_OPTS,
+    options:_gpFsOpts({...CHART_OPTS,
       plugins:{...CHART_OPTS.plugins,
         tooltip:{...CHART_OPTS.plugins.tooltip,
           callbacks:{
@@ -2186,7 +2197,7 @@ function renderSpotChart(zoomData){ try {
           title:{display:true,text:unitLabel,color:'#666C78',font:{family:'DM Mono',size:10}}
         }
       },
-    }
+    })
   });
   document.getElementById('chart-spot').addEventListener('dblclick', ()=>{ if(window._spotZoomData){ renderSpotChart(); } else if(chartSpot) chartSpot.resetZoom(); });
 
@@ -3811,19 +3822,32 @@ function _cancelRotateHint(){
 }
 
 // Vollbild-Overlay (Spot und Fed-Ratio): gemeinsame Funktion, Konfiguration je Container (Regel 16)
+// Höhe: reines Flex-Layout (CSS .gp-fs), keine geschätzten Höhen mehr (Auftrag 3).
 const _FS_CFG={
   'spot-chart-container':{
-    overlay:'spot-fs-overlay', canvas:'chart-spot', wrap:'.chart-wrap', used:['chart-stats'], hide:[], slack:30, flat:false,
-    redraw:()=>{ if(chartSpot){chartSpot.destroy();chartSpot=null;} renderSpotChart(); },
-    resize:()=>{ if(chartSpot) chartSpot.resize(); }
+    overlay:'spot-fs-overlay', canvas:'chart-spot', move:[], hide:[],
+    redraw:()=>{ if(chartSpot){chartSpot.destroy();chartSpot=null;} renderSpotChart(); }
   },
   'fed-ratio-container':{
-    overlay:'fed-fs-overlay', canvas:'chart-fedr', wrap:'#fedr-wrap', used:['fedr-ctrl','fedr-stats','fedr-zoom'],
-    hide:['fedr-info','fedr-vinfo','fedr-vbtn-wrap','fedr-expl','fedr-msg','fedr-foot'], slack:40, flat:true,
-    redraw:()=>{ if(window._fedrChart) window._fedrChart.redraw(); },
-    resize:()=>{ if(window._fedrChart) window._fedrChart.resize(); }
+    overlay:'fed-fs-overlay', canvas:'chart-fedr', move:['#fedr-ctrl .ctrl-group'],
+    hide:['fedr-info','fedr-vinfo','fedr-vbtn-wrap','fedr-expl','fedr-msg','fedr-foot','fedr-zoom','fedr-stats'],
+    redraw:()=>{ if(window._fedrChart) window._fedrChart.redraw(); }
   }
 };
+// Vollbild: kleinere Achsenschrift, weniger Achsenmarken, kleineres Layout-Padding (nur Darstellung, kein Eingriff in gemeinsame Objekte)
+function _gpFsOpts(o){
+  if(!window._gpFS||!o) return o;
+  const s=o.scales||{}, ns={};
+  Object.keys(s).forEach(k=>{
+    const sc=s[k];
+    if(!sc||!sc.ticks){ ns[k]=sc; return; }
+    const t=Object.assign({},sc.ticks,{font:Object.assign({},sc.ticks.font,{size:9})});
+    if(k==='y') t.maxTicksLimit=6;
+    else if(t.maxTicksLimit<=8) t.maxTicksLimit=6;
+    ns[k]=Object.assign({},sc,{ticks:t});
+  });
+  return Object.assign({},o,{scales:ns,layout:{padding:{top:2,right:6,bottom:0,left:0}}});
+}
 function _chartFullscreen(id){
   const cfg=_FS_CFG[id];
   if(!cfg) return;
@@ -3836,44 +3860,37 @@ function _chartFullscreen(id){
     const parent=container.parentNode, next=container.nextSibling;
     const overlay=document.createElement('div');
     overlay.id=cfg.overlay;
-    overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:#0E1015;z-index:9998;display:flex;flex-direction:column;padding:10px 10px 6px;box-sizing:border-box';
-    const cw=container.querySelector(cfg.wrap);
-    const cwH0=cw?cw.style.height:'';
-    const mt0=container.style.marginTop;
+    overlay.className='gp-fs';
+    overlay.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:#0E1015;z-index:9998;display:flex;flex-direction:column;padding:4px;box-sizing:border-box';
     const hidden=cfg.hide.map(h=>{ const el=document.getElementById(h); return el?[el,el.style.display]:null; }).filter(Boolean);
+    const moved=cfg.move.map(sel=>{ const el=container.querySelector(sel); return el?{el:el,parent:el.parentNode,next:el.nextSibling}:null; }).filter(Boolean);
     const closeBtn=document.createElement('button');
     closeBtn.textContent='✕ Schließen';
-    closeBtn.style.cssText='align-self:flex-end;flex-shrink:0;background:none;border:1px solid #555;border-radius:6px;color:#aaa;font-size:12px;padding:4px 12px;cursor:pointer;margin-bottom:8px';
+    closeBtn.style.cssText='flex-shrink:0;background:none;border:1px solid #555;border-radius:6px;color:#aaa;font-size:12px;padding:4px 12px;cursor:pointer';
+    const bar=document.createElement('div');
+    bar.className='gp-fs-bar';
     closeBtn.onclick=()=>{
-      container.style.flex='';
-      container.style.minHeight='';
-      container.style.padding='';
-      if(cfg.flat) container.style.marginTop=mt0;
+      window._gpFS=false;
+      moved.forEach(m=>m.parent.insertBefore(m.el,m.next));
+      bar.remove();
       hidden.forEach(h=>{ h[0].style.display=h[1]; });
-      if(cw){cw.style.height=cwH0;}
       parent.insertBefore(container,next);
       overlay.remove();
       if(document.fullscreenElement&&document.exitFullscreen) document.exitFullscreen();
-      setTimeout(()=>{ cfg.resize(); },100);
+      setTimeout(()=>{ cfg.redraw(); },100);
     };
-    container.style.flex='1';
-    container.style.minHeight='0';
-    container.style.padding='8px';
-    if(cfg.flat) container.style.marginTop='0';
+    window._gpFS=true;
     hidden.forEach(h=>{ h[0].style.display='none'; });
     const canvas=document.getElementById(cfg.canvas);
     if(canvas){canvas.style.width='';canvas.style.height='';}
-    overlay.appendChild(closeBtn);
+    // Titelzeile: Schließen-Knopf (und beim Fed-Chart die Nenner-Schalter) rechts in dieselbe Zeile
+    const header=container.querySelector('.chart-header');
+    moved.forEach(m=>bar.appendChild(m.el));
+    bar.appendChild(closeBtn);
+    if(header) header.appendChild(bar); else overlay.appendChild(bar);
     overlay.appendChild(container);
     document.body.appendChild(overlay);
-    requestAnimationFrame(()=>{
-      if(cw){
-        const usedEls=cfg.used.reduce((a,u)=>a+(document.getElementById(u)||{offsetHeight:0}).offsetHeight,0);
-        const used=closeBtn.offsetHeight+8+(container.querySelector('.chart-header')||{offsetHeight:0}).offsetHeight+usedEls+cfg.slack;
-        cw.style.height=Math.max(80,overlay.clientHeight-used-container.offsetTop)+'px';
-      }
-      cfg.redraw();
-    });
+    requestAnimationFrame(()=>{ cfg.redraw(); });
   });
 }
 
