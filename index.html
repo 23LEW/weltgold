@@ -1037,7 +1037,7 @@ footer a:hover{text-decoration:underline}
 
 <footer>
   <div>GoldPremium.org © 2026 · Informational purposes only · Not financial advice</div>
-  <div><a id="lnk-gp-explainer" href="/gold-premium.html">What is the gold premium?</a> · <a id="lnk-impressum" href="/impressum.html">Impressum &amp; Datenschutz</a> · <a href="file:///cdn-cgi/l/email-protection#9af9f5f4eefbf9eedafdf5f6feeae8fff7f3eff7b4f5e8fd"><span class="__cf_email__" data-cfemail="b1d2dedfc5d0d2c5f1d6deddd5c1c3d4dcd8c4dc9fdec3d6">[email&nbsp;protected]</span></a></div>
+  <div><a id="lnk-gp-explainer" href="/gold-premium.html">What is the gold premium?</a> · <a id="lnk-impressum" href="/impressum-en.html">Impressum &amp; Datenschutz</a> · <a href="file:///cdn-cgi/l/email-protection#9af9f5f4eefbf9eedafdf5f6feeae8fff7f3eff7b4f5e8fd"><span class="__cf_email__" data-cfemail="b1d2dedfc5d0d2c5f1d6deddd5c1c3d4dcd8c4dc9fdec3d6">[email&nbsp;protected]</span></a></div>
 </footer>
 
 <div id="market-note-popup" style="display:none;position:fixed;z-index:10000;max-width:280px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--text);line-height:1.4;box-shadow:0 4px 20px rgba(0,0,0,0.4)"></div>
@@ -3322,7 +3322,7 @@ function setLang(code){
     }
   }
   const lnkImp=document.getElementById('lnk-impressum');
-  if(lnkImp) lnkImp.textContent=t.footerImpressum||'Legal Notice & Privacy';
+  if(lnkImp){lnkImp.textContent=t.footerImpressum||'Legal Notice & Privacy';lnkImp.href=code==='de'?'/impressum.html':'/impressum-en.html';}
   document.querySelectorAll('.lang-opt').forEach(b=>b.classList.toggle('active',b.dataset.lang===code));
   document.documentElement.dir=code==='ar'?'rtl':'ltr';
   document.getElementById('lang-menu').style.display='none';
