@@ -205,6 +205,8 @@ footer a:hover{text-decoration:underline}
 
 @media(max-width:900px){.chart-grid{grid-template-columns:1fr}.wrap{padding:0 16px 60px}#disclaimer-grid,#about-grid{grid-template-columns:1fr!important}}
 @media(max-width:700px){.spots-inner{flex-wrap:wrap}.controls{margin-top:4px}}
+/* 2026-11-21: Kartenreihe bricht auch zwischen 769 und 1100 px um (Ueberlauf von bis zu 229 px im Handy-Querformat 844 px) */
+@media(min-width:769px) and (max-width:1100px){.spots-inner{flex-wrap:wrap}}
 @media(max-width:768px){.flag{display:none!important}}
 @media(max-width:768px) and (orientation:portrait){.chart-th{display:none!important}.chart-td{display:none!important}.mcity{display:none!important}.mname{font-size:12px!important}.badge.live,.badge.calc,.badge.closed{flex-direction:column!important;align-items:center!important;white-space:normal!important;text-align:center!important}.bsrc{order:1!important}.bstatus{order:2!important}.bdot{order:3!important}.bsep{display:none!important}.tap-chart{display:block!important}}
 @media(max-width:768px) and (orientation:landscape){#spots-sticky{display:flex!important;flex-direction:row!important;align-items:stretch;gap:0}#mobile-cards-row{padding:1px 4px!important;gap:6px!important;flex-shrink:0}#mobile-toggles-row{padding:1px 4px!important;gap:8px!important;flex:1;align-items:center!important}#v-usd-chp,#v-eur-chp{font-size:11px!important;padding:1px 6px!important}.spot-price{font-size:11px!important}.spot-label{font-size:7px!important}.spot{padding:1px 3px!important}.spot-sub{display:none!important}#toggles-col{width:90px!important;gap:3px!important}.ctrl-group{padding:1px!important}.spots-sticky .ctrl-btn{padding:1px 4px!important}#currency-row{gap:3px!important}#currency-row .ctrl-btn{padding:1px 3px!important}#compare-bar{padding:4px 10px!important}#compare-hint{font-size:15px!important}#compare-btn-open{font-size:22px!important;padding:10px 26px!important}#mobile-sticky-bar{flex-direction:row!important;justify-content:space-between!important;align-items:center!important;gap:12px!important}#mobile-sticky-bar #sticky-bidask{white-space:nowrap!important}#mobile-sticky-bar .ba-logo{display:none!important}#mobile-sticky-bar .ba-dot{display:inline!important}#mobile-sticky-bar #sticky-logo-ls{display:inline-block!important}}
@@ -569,7 +571,7 @@ footer a:hover{text-decoration:underline}
 <div class="chart-container" id="fed-ratio-container" style="margin-top:24px">
   <div class="chart-header">
     <div>
-      <div class="chart-title"><span id="fedr-title">Gold-to-Currency-in-Circulation Ratio</span><button id="fedr-info-btn" type="button" aria-expanded="false" aria-controls="fedr-info" aria-label="Information" title="Information">ⓘ</button></div>
+      <div class="chart-title"><span id="fedr-title">Gold vs. the Fed&#39;s balance sheet</span><button id="fedr-info-btn" type="button" aria-expanded="false" aria-controls="fedr-info" aria-label="Information" title="Information">ⓘ</button></div>
       <div class="chart-sub" id="fedr-sub"></div>
     </div>
     <div class="range-btns" id="fedr-tabs">
@@ -582,8 +584,8 @@ footer a:hover{text-decoration:underline}
   <div id="fedr-info" role="region" aria-label="Information"></div>
   <div id="fedr-ctrl" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
     <div class="ctrl-group" style="display:inline-flex">
-      <button class="ctrl-btn on" id="fedr-den-net" type="button" style="background:var(--gold);color:#0E1015">Notes in circulation</button>
-      <button class="ctrl-btn" id="fedr-den-ta" type="button">Total assets</button>
+      <button class="ctrl-btn on" id="fedr-den-net" type="button" style="background:var(--gold);color:#0E1015">Gold vs. cash</button>
+      <button class="ctrl-btn" id="fedr-den-ta" type="button">Gold vs. Fed balance sheet</button>
     </div>
     <label id="fedr-base-wrap" style="display:none;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)"><span id="fedr-base-lbl">Start date (= 100)</span>
       <input type="date" id="fedr-base" min="2002-12-18" value="2002-12-18" style="margin-left:6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:'DM Mono',monospace;font-size:11px;padding:3px 6px">
@@ -605,23 +607,23 @@ footer a:hover{text-decoration:underline}
   function $(id){return document.getElementById(id);}
   function num(v,d){return (typeof fmt==='function')?fmt(v,d):Number(v).toFixed(d);}
   /*T-BEGIN*/
-  var FOOT_EN="<strong>Calculated figures, not balance-sheet items.</strong> The Federal Reserve does not own gold. The gold belongs to the U.S. Treasury (261,498,926 troy oz, carried at the statutory USD 42.2222 per oz); the Fed holds gold certificates at that rate, shown as “Gold Certificate Account” (about USD {gc} billion). The figures are calculated by GoldPremium from measured gold prices and published weekly balance-sheet data (Wednesday levels, H.4.1, USD million). Gold price: the series of the chart above (COMEX futures via Yahoo Finance, GoldPremium; current value: Kitco). GoldPremium.org is not affiliated with the Federal Reserve.", FOOT_DE="<strong>Rechengrößen, keine Bilanzposten.</strong> Die Federal Reserve besitzt kein Gold. Das Gold gehört dem US-Finanzministerium (261.498.926 Feinunzen, bewertet zum gesetzlichen Satz von 42,2222 USD je Unze); die Fed hält dafür Goldzertifikate zu diesem Satz, ausgewiesen als „Gold Certificate Account“ (rund {gc} Mrd. USD). Die Kennzahlen werden von GoldPremium aus gemessenen Goldpreisen und veröffentlichten wöchentlichen Bilanzzahlen berechnet (Mittwochswerte, H.4.1, Mio. USD). Goldpreis: die Reihe des Charts oben (COMEX-Futures via Yahoo Finance, GoldPremium; aktueller Wert: Kitco). GoldPremium.org steht in keiner Verbindung zur Federal Reserve.";
+  var FOOT_EN="<strong>Calculated figures, not balance-sheet items.</strong> The Federal Reserve does not own gold. The gold belongs to the U.S. Treasury (261,498,926 troy oz, carried at the statutory USD 42.2222 per oz); the Fed holds gold certificates at that rate, shown as “Gold Certificate Account” (about USD {gc} billion). The figures are calculated by GoldPremium from measured gold prices and published weekly balance-sheet data (Wednesday levels, H.4.1, USD million). “Notes in circulation” is the net figure, after deducting the Reserve Banks’ own holdings. Gold price: the series of the chart above (COMEX futures via Yahoo Finance, GoldPremium; current value: Kitco). GoldPremium.org is not affiliated with the Federal Reserve.", FOOT_DE="<strong>Rechengrößen, keine Bilanzposten.</strong> Die Federal Reserve besitzt kein Gold. Das Gold gehört dem US-Finanzministerium (261.498.926 Feinunzen, bewertet zum gesetzlichen Satz von 42,2222 USD je Unze); die Fed hält dafür Goldzertifikate zu diesem Satz, ausgewiesen als „Gold Certificate Account“ (rund {gc} Mrd. USD). Die Kennzahlen werden von GoldPremium aus gemessenen Goldpreisen und veröffentlichten wöchentlichen Bilanzzahlen berechnet (Mittwochswerte, H.4.1, Mio. USD). „Notenumlauf“ ist der Nettowert, also nach Abzug der Bestände der Reserve Banks. Goldpreis: die Reihe des Charts oben (COMEX-Futures via Yahoo Finance, GoldPremium; aktueller Wert: Kitco). GoldPremium.org steht in keiner Verbindung zur Federal Reserve.";
   var SRC_EN="Sources: Board of Governors of the Federal Reserve System (US); U.S. Department of the Treasury; Kitco.", SRC_DE="Quellen: Board of Governors of the Federal Reserve System (US); U.S. Department of the Treasury; Kitco.";
   var T={
    en:{
-    title:{frn_net:"Gold-to-Currency-in-Circulation Ratio",total_assets:"Gold-to-Fed Balance Sheet Ratio"},
+    title:"Gold vs. the Fed's balance sheet",
     expl:{frn_net:"A macroeconomic valuation indicator that sets the gold price against the physical U.S. cash supply. It shows how highly gold is valued compared with the actual circulation of Federal Reserve notes.",
           total_assets:"The ratio of the gold price to the total assets of the U.S. central bank (Federal Reserve) serves as a macro indicator for the valuation of gold relative to the central-bank liquidity created. It indicates whether the gold price is historically cheap or expensive compared with the expansion or contraction of U.S. monetary policy."},
     views:["Ratio","Percent","Coverage value","Index"],
-    den:{frn_net:"Notes in circulation",total_assets:"Total assets"},
-    dn:{frn_net:"notes in circulation (net of Reserve Bank holdings)",total_assets:"total assets"},
+    den:{frn_net:"Gold vs. cash",total_assets:"Gold vs. Fed balance sheet"},
+    dn:{frn_net:"notes in circulation",total_assets:"total assets"},
     start:"Start date (= 100)", zoom:"Drag to zoom · Double-click to reset", unavailable:"Data currently unavailable.", infoLbl:"Information",
     st:{latest:"Latest",goldMkt:"Gold price (market)",spot:function(src,last){return "With current spot ("+src+", Fed data "+last+")";},low:"Low",high:"High",goldIdx:"Gold (index)",idx:"(index)",base:"Base date"},
     v:[null,
-     {axis:"Index (scaled; denominator in USD bn)",note:"Only the shape of the curve is meaningful, not the absolute value.",leg:function(dn){return ["Gold price ÷ "+dn];},sub:function(dn){return "Gold price (USD/oz) ÷ "+dn+" (USD billion). Calculated figure.";}},
-     {axis:"Percent",note:"The U.S. gold reserve at market prices, measured against the selected denominator.",leg:function(dn){return ["261.5 m oz × gold price ÷ "+dn];},sub:function(dn){return "(261,498,926 oz × gold price) ÷ "+dn+" × 100. Calculated figure.";}},
-     {axis:"USD per fine troy ounce",note:"Implied coverage value = selected denominator ÷ 261,498,926 oz. Calculated figure, not a price.",leg:function(){return ["Implied coverage value","Gold price (market)"];},sub:function(dn){return "Implied coverage value: "+dn+" ÷ 261,498,926 oz, shown with the market gold price on the same axis. Calculated figure.";}},
-     {axis:function(b){return "Index, "+b+" = 100";},note:"The picture depends entirely on the chosen start date.",leg:function(){return ["Gold price","Selected denominator"];},sub:function(dn,b){return "Gold price and "+dn+", both set to 100 on "+b+". The picture depends entirely on the chosen start date. Calculated figure.";}}
+     {axis:"Index (scaled; denominator in USD bn)",note:"Only the shape of the curve is meaningful, not the absolute value.",leg:function(dn){return ["Gold price ÷ "+dn];},sub:function(dn){return "Gold price ÷ "+dn+" (USD bn)";}},
+     {axis:"Percent",note:"The U.S. gold reserve at market prices, measured against the selected denominator.",leg:function(dn){return ["261.5 m oz × gold price ÷ "+dn];},sub:function(dn){return "(261,498,926 oz × gold price) ÷ "+dn+" × 100";}},
+     {axis:"USD per fine troy ounce",note:"Implied coverage value = selected denominator ÷ 261,498,926 oz. Calculated figure, not a price. The chart shows it together with the market gold price on the same axis.",leg:function(){return ["Implied coverage value","Gold price (market)"];},sub:function(dn){return dn.charAt(0).toUpperCase()+dn.slice(1)+" ÷ 261,498,926 oz";}},
+     {axis:function(b){return "Index, "+b+" = 100";},note:"The picture depends entirely on the chosen start date.",leg:function(){return ["Gold price","Selected denominator"];},sub:function(dn,b){return "Gold price and "+dn+", "+b+" = 100";}}
     ],
     info:function(v){return {
      frn_net:[
@@ -646,19 +648,19 @@ footer a:hover{text-decoration:underline}
     body:function(gc){return FOOT_EN.replace("{gc}",gc);}
    },
    de:{
-    title:{frn_net:"Gold-zu-Bargeld-Verhältnis",total_assets:"Verhältnis Goldpreis zu Fed-Bilanzsumme"},
+    title:"Gold gegen die Fed-Bilanz",
     expl:{frn_net:"Ein makroökonomischer Bewertungsindikator, der den Goldpreis ins Verhältnis zur physischen US-Bargeldmenge setzt. Er zeigt, wie hoch Gold im Vergleich zum tatsächlichen Umlauf an Federal-Reserve-Banknoten bewertet ist.",
           total_assets:"Das Verhältnis aus Goldpreis und der Bilanzsumme der US-Notenbank (Federal Reserve) dient als Makro-Indikator für die Bewertung von Gold im Verhältnis zur geschaffenen Zentralbankliquidität. Es zeigt an, ob der Goldpreis im Vergleich zur Ausweitung oder Schrumpfung der US-Geldpolitik historisch günstig oder teuer bewertet ist."},
     views:["Ratio","Percent","Coverage value","Index"],
-    den:{frn_net:"Notenumlauf",total_assets:"Bilanzsumme"},
-    dn:{frn_net:"Notenumlauf (netto, abzüglich Bestände der Reserve Banks)",total_assets:"Bilanzsumme"},
+    den:{frn_net:"Gold zu Bargeld",total_assets:"Gold zu Fed-Bilanz"},
+    dn:{frn_net:"Notenumlauf",total_assets:"Bilanzsumme"},
     start:"Startdatum (= 100)", zoom:"Zum Zoomen ziehen · Doppelklick zum Zurücksetzen", unavailable:"Daten derzeit nicht verfügbar.", infoLbl:"Information",
     st:{latest:"Aktuell",goldMkt:"Goldpreis (Markt)",spot:function(src,last){return "Mit aktuellem Spot ("+src+", Fed-Daten "+last+")";},low:"Tief",high:"Hoch",goldIdx:"Gold (Index)",idx:"(Index)",base:"Basisdatum"},
     v:[null,
-     {axis:"Index (skaliert; Nenner in Mrd. USD)",note:"Aussagekräftig ist allein der Verlauf, nicht der Absolutwert.",leg:function(dn){return ["Goldpreis ÷ "+dn];},sub:function(dn){return "Goldpreis (USD/Unze) ÷ "+dn+" (Mrd. USD). Rechengröße.";}},
-     {axis:"Prozent",note:"Die US-Goldreserve zu Marktpreisen, gemessen am gewählten Nenner.",leg:function(dn){return ["261,5 Mio. Unzen × Goldpreis ÷ "+dn];},sub:function(dn){return "(261.498.926 Unzen × Goldpreis) ÷ "+dn+" × 100. Rechengröße.";}},
-     {axis:"USD je Feinunze",note:"Rechnerischer Deckungswert = gewählter Nenner ÷ 261.498.926 oz. Rechengröße, kein Kurs.",leg:function(){return ["Rechnerischer Deckungswert","Goldpreis (Markt)"];},sub:function(dn){return "Rechnerischer Deckungswert: "+dn+" ÷ 261.498.926 Unzen, dargestellt mit dem Marktgoldpreis auf derselben Achse. Rechengröße.";}},
-     {axis:function(b){return "Index, "+b+" = 100";},note:"Das Bild hängt vollständig vom gewählten Startdatum ab.",leg:function(){return ["Goldpreis","Gewählter Nenner"];},sub:function(dn,b){return "Goldpreis und "+dn+", beide am "+b+" auf 100 gesetzt. Das Bild hängt vollständig vom gewählten Startdatum ab. Rechengröße.";}}
+     {axis:"Index (skaliert; Nenner in Mrd. USD)",note:"Aussagekräftig ist allein der Verlauf, nicht der Absolutwert.",leg:function(dn){return ["Goldpreis ÷ "+dn];},sub:function(dn){return "Goldpreis ÷ "+dn+" (Mrd. USD)";}},
+     {axis:"Prozent",note:"Die US-Goldreserve zu Marktpreisen, gemessen am gewählten Nenner.",leg:function(dn){return ["261,5 Mio. Unzen × Goldpreis ÷ "+dn];},sub:function(dn){return "(261.498.926 Unzen × Goldpreis) ÷ "+dn+" × 100";}},
+     {axis:"USD je Feinunze",note:"Rechnerischer Deckungswert = gewählter Nenner ÷ 261.498.926 oz. Rechengröße, kein Kurs. Der Chart zeigt ihn gemeinsam mit dem Marktgoldpreis auf derselben Achse.",leg:function(){return ["Rechnerischer Deckungswert","Goldpreis (Markt)"];},sub:function(dn){return dn.charAt(0).toUpperCase()+dn.slice(1)+" ÷ 261.498.926 Unzen";}},
+     {axis:function(b){return "Index, "+b+" = 100";},note:"Das Bild hängt vollständig vom gewählten Startdatum ab.",leg:function(){return ["Goldpreis","Gewählter Nenner"];},sub:function(dn,b){return "Goldpreis und "+dn+", "+b+" = 100";}}
     ],
     info:function(v){return {
      frn_net:[
@@ -716,7 +718,7 @@ footer a:hover{text-decoration:underline}
   }
   function applyStatic(){
     var lg=L(), i;
-    $('fedr-title').textContent=lg.title[st.den];
+    $('fedr-title').textContent=lg.title;
     $('fedr-expl').textContent=lg.expl[st.den];
     for(i=1;i<=4;i++) $('fedr-tab-'+i).textContent=lg.views[i-1];
     $('fedr-den-net').textContent=lg.den.frn_net; $('fedr-den-ta').textContent=lg.den.total_assets;
