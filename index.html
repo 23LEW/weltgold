@@ -635,7 +635,7 @@ footer a:hover{text-decoration:underline}
                       ["Gold price movement:","If the gold price rises faster than the monetary base, the ratio rises."]]}},
     dn:{frn_net:"notes in circulation",monetary_base:"monetary base",total_assets:"total assets"},
     start:"Start date (= 100)", zoom:"Drag to zoom · Double-click to reset", unavailable:"Data currently unavailable.", infoLbl:"Information",
-    st:{latest:"Latest",goldMkt:"Gold price (market)",spot:function(src,last){return "With current spot ("+src+", Fed data "+last+")";},low:"Low",high:"High",goldIdx:"Gold (index)",idx:"(index)",base:"Base date"},
+    st:{latest:"Latest",goldMkt:"Gold price (market)",spot:"With current spot",spotNote:function(src,last){return " Spot price: "+src+"; Fed data as of "+last+".";},low:"Low",high:"High",goldIdx:"Gold (index)",idx:"(index)",base:"Base date"},
     v:[null,
      {axis:"Index (scaled; denominator in USD bn)",note:"Only the shape of the curve is meaningful, not the absolute value.",leg:function(dn){return ["Gold price ÷ "+dn];},sub:function(dn){return "Gold price ÷ "+dn+" (USD bn)";}},
      {axis:"Percent",note:"The U.S. gold reserve at market prices, measured against the selected denominator.",leg:function(dn){return ["261.5 m oz × gold price ÷ "+dn];},sub:function(dn){return "(261,498,926 oz × gold price) ÷ "+dn+" × 100";}},
@@ -683,7 +683,7 @@ footer a:hover{text-decoration:underline}
                       ["Goldpreisentwicklung:","Steigt der Goldpreis schneller als die Geldbasis, steigt das Verhältnis."]]}},
     dn:{frn_net:"Notenumlauf",monetary_base:"Geldbasis",total_assets:"Bilanzsumme"},
     start:"Startdatum (= 100)", zoom:"Zum Zoomen ziehen · Doppelklick zum Zurücksetzen", unavailable:"Daten derzeit nicht verfügbar.", infoLbl:"Information",
-    st:{latest:"Aktuell",goldMkt:"Goldpreis (Markt)",spot:function(src,last){return "Mit aktuellem Spot ("+src+", Fed-Daten "+last+")";},low:"Tief",high:"Hoch",goldIdx:"Gold (Index)",idx:"(Index)",base:"Basisdatum"},
+    st:{latest:"Aktuell",goldMkt:"Goldpreis (Markt)",spot:"Mit aktuellem Spot",spotNote:function(src,last){return " Spotpreis: "+src+"; Fed-Daten Stand "+last+".";},low:"Tief",high:"Hoch",goldIdx:"Gold (Index)",idx:"(Index)",base:"Basisdatum"},
     v:[null,
      {axis:"Index (skaliert; Nenner in Mrd. USD)",note:"Aussagekräftig ist allein der Verlauf, nicht der Absolutwert.",leg:function(dn){return ["Goldpreis ÷ "+dn];},sub:function(dn){return "Goldpreis ÷ "+dn+" (Mrd. USD)";}},
      {axis:"Prozent",note:"Die US-Goldreserve zu Marktpreisen, gemessen am gewählten Nenner.",leg:function(dn){return ["261,5 Mio. Unzen × Goldpreis ÷ "+dn];},sub:function(dn){return "(261.498.926 Unzen × Goldpreis) ÷ "+dn+" × 100";}},
@@ -820,7 +820,7 @@ footer a:hover{text-decoration:underline}
     $('fedr-base-wrap').style.display=(T===4)?'inline-block':'none';
 
     // Kennzahlen
-    var vals=s.A.filter(function(v){return v!=null;}), el=$('fedr-stats'), h='';
+    var vals=s.A.filter(function(v){return v!=null;}), el=$('fedr-stats'), h='', spotNote='';
     function stat(l,v){ return '<span><span style="color:var(--text3)">'+l+'</span> <span style="color:var(--text2)">'+v+'</span></span>'; }
     if(vals.length){
       var lastV=vals[vals.length-1];
@@ -828,14 +828,14 @@ footer a:hover{text-decoration:underline}
         h+=stat(lg.st.latest+' ('+last+')', tf(lastV)); if(T===3) h+=stat(lg.st.goldMkt, '$'+num(s.B[s.B.length-1],0));
         if(T<=2){
           var sp=(typeof spot!=='undefined' && spot && spot.XAU)?spot.XAU:null, n=f[st.den][f[st.den].length-1]*1e6;
-          if(sp){ var nv=(T===1)? sp/(n/1e9) : Q*sp/n*100; var src=(typeof spotSourceLabel==='function')?spotSourceLabel():'kitco.com'; h+=stat(lg.st.spot(src,last), tf(nv)); }
+          if(sp){ var nv=(T===1)? sp/(n/1e9) : Q*sp/n*100; var src=(typeof spotSourceLabel==='function')?spotSourceLabel():'kitco.com'; h+=stat(lg.st.spot, tf(nv)); spotNote=lg.st.spotNote(src,last); }
         }
         h+=stat(lg.st.low, tf(Math.min.apply(null,vals)))+stat(lg.st.high, tf(Math.max.apply(null,vals)));
       } else {
         h+=stat(lg.st.goldIdx, num(vals[vals.length-1],1))+stat(dn+' '+lg.st.idx, num(s.B[s.B.length-1],1))+stat(lg.st.base, s.base);
       }
     }
-    el.innerHTML=h;
+    el.innerHTML=h; $('fedr-foot').textContent=lg.foot()+spotNote;
 
     // Chart
     var ctx=$('chart-fedr').getContext('2d');
