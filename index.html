@@ -168,6 +168,10 @@ tr[data-market].mkt-selected .mname::before{content:'✓ ';color:var(--gold)}
 .rbtn{padding:5px 12px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;border:none;border-radius:4px;color:var(--text3);cursor:pointer;transition:all .15s}
 .rbtn:hover{color:var(--text)}
 .rbtn.on{background:var(--bg3);color:var(--text);font-weight:600}
+#fed-ratio-container .chart-header{align-items:center}
+.fedr-den .ctrl-btn{padding:5px 12px}
+#fedr-vinfo ol{margin:0 0 8px;padding-left:20px}
+#fedr-vinfo li{margin:0 0 6px}
 /* Vollbild-Overlay (Spot und Fed-Ratio): Flex-Layout, der Chart-Wrapper füllt den Rest, keine geschätzten Höhen (Auftrag 3) */
 .gp-fs>.chart-container{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:0;margin:0!important;border:0;border-radius:0;background:transparent}
 .gp-fs .chart-header{flex-shrink:0;align-items:center;flex-wrap:wrap;gap:4px 10px;margin-bottom:4px}
@@ -572,8 +576,12 @@ footer a:hover{text-decoration:underline}
 <div class="chart-container" id="fed-ratio-container" style="margin-top:24px">
   <div class="chart-header">
     <div>
-      <div class="chart-title"><span id="fedr-title">Gold vs. the Fed&#39;s balance sheet</span><button id="fedr-info-btn" type="button" aria-expanded="false" aria-controls="fedr-info" aria-label="Information" title="Information">ⓘ</button></div>
+      <div class="chart-title"><span id="fedr-title">U.S. gold coverage and valuation metrics</span><button id="fedr-info-btn" type="button" aria-expanded="false" aria-controls="fedr-info" aria-label="Information" title="Information">ⓘ</button></div>
       <div class="chart-sub" id="fedr-sub"></div>
+    </div>
+    <div class="ctrl-group fedr-den" id="fedr-den" style="display:inline-flex">
+      <button class="ctrl-btn on" id="fedr-den-net" type="button" style="background:var(--gold);color:#0E1015">Gold – Cash</button>
+      <button class="ctrl-btn" id="fedr-den-ta" type="button">Gold – Fed balance sheet</button>
     </div>
     <div class="range-btns" id="fedr-tabs">
       <button class="rbtn on" id="fedr-tab-1" type="button">Ratio</button>
@@ -583,19 +591,14 @@ footer a:hover{text-decoration:underline}
     </div>
   </div>
   <div id="fedr-info" role="region" aria-label="Information"></div>
-  <div id="fedr-ctrl" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
-    <div class="ctrl-group" style="display:inline-flex">
-      <button class="ctrl-btn on" id="fedr-den-net" type="button" style="background:var(--gold);color:#0E1015">Gold vs. cash</button>
-      <button class="ctrl-btn" id="fedr-den-ta" type="button">Gold vs. Fed balance sheet</button>
-    </div>
-    <label id="fedr-base-wrap" style="display:none;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)"><span id="fedr-base-lbl">Start date (= 100)</span>
+  <div id="fedr-ctrl" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:0">
+    <label id="fedr-base-wrap" style="display:none;margin-bottom:10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)"><span id="fedr-base-lbl">Start date (= 100)</span>
       <input type="date" id="fedr-base" min="2002-12-18" value="2002-12-18" style="margin-left:6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:'DM Mono',monospace;font-size:11px;padding:3px 6px">
     </label>
   </div>
   <div id="fedr-stats" style="display:flex;gap:20px;margin-bottom:12px;font-family:'DM Mono',monospace;font-size:12px;flex-wrap:wrap"></div>
   <div id="fedr-zoom" style="font-size:10px;color:var(--text3);text-align:right;margin-bottom:4px">Drag to zoom · Double-click to reset</div>
   <div id="fedr-wrap" onclick="if(window.innerWidth<=768&&window.innerHeight>window.innerWidth)_chartFullscreen('fed-ratio-container')" style="position:relative;width:100%;height:clamp(260px,50vh,460px)"><canvas id="chart-fedr"></canvas></div>
-  <div id="fedr-expl" style="font-size:12px;color:var(--text2);line-height:1.55;margin-top:10px"></div>
   <div id="fedr-vbtn-wrap" style="margin-top:8px"><div class="ctrl-group" style="display:inline-flex"><button class="ctrl-btn" id="fedr-vbtn" type="button" aria-expanded="false" aria-controls="fedr-vinfo"></button></div></div>
   <div id="fedr-vinfo" role="region" style="margin-top:8px"></div>
   <div id="fedr-msg" style="font-size:11px;color:var(--text3);margin-top:6px"></div>
@@ -612,11 +615,17 @@ footer a:hover{text-decoration:underline}
   var SRC_EN="Sources: Board of Governors of the Federal Reserve System (US); U.S. Department of the Treasury; Kitco.", SRC_DE="Quellen: Board of Governors of the Federal Reserve System (US); U.S. Department of the Treasury; Kitco.";
   var T={
    en:{
-    title:"Gold vs. the Fed's balance sheet",
+    title:"U.S. gold coverage and valuation metrics",
     expl:{frn_net:"A macroeconomic valuation indicator that sets the gold price against the physical U.S. cash supply. It shows how highly gold is valued compared with the actual circulation of Federal Reserve notes.",
           total_assets:"The ratio of the gold price to the total assets of the U.S. central bank (Federal Reserve) serves as a macro indicator for the valuation of gold relative to the central-bank liquidity created. It indicates whether the gold price is historically cheap or expensive compared with the expansion or contraction of U.S. monetary policy."},
     views:["Ratio","Percent","Coverage value","Index"],
-    den:{frn_net:"Gold vs. cash",total_assets:"Gold vs. Fed balance sheet"},
+    den:{frn_net:"Gold – Cash",total_assets:"Gold – Fed balance sheet"},
+    txt:{frn_net:{p:"The measure shows, over long periods, how the U.S. gold reserve stands against U.S. dollar cash in circulation. It makes visible in particular:",
+                  ol:["How the implied gold coverage of the cash in circulation has changed over the period shown.","How the gold price and the cash in circulation have developed relative to each other."]},
+         total_assets:{p:"The measure shows how the market value of the U.S. gold reserve has developed relative to the Fed's total assets over the period shown. The ratio is driven by:",
+                  ol:[["QE (quantitative easing):","Purchases of government bonds and mortgage-backed securities (MBS) expand the Fed's total assets. With an unchanged gold price, the ratio falls."],
+                      ["QT (quantitative tightening):","Running down securities holdings tends to shrink the Fed's total assets. The ratio may rise as a result."],
+                      ["Gold price movement:","If the gold price rises faster than the Fed's total assets, the ratio rises."]]}},
     dn:{frn_net:"notes in circulation",total_assets:"total assets"},
     start:"Start date (= 100)", zoom:"Drag to zoom · Double-click to reset", unavailable:"Data currently unavailable.", infoLbl:"Information",
     st:{latest:"Latest",goldMkt:"Gold price (market)",spot:function(src,last){return "With current spot ("+src+", Fed data "+last+")";},low:"Low",high:"High",goldIdx:"Gold (index)",idx:"(index)",base:"Base date"},
@@ -649,11 +658,17 @@ footer a:hover{text-decoration:underline}
     body:function(gc){return FOOT_EN.replace("{gc}",gc);}
    },
    de:{
-    title:"Gold gegen die Fed-Bilanz",
+    title:"US-Golddeckungs- und Bewertungskennzahlen",
     expl:{frn_net:"Ein makroökonomischer Bewertungsindikator, der den Goldpreis ins Verhältnis zur physischen US-Bargeldmenge setzt. Er zeigt, wie hoch Gold im Vergleich zum tatsächlichen Umlauf an Federal-Reserve-Banknoten bewertet ist.",
           total_assets:"Das Verhältnis aus Goldpreis und der Bilanzsumme der US-Notenbank (Federal Reserve) dient als Makro-Indikator für die Bewertung von Gold im Verhältnis zur geschaffenen Zentralbankliquidität. Es zeigt an, ob der Goldpreis im Vergleich zur Ausweitung oder Schrumpfung der US-Geldpolitik historisch günstig oder teuer bewertet ist."},
     views:["Ratio","Percent","Coverage value","Index"],
-    den:{frn_net:"Gold zu Bargeld",total_assets:"Gold zu Fed-Bilanz"},
+    den:{frn_net:"Gold – Bargeld",total_assets:"Gold – Fed-Bilanz"},
+    txt:{frn_net:{p:"Die Kennzahl zeigt über lange Zeiträume, wie die Goldreserve der USA zum umlaufenden US-Dollar-Bargeld steht. Sichtbar wird insbesondere:",
+                  ol:["Wie sich die rechnerische Golddeckung des Bargeldumlaufs im dargestellten Zeitraum verändert hat.","Wie sich Goldpreis und Bargeldumlauf im Vergleich entwickelt haben."]},
+         total_assets:{p:"Die Kennzahl zeigt, wie sich der Marktwert der Goldreserve der USA gegenüber der Bilanzsumme der Fed im dargestellten Zeitraum entwickelt hat. Auf das Verhältnis wirken:",
+                  ol:[["QE (Quantitative Easing):","Durch den Ankauf von Staatsanleihen und hypothekenbesicherten Wertpapieren (MBS) wächst die Fed-Bilanzsumme. Bei unverändertem Goldpreis sinkt das Verhältnis."],
+                      ["QT (Quantitative Tightening):","Durch den Abbau von Wertpapierbeständen schrumpft die Fed-Bilanzsumme tendenziell. Das Verhältnis kann dadurch steigen."],
+                      ["Goldpreisentwicklung:","Steigt der Goldpreis schneller als die Fed-Bilanzsumme, steigt das Verhältnis."]]}},
     dn:{frn_net:"Notenumlauf",total_assets:"Bilanzsumme"},
     start:"Startdatum (= 100)", zoom:"Zum Zoomen ziehen · Doppelklick zum Zurücksetzen", unavailable:"Daten derzeit nicht verfügbar.", infoLbl:"Information",
     st:{latest:"Aktuell",goldMkt:"Goldpreis (Markt)",spot:function(src,last){return "Mit aktuellem Spot ("+src+", Fed-Daten "+last+")";},low:"Tief",high:"Hoch",goldIdx:"Gold (Index)",idx:"(Index)",base:"Basisdatum"},
@@ -697,6 +712,7 @@ footer a:hover{text-decoration:underline}
       if(b.p) h+='<p>'+esc(b.p)+'</p>';
       (b.raw||[]).forEach(function(r){ h+='<p>'+r+'</p>'; });
       (b.items||[]).forEach(function(it){ h+='<p><strong>'+esc(it[0])+'</strong> '+esc(it[1])+'</p>'; });
+      if(b.ol) h+='<ol>'+b.ol.map(function(it){ return '<li>'+(Array.isArray(it)?'<strong>'+esc(it[0])+'</strong> '+esc(it[1]):esc(it))+'</li>'; }).join('')+'</ol>';
       if(b.table){
         h+='<table><thead><tr>'+b.table.head.map(function(c){return '<th>'+esc(c)+'</th>';}).join('')+'</tr></thead><tbody>';
         b.table.rows.forEach(function(r){ h+='<tr>'+r.map(function(c,i){return '<td data-h="'+esc(b.table.head[i])+'">'+esc(c)+'</td>';}).join('')+'</tr>'; });
@@ -713,14 +729,13 @@ footer a:hover{text-decoration:underline}
   }
   /* Zweites Fenster (unter dem Chart, hängt an der Ansicht; bei Percent zusätzlich am Nenner) */
   function viewHtml(){
-    var lg=L(), blocks=[{p:lg.v[st.tab].note}];
+    var lg=L(), blocks=[lg.txt[st.den], {p:lg.v[st.tab].note}];
     if(st.tab===2) blocks.push(lg.tbl[st.den]);
     return blocksHtml(blocks);
   }
   function applyStatic(){
     var lg=L(), i;
     $('fedr-title').textContent=lg.title;
-    $('fedr-expl').textContent=lg.expl[st.den];
     for(i=1;i<=4;i++) $('fedr-tab-'+i).textContent=lg.views[i-1];
     $('fedr-den-net').textContent=lg.den.frn_net; $('fedr-den-ta').textContent=lg.den.total_assets;
     $('fedr-base-lbl').textContent=lg.start; $('fedr-zoom').textContent=lg.zoom;
@@ -3832,8 +3847,8 @@ const _FS_CFG={
     redraw:()=>{ if(chartSpot){chartSpot.destroy();chartSpot=null;} renderSpotChart(); }
   },
   'fed-ratio-container':{
-    overlay:'fed-fs-overlay', canvas:'chart-fedr', move:['#fedr-ctrl .ctrl-group'],
-    hide:['fedr-info','fedr-vinfo','fedr-vbtn-wrap','fedr-expl','fedr-msg','fedr-foot','fedr-zoom','fedr-stats'],
+    overlay:'fed-fs-overlay', canvas:'chart-fedr', move:[],
+    hide:['fedr-info','fedr-vinfo','fedr-vbtn-wrap','fedr-msg','fedr-foot','fedr-zoom','fedr-stats'],
     redraw:()=>{ if(window._fedrChart) window._fedrChart.redraw(); }
   }
 };
