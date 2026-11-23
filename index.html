@@ -171,6 +171,15 @@ tr[data-market].mkt-selected .mname::before{content:'✓ ';color:var(--gold)}
 #fed-ratio-container .chart-header{align-items:center}
 .fedr-den .ctrl-btn{padding:5px 12px}
 @media(max-width:700px){.fedr-den{display:flex!important;flex-wrap:wrap;max-width:100%}.fedr-den .ctrl-btn{flex:1 1 auto;padding:5px 8px;font-size:12px;text-align:center}}
+#fedr-sels{display:none}
+@media(max-width:700px){
+#fed-ratio-container #fedr-sels{display:flex;gap:8px;width:100%}
+#fed-ratio-container #fedr-sels select{flex:1 1 0;min-width:0;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);padding:9px 10px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600}
+#fed-ratio-container #fedr-den,#fed-ratio-container #fedr-tabs{display:none!important}
+.gp-fs #fed-ratio-container #fedr-sels{display:none!important}
+.gp-fs #fed-ratio-container #fedr-den{display:inline-flex!important;flex-wrap:nowrap}
+.gp-fs #fed-ratio-container #fedr-tabs{display:flex!important}
+}
 #fedr-vinfo ol{margin:0 0 8px;padding-left:20px}
 #fedr-vinfo li{margin:0 0 6px}
 /* Vollbild-Overlay (Spot und Fed-Ratio): Flex-Layout, der Chart-Wrapper füllt den Rest, keine geschätzten Höhen (Auftrag 3) */
@@ -592,6 +601,10 @@ footer a:hover{text-decoration:underline}
       <button class="rbtn" id="fedr-tab-3" type="button">Coverage value</button>
       <button class="rbtn" id="fedr-tab-4" type="button">Index</button>
     </div>
+    <div class="fedr-sels" id="fedr-sels">
+      <select id="fedr-sel-den" aria-label="Denominator"></select>
+      <select id="fedr-sel-view" aria-label="View"></select>
+    </div>
   </div>
   <div id="fedr-info" role="region" aria-label="Information"></div>
   <div id="fedr-ctrl" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:0">
@@ -760,6 +773,15 @@ footer a:hover{text-decoration:underline}
     $('fedr-vinfo').setAttribute('aria-label',lg.viewBtn); applyView();
     $('fedr-foot').textContent=lg.foot();
     $('fedr-msg').textContent=st.err?lg.unavailable:'';
+    syncSel();
+  }
+  function syncSel(){
+    var lg=L(), d=$('fedr-sel-den'), v=$('fedr-sel-view'), k, i, h='';
+    ['frn_net','monetary_base','total_assets'].forEach(function(k){ if(k==='monetary_base' && !(st.fed && st.fed.monetary_base)) return; h+='<option value="'+k+'">'+esc(lg.den[k])+'</option>'; });
+    d.innerHTML=h; d.value=st.den;
+    h=''; for(i=1;i<=4;i++) h+='<option value="'+i+'">'+esc(lg.views[i-1])+'</option>';
+    v.innerHTML=h; v.value=String(st.tab);
+    d.setAttribute('aria-label',lg.den.frn_net+' / '+lg.den.total_assets); v.setAttribute('aria-label',lg.views.join(' / '));
   }
   function setInfo(open){ $('fedr-info').classList.toggle('open',open); $('fedr-info-btn').setAttribute('aria-expanded',open?'true':'false'); }
   function applyView(){ $('fedr-vinfo').innerHTML=viewHtml(); $('fedr-vbtn').textContent=L().viewBtn+($('fedr-vinfo').classList.contains('open')?' \u25B4':' \u25BE'); }
@@ -859,7 +881,7 @@ footer a:hover{text-decoration:underline}
     });
   }
 
-  function setTab(t){ st.tab=t; for(var i=1;i<=4;i++) $('fedr-tab-'+i).classList.toggle('on',i===t); applyView(); if(st.fed) draw(); }
+  function setTab(t){ st.tab=t; for(var i=1;i<=4;i++) $('fedr-tab-'+i).classList.toggle('on',i===t); applyView(); syncSel(); if(st.fed) draw(); }
   var DEN_BTN={frn_net:'fedr-den-net', monetary_base:'fedr-den-mb', total_assets:'fedr-den-ta'};
   function setDen(d){
     if(d==='monetary_base' && !(st.fed && st.fed.monetary_base)) return;
@@ -876,13 +898,15 @@ footer a:hover{text-decoration:underline}
     $('fedr-den-net').addEventListener('click',function(){ setDen('frn_net'); });
     $('fedr-den-mb').addEventListener('click',function(){ setDen('monetary_base'); });
     $('fedr-den-ta').addEventListener('click',function(){ setDen('total_assets'); });
+    $('fedr-sel-den').addEventListener('change',function(){ setDen(this.value); });
+    $('fedr-sel-view').addEventListener('change',function(){ setTab(parseInt(this.value,10)); });
     $('fedr-base').addEventListener('change',function(){ var v=this.value; if(!v||v<MIN_DATE) v=MIN_DATE; if(st.fed && v>st.fed.last) v=st.fed.last; st.base=v; this.value=v; if(st.fed) draw(); });
     $('chart-fedr').addEventListener('dblclick',function(){ if(st.chart && st.chart.resetZoom) st.chart.resetZoom(); });
     $('fedr-info-btn').addEventListener('click',function(e){ e.stopPropagation(); var o=!$('fedr-info').classList.contains('open'); if(o) setVInfo(false); setInfo(o); });
     $('fedr-vbtn').addEventListener('click',function(e){ e.stopPropagation(); var o=!$('fedr-vinfo').classList.contains('open'); if(o) setInfo(false); setVInfo(o); });
     document.addEventListener('click',function(e){ var t=e.target; if(!(t && t.closest)) return;
-      if($('fedr-info').classList.contains('open') && !t.closest('#fedr-info-btn,#fedr-info,#fedr-den-net,#fedr-den-mb,#fedr-den-ta')) setInfo(false);
-      if($('fedr-vinfo').classList.contains('open') && !t.closest('#fedr-vbtn,#fedr-vinfo,#fedr-tabs,#fedr-den-net,#fedr-den-mb,#fedr-den-ta')) setVInfo(false); });
+      if($('fedr-info').classList.contains('open') && !t.closest('#fedr-info-btn,#fedr-info,#fedr-den-net,#fedr-den-mb,#fedr-den-ta,#fedr-sels')) setInfo(false);
+      if($('fedr-vinfo').classList.contains('open') && !t.closest('#fedr-vbtn,#fedr-vinfo,#fedr-tabs,#fedr-den-net,#fedr-den-mb,#fedr-den-ta,#fedr-sels')) setVInfo(false); });
     document.addEventListener('keydown',function(e){ if(e.key!=='Escape') return;
       if($('fedr-info').classList.contains('open')){ setInfo(false); $('fedr-info-btn').focus(); }
       if($('fedr-vinfo').classList.contains('open')){ setVInfo(false); $('fedr-vbtn').focus(); } });
