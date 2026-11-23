@@ -3374,7 +3374,7 @@ function positionRatioForDevice(){
     if(langContainer&&langCard&&langContainer.parentNode!==langCard) langCard.appendChild(langContainer);
     if(sUsd&&leftGroup&&sUsd.parentNode!==leftGroup) leftGroup.insertBefore(sUsd,leftGroup.firstChild);
     if(togglesCol&&leftGroup&&togglesCol.parentNode!==leftGroup) leftGroup.appendChild(togglesCol);
-    if(langCurrencyCol&&rightGroup&&langCurrencyCol.parentNode!==rightGroup.parentNode) rightGroup.parentNode.insertBefore(langCurrencyCol,rightGroup);
+    if(langCurrencyCol&&rightGroup&&langCurrencyCol.parentNode!==rightGroup) rightGroup.insertBefore(langCurrencyCol,rightGroup.firstChild);
     if(sEur&&rightGroup&&sEur.parentNode!==rightGroup) rightGroup.appendChild(sEur);
     if(currencyRow&&langCurrencyCol&&currencyRow.parentNode!==langCurrencyCol) langCurrencyCol.appendChild(currencyRow);
   }
