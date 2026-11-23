@@ -176,6 +176,10 @@ tr[data-market].mkt-selected .mname::before{content:'✓ ';color:var(--gold)}
 .fedr-den .ctrl-btn{padding:5px 12px}
 @media(max-width:700px){.fedr-den{display:flex!important;flex-wrap:wrap;max-width:100%}.fedr-den .ctrl-btn{flex:1 1 auto;padding:5px 8px;font-size:12px;text-align:center}}
 #fedr-sels{display:none}
+.gp-zbar{display:none;position:absolute;top:4px;right:6px;z-index:6;gap:4px}
+.gp-zbar.on{display:flex}
+.gp-zbar.noarrows [data-a="l"],.gp-zbar.noarrows [data-a="r"]{display:none}
+.gp-zbar button{min-height:34px;min-width:34px;padding:4px 10px;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:600;background:rgba(14,16,21,.88);color:var(--gold);border:1px solid var(--border);border-radius:6px;cursor:pointer}
 @media(max-width:700px){
 #fed-ratio-container #fedr-sels{display:flex;gap:8px;width:100%}
 #fed-ratio-container #fedr-sels select{flex:1 1 0;min-width:0;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:var(--radius);padding:9px 10px;font-family:'Open Sans',sans-serif;font-size:13px;font-weight:600}
@@ -272,7 +276,7 @@ footer a:hover{text-decoration:underline}
       </div>
     </div>
     <div class="live-badge"><div class="dot"></div>Live</div>
-    <span id="upd">Updated: 22:32 UTC</span>
+    <span id="upd">Updated: 23:00 UTC</span>
     <span data-i18n="refreshLabel">Daten werden etwa alle 15 Min. aktualisiert</span>
     
   </div>
@@ -450,15 +454,15 @@ footer a:hover{text-decoration:underline}
       <td class="chart-td" onclick="openChartModal('comex','🌍 World Spot Price · Kitco')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-kitco" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
     </tr><tr class="" data-market="comex">
       <td><div class="mkt"><span class="flag">🇺🇸</span><div><div class="mname">COMEX · New York<span class="note-icon" data-note="Front futures contract (Yahoo GC=F and SI=F), the contract month is shown under the price. A futures price includes the cost of carry versus spot, so the difference to the Kitco spot price is not a dealer premium and changes when the contract rolls to the next month." data-mid="comex" onclick="showMarketNote(this,event)" style="cursor:pointer;margin-left:4px;font-size:11px;color:var(--text3)">ⓘ</span></div><div class="mcity">CME Group / Futures Exchange</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">finance.yahoo.com</span></span></div></div></div></td>
-      <td><div class="plocal">$3,639.70</div><div class="punit">USD/oz · Futures Dec 26</div><div class="usd-mob"><div class="pusd">$3,639.70</div><div class="punit">Ask · Futures</div></div></td>
-      <td class="r td-usd"><div class="pusd">$3,639.70</div><div class="punit">Ask · Futures</div></td>
-      <td class="r"><span class="badge neu" style="display:block;margin-bottom:3px">+$3.50</span><span class="badge neu" title="Futures basis vs spot">+0.10% basis</span><div class="tap-chart" onclick="openChartModal('comex','🇺🇸 COMEX · New York')">Tippen für Chart</div></td>
+      <td><div class="plocal">$3,637.20</div><div class="punit">USD/oz · Futures Dec 26</div><div class="usd-mob"><div class="pusd">$3,637.20</div><div class="punit">Ask · Futures</div></div></td>
+      <td class="r td-usd"><div class="pusd">$3,637.20</div><div class="punit">Ask · Futures</div></td>
+      <td class="r"><span class="badge neu" style="display:block;margin-bottom:3px">+$1.00</span><span class="badge neu" title="Futures basis vs spot">+0.03% basis</span><div class="tap-chart" onclick="openChartModal('comex','🇺🇸 COMEX · New York')">Tippen für Chart</div></td>
       <td class="chart-td" onclick="openChartModal('comex','🇺🇸 COMEX · New York')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-comex" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
     </tr><tr class="" data-market="shanghai">
       <td><div class="mkt"><span class="flag">🇨🇳</span><div><div class="mname">SGE · Shanghai</div><div class="mcity">Shanghai Gold Exchange</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> DAILY</span><span class="bsep"> · </span><span class="bsrc">sge.com.cn</span></span></div></div></div></td>
-      <td><div class="plocal">¥ 24,439.58</div><div class="punit">CNY/oz</div><div class="usd-mob"><div class="pusd">$3,667.51</div></div></td>
-      <td class="r td-usd"><div class="pusd">$3,667.51</div></td>
-      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$31.31</span><span class="badge pos">+0.86%</span><div class="tap-chart" onclick="openChartModal('shanghai','🇨🇳 SGE · Shanghai')">Tippen für Chart</div></td>
+      <td><div class="plocal">¥ 24,439.58</div><div class="punit">CNY/oz</div><div class="usd-mob"><div class="pusd">$3,672.47</div></div></td>
+      <td class="r td-usd"><div class="pusd">$3,672.47</div></td>
+      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$36.27</span><span class="badge pos">+1.00%</span><div class="tap-chart" onclick="openChartModal('shanghai','🇨🇳 SGE · Shanghai')">Tippen für Chart</div></td>
       <td class="chart-td" onclick="openChartModal('shanghai','🇨🇳 SGE · Shanghai')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-shanghai" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
     </tr><tr class="" data-market="hkgx">
       <td><div class="mkt"><span class="flag">🇭🇰</span><div><div class="mname">HKGX · Hong Kong</div><div class="mcity">Hong Kong Gold Exchange</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">hkgx.com.hk</span></span></div></div></div></td>
@@ -482,9 +486,9 @@ footer a:hover{text-decoration:underline}
 </tbody>
 <tbody id="tbody-dealers"><tr class="lo" data-market="switzerland">
       <td><div class="mkt"><span class="flag">🇨🇭</span><div><div class="mname">Philoro · Switzerland</div><div class="mcity">Zürich / Wien / München</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">philoro.ch</span></span></div></div></div></td>
-      <td><div class="plocal" style="display: none;">Fr. 2,973.77</div><div class="punit" style="display: none;">Bid (CHF/oz)</div><div class="plocal" style="margin-top:4px">Fr. 3,101.03</div><div class="punit">Ask (CHF/oz)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,535.15</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,686.44</div><div class="punit">Ask (USD/oz)</div></div></td>
-      <td class="r td-usd"><div class="pusd" style="display: none;">$3,535.15</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,686.44</div><div class="punit">Ask (USD/oz)</div></td>
-      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$50.24</span><span class="badge pos">+1.38%</span><div class="tap-chart" onclick="openChartModal('switzerland','🇨🇭 Philoro · Switzerland')">Tippen für Chart</div></td>
+      <td><div class="plocal" style="display: none;">Fr. 2,973.77</div><div class="punit" style="display: none;">Bid (CHF/oz)</div><div class="plocal" style="margin-top:4px">Fr. 3,101.03</div><div class="punit">Ask (CHF/oz)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,535.57</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,686.87</div><div class="punit">Ask (USD/oz)</div></div></td>
+      <td class="r td-usd"><div class="pusd" style="display: none;">$3,535.57</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,686.87</div><div class="punit">Ask (USD/oz)</div></td>
+      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$50.67</span><span class="badge pos">+1.39%</span><div class="tap-chart" onclick="openChartModal('switzerland','🇨🇭 Philoro · Switzerland')">Tippen für Chart</div></td>
       <td class="chart-td" onclick="openChartModal('switzerland','🇨🇭 Philoro · Switzerland')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-switzerland" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
     </tr><tr class="" data-market="canada">
       <td><div class="mkt"><span class="flag">🇨🇦</span><div><div class="mname">CB Metals · Canada</div><div class="mcity">Toronto · Online Dealer</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">canadianbullion.ca</span></span></div></div></div></td>
@@ -494,22 +498,22 @@ footer a:hover{text-decoration:underline}
       <td class="chart-td" onclick="openChartModal('canada','🇨🇦 CB Metals · Canada')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-canada" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
     </tr><tr class="" data-market="germany">
       <td><div class="mkt"><span class="flag">🇩🇪</span><div><div class="mname">Degussa · Germany</div><div class="mcity">Frankfurt / München</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">degussa.com</span></span></div></div></div></td>
-      <td><div class="plocal" style="display: none;">€ 3,241.99</div><div class="punit" style="display: none;">Bid (EUR/oz)</div><div class="plocal" style="margin-top:4px">€ 3,401.67</div><div class="punit">Ask (EUR/oz)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,535.39</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,709.52</div><div class="punit">Ask (USD/oz)</div></div></td>
-      <td class="r td-usd"><div class="pusd" style="display: none;">$3,535.39</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,709.52</div><div class="punit">Ask (USD/oz)</div></td>
-      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$73.32</span><span class="badge pos">+2.02%</span><div class="tap-chart" onclick="openChartModal('germany','🇩🇪 Degussa · Germany')">Tippen für Chart</div></td>
+      <td><div class="plocal" style="display: none;">€ 3,241.76</div><div class="punit" style="display: none;">Bid (EUR/oz)</div><div class="plocal" style="margin-top:4px">€ 3,401.43</div><div class="punit">Ask (EUR/oz)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,534.81</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,708.92</div><div class="punit">Ask (USD/oz)</div></div></td>
+      <td class="r td-usd"><div class="pusd" style="display: none;">$3,534.81</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,708.92</div><div class="punit">Ask (USD/oz)</div></td>
+      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$72.72</span><span class="badge pos">+2.00%</span><div class="tap-chart" onclick="openChartModal('germany','🇩🇪 Degussa · Germany')">Tippen für Chart</div></td>
       <td class="chart-td" onclick="openChartModal('germany','🇩🇪 Degussa · Germany')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-germany" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
+    </tr><tr class="" data-market="australia">
+      <td><div class="mkt"><span class="flag">🇦🇺</span><div><div class="mname">Perth Mint · Australia</div><div class="mcity">Perth · Government Mint</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">perthmint.com</span></span></div></div></div></td>
+      <td><div class="plocal" style="display: none;">AUD 5,349.80</div><div class="punit" style="display: none;">Bid (AUD/oz)</div><div class="plocal" style="margin-top:4px">AUD 5,596.21</div><div class="punit">Ask (AUD/oz)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,547.99</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,711.40</div><div class="punit">Ask (USD/oz)</div></div></td>
+      <td class="r td-usd"><div class="pusd" style="display: none;">$3,547.99</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,711.40</div><div class="punit">Ask (USD/oz)</div></td>
+      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$75.20</span><span class="badge pos">+2.07%</span><div class="tap-chart" onclick="openChartModal('australia','🇦🇺 Perth Mint · Australia')">Tippen für Chart</div></td>
+      <td class="chart-td" onclick="openChartModal('australia','🇦🇺 Perth Mint · Australia')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-australia" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
     </tr><tr class="" data-market="russia_retail">
       <td><div class="mkt"><span class="flag">🇷🇺</span><div><div class="mname">Bank Bars · Russia<span class="note-icon" data-note="Lowest selling price for a 1 kg gold bar among the banks listed on Bankiros.ru (Moscow). Price as quoted by the bank, final price for private buyers, no tax shown separately. Availability and price can differ by branch. Gold only." data-mid="russia_retail" onclick="showMarketNote(this,event)" style="cursor:pointer;margin-left:4px;font-size:11px;color:var(--text3)">ⓘ</span></div><div class="mcity">Moscow · Cheapest listed bank</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc"><a href="https://bankiros.ru/metall/zoloto/1kg/moskva" target="_blank" rel="noopener" style="color:inherit" onclick="event.stopPropagation()">bankiros.ru</a></span></span></div></div></div></td>
       <td><div class="plocal">RUB 304,888</div><div class="punit">Ask (RUB/oz)</div><div class="usd-mob"><div class="pusd">$3,711.42</div><div class="punit">Ask (USD/oz)</div></div></td>
       <td class="r td-usd"><div class="pusd">$3,711.42</div><div class="punit">Ask (USD/oz)</div></td>
       <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$75.22</span><span class="badge pos">+2.07%</span><div class="tap-chart" onclick="openChartModal('russia_retail','🇷🇺 Bank Bars · Russia')">Tippen für Chart</div></td>
       <td class="chart-td" onclick="openChartModal('russia_retail','🇷🇺 Bank Bars · Russia')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-russia_retail" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
-    </tr><tr class="" data-market="australia">
-      <td><div class="mkt"><span class="flag">🇦🇺</span><div><div class="mname">Perth Mint · Australia</div><div class="mcity">Perth · Government Mint</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">perthmint.com</span></span></div></div></div></td>
-      <td><div class="plocal" style="display: none;">AUD 5,351.13</div><div class="punit" style="display: none;">Bid (AUD/oz)</div><div class="plocal" style="margin-top:4px">AUD 5,597.23</div><div class="punit">Ask (AUD/oz)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,548.34</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,711.52</div><div class="punit">Ask (USD/oz)</div></div></td>
-      <td class="r td-usd"><div class="pusd" style="display: none;">$3,548.34</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,711.52</div><div class="punit">Ask (USD/oz)</div></td>
-      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$75.32</span><span class="badge pos">+2.07%</span><div class="tap-chart" onclick="openChartModal('australia','🇦🇺 Perth Mint · Australia')">Tippen für Chart</div></td>
-      <td class="chart-td" onclick="openChartModal('australia','🇦🇺 Perth Mint · Australia')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-australia" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
     </tr><tr class="" data-market="us_sdbullion">
       <td><div class="mkt"><span class="flag">🇺🇸</span><div><div class="mname">SD Bullion · USA</div><div class="mcity">Online Bullion Dealer</div><div class="mtax">ohne Verkaufssteuer (je nach Bundesstaat)</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">sdbullion.com</span></span></div></div></div></td>
       <td><div class="plocal">$ 3,717.28</div><div class="punit">Ask (USD/oz)</div><div class="usd-mob"><div class="pusd">$3,717.28</div><div class="punit">Ask (USD/oz)</div></div></td>
@@ -524,21 +528,21 @@ footer a:hover{text-decoration:underline}
       <td class="chart-td" onclick="openChartModal('hongkong','🇭🇰 Hang Seng · Hong Kong')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-hongkong" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
     </tr><tr class="" data-market="chinagold">
       <td><div class="mkt"><span class="flag">🇨🇳</span><div><div class="mname">China Gold · 中国黄金</div><div class="mcity">中国黄金 · Investment Bar (投资金条)</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">chnau99999.com</span></span></div></div></div></td>
-      <td><div class="plocal" style="display: none;">¥ 784</div><div class="punit" style="display: none;">Bid (CNY/g)</div><div class="plocal" style="margin-top:4px">¥ 803</div><div class="punit">Ask (CNY/g)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,659.35</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,748.03</div><div class="punit">Ask (USD/oz)</div></div></td>
-      <td class="r td-usd"><div class="pusd" style="display: none;">$3,659.35</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,748.03</div><div class="punit">Ask (USD/oz)</div></td>
-      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$111.83</span><span class="badge pos">+3.08%</span><div class="tap-chart" onclick="openChartModal('chinagold','🇨🇳 China Gold · 中国黄金')">Tippen für Chart</div></td>
+      <td><div class="plocal" style="display: none;">¥ 784</div><div class="punit" style="display: none;">Bid (CNY/g)</div><div class="plocal" style="margin-top:4px">¥ 803</div><div class="punit">Ask (CNY/g)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,664.29</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,753.10</div><div class="punit">Ask (USD/oz)</div></div></td>
+      <td class="r td-usd"><div class="pusd" style="display: none;">$3,664.29</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,753.10</div><div class="punit">Ask (USD/oz)</div></td>
+      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$116.90</span><span class="badge pos">+3.21%</span><div class="tap-chart" onclick="openChartModal('chinagold','🇨🇳 China Gold · 中国黄金')">Tippen für Chart</div></td>
       <td class="chart-td" onclick="openChartModal('chinagold','🇨🇳 China Gold · 中国黄金')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-chinagold" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
     </tr><tr class="" data-market="uk_royalmint">
       <td><div class="mkt"><span class="flag">🇬🇧</span><div><div class="mname">Royal Mint · UK</div><div class="mcity">Llantrisant · Wales</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">royalmint.com</span></span></div></div></div></td>
-      <td><div class="plocal" style="display: none;">£ 2,732.09</div><div class="punit" style="display: none;">Bid (GBP/oz)</div><div class="plocal" style="margin-top:4px">£ 2,883.16</div><div class="punit">Ask (GBP/oz)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,561.28</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,758.20</div><div class="punit">Ask (USD/oz)</div></div></td>
-      <td class="r td-usd"><div class="pusd" style="display: none;">$3,561.28</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,758.20</div><div class="punit">Ask (USD/oz)</div></td>
-      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$122.00</span><span class="badge pos">+3.36%</span><div class="tap-chart" onclick="openChartModal('uk_royalmint','🇬🇧 Royal Mint · UK')">Tippen für Chart</div></td>
+      <td><div class="plocal" style="display: none;">£ 2,762.72</div><div class="punit" style="display: none;">Bid (GBP/oz)</div><div class="plocal" style="margin-top:4px">£ 2,883.16</div><div class="punit">Ask (GBP/oz)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,601.48</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,758.49</div><div class="punit">Ask (USD/oz)</div></div></td>
+      <td class="r td-usd"><div class="pusd" style="display: none;">$3,601.48</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,758.49</div><div class="punit">Ask (USD/oz)</div></td>
+      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$122.29</span><span class="badge pos">+3.36%</span><div class="tap-chart" onclick="openChartModal('uk_royalmint','🇬🇧 Royal Mint · UK')">Tippen für Chart</div></td>
       <td class="chart-td" onclick="openChartModal('uk_royalmint','🇬🇧 Royal Mint · UK')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-uk_royalmint" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
     </tr><tr class="" data-market="istanbul">
       <td><div class="mkt"><span class="flag">🇹🇷</span><div><div class="mname">Nadir · Türkiye<span class="note-icon" data-note="This tracks Turkey's &quot;Has Altın&quot; reference rate, derived from the international spot price. Physical bars or coins sold by individual dealers may carry 995 or 999.9 purity depending on the product." data-mid="istanbul" onclick="showMarketNote(this,event)" style="cursor:pointer;margin-left:4px;font-size:11px;color:var(--text3)">ⓘ</span></div><div class="mcity">Grand Bazaar / Kapalı Çarşı</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">nadirdoviz.com</span></span></div></div></div></td>
-      <td><div class="plocal" style="display: none;">₺ 190,931.01</div><div class="punit" style="display: none;">Bid (TRY/oz)</div><div class="plocal" style="margin-top:4px">₺ 192,304.54</div><div class="punit">Ask (TRY/oz)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,748.72</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,775.69</div><div class="punit">Ask (USD/oz)</div></div></td>
-      <td class="r td-usd"><div class="pusd" style="display: none;">$3,748.72</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,775.69</div><div class="punit">Ask (USD/oz)</div></td>
-      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$139.49</span><span class="badge pos">+3.84%</span><div class="tap-chart" onclick="openChartModal('istanbul','🇹🇷 Nadir · Türkiye')">Tippen für Chart</div></td>
+      <td><div class="plocal" style="display: none;">₺ 190,834.59</div><div class="punit" style="display: none;">Bid (TRY/oz)</div><div class="plocal" style="margin-top:4px">₺ 192,420.56</div><div class="punit">Ask (TRY/oz)</div><div class="usd-mob"><div class="pusd" style="display: none;">$3,746.63</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,777.77</div><div class="punit">Ask (USD/oz)</div></div></td>
+      <td class="r td-usd"><div class="pusd" style="display: none;">$3,746.63</div><div class="punit" style="display: none;">Bid (USD/oz)</div><div class="pusd" style="margin-top:4px">$3,777.77</div><div class="punit">Ask (USD/oz)</div></td>
+      <td class="r"><span class="badge pos" style="display:block;margin-bottom:3px">+$141.57</span><span class="badge pos">+3.89%</span><div class="tap-chart" onclick="openChartModal('istanbul','🇹🇷 Nadir · Türkiye')">Tippen für Chart</div></td>
       <td class="chart-td" onclick="openChartModal('istanbul','🇹🇷 Nadir · Türkiye')" style="cursor:pointer" title="Klicken zum Erweitern"><div class="mini-chart-wrap"><canvas id="mini-istanbul" height="80" style="height: 80px; display: block; box-sizing: border-box; touch-action: auto; user-select: none; -webkit-user-drag: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" width="300"></canvas></div><div style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px">Klicken zum Erweitern</div></td>
     </tr><tr class="" data-market="russia_dealer">
       <td><div class="mkt"><span class="flag">🇷🇺</span><div><div class="mname">Region Zoloto · Russia</div><div class="mcity">Moscow · Online Dealer</div><div class="mtax">MwSt. (22 %) vom Shop-Preis für juristische Personen abgezogen</div><div style="margin-top:4px"><span class="badge live"><span class="bdot">🟢</span><span class="bstatus"> LIVE</span><span class="bsep"> · </span><span class="bsrc">region-zoloto.ru</span></span></div></div></div></td>
@@ -689,7 +693,7 @@ footer a:hover{text-decoration:underline}
                       ["Gold price movement:","If the gold price rises faster than the monetary base, the ratio rises."]]}},
     dn:{frn_net:"notes in circulation",monetary_base:"monetary base",total_assets:"total assets"},
     start:"Start date (= 100)", zoom:"Drag to zoom · Double-click to reset", unavailable:"Data currently unavailable.", infoLbl:"Information",
-    st:{latest:"Latest",goldMkt:"Gold price (market)",spot:"With current spot",spotNote:function(src,last){return " Spot price: "+src+"; Fed data as of "+last+".";},low:"Low",high:"High",goldIdx:"Gold (index)",idx:"(index)",base:"Base date"},
+    st:{latest:"Latest",goldMkt:"Gold price (market)",spot:"Today (at spot price)",spotNote:function(src,last){return " Spot price: "+src+"; Fed data as of "+last+".";},low:"Low",high:"High",goldIdx:"Gold (index)",idx:"(index)",base:"Base date"},
     v:[null,
      {axis:"Index (scaled; denominator in USD bn)",note:"Only the shape of the curve is meaningful, not the absolute value.",leg:function(dn){return ["Gold price ÷ "+dn];},sub:function(dn){return "Gold price ÷ "+dn+" (USD bn)";}},
      {axis:"Percent",note:"The U.S. gold reserve at market prices, measured against the selected denominator.",leg:function(dn){return ["261.5 m oz × gold price ÷ "+dn];},sub:function(dn){return "(261,498,926 oz × gold price) ÷ "+dn+" × 100";}},
@@ -737,7 +741,7 @@ footer a:hover{text-decoration:underline}
                       ["Goldpreisentwicklung:","Steigt der Goldpreis schneller als die Geldbasis, steigt das Verhältnis."]]}},
     dn:{frn_net:"Notenumlauf",monetary_base:"Geldbasis",total_assets:"Bilanzsumme"},
     start:"Startdatum (= 100)", zoom:"Zum Zoomen ziehen · Doppelklick zum Zurücksetzen", unavailable:"Daten derzeit nicht verfügbar.", infoLbl:"Information",
-    st:{latest:"Aktuell",goldMkt:"Goldpreis (Markt)",spot:"Mit aktuellem Spot",spotNote:function(src,last){return " Spotpreis: "+src+"; Fed-Daten Stand "+last+".";},low:"Tief",high:"Hoch",goldIdx:"Gold (Index)",idx:"(Index)",base:"Basisdatum"},
+    st:{latest:"Aktuell",goldMkt:"Goldpreis (Markt)",spot:"Heute (mit Spotpreis)",spotNote:function(src,last){return " Spotpreis: "+src+"; Fed-Daten Stand "+last+".";},low:"Tief",high:"Hoch",goldIdx:"Gold (Index)",idx:"(Index)",base:"Basisdatum"},
     v:[null,
      {axis:"Index (skaliert; Nenner in Mrd. USD)",note:"Aussagekräftig ist allein der Verlauf, nicht der Absolutwert.",leg:function(dn){return ["Goldpreis ÷ "+dn];},sub:function(dn){return "Goldpreis ÷ "+dn+" (Mrd. USD)";}},
      {axis:"Prozent",note:"Die US-Goldreserve zu Marktpreisen, gemessen am gewählten Nenner.",leg:function(dn){return ["261,5 Mio. Unzen × Goldpreis ÷ "+dn];},sub:function(dn){return "(261.498.926 Unzen × Goldpreis) ÷ "+dn+" × 100";}},
@@ -888,10 +892,13 @@ footer a:hover{text-decoration:underline}
     if(vals.length){
       var lastV=vals[vals.length-1];
       if(T<4){
-        h+=stat(lg.st.latest+' ('+last+')', tf(lastV)); if(T===3) h+=stat(lg.st.goldMkt, '$'+num(s.B[s.B.length-1],0));
-        if(T<=2){
-          var sp=(typeof spot!=='undefined' && spot && spot.XAU)?spot.XAU:null, n=f[st.den][f[st.den].length-1]*1e6;
-          if(sp){ var nv=(T===1)? sp/(n/1e9) : Q*sp/n*100; var src=(typeof spotSourceLabel==='function')?spotSourceLabel():'kitco.com'; h+=stat(lg.st.spot, tf(nv)); spotNote=lg.st.spotNote(src,last); }
+        var sp=(T<=2 && typeof spot!=='undefined' && spot && spot.XAU)?spot.XAU:null;
+        /* Ratio/Percent mit Spotpreis: nur der Wert von heute; sonst der Wert zum letzten Fed-Stichtag */
+        if(!sp) h+=stat(lg.st.latest+' ('+last+')', tf(lastV));
+        if(T===3) h+=stat(lg.st.goldMkt, '$'+num(s.B[s.B.length-1],0));
+        if(sp){
+          var n=f[st.den][f[st.den].length-1]*1e6;
+          var nv=(T===1)? sp/(n/1e9) : Q*sp/n*100; var src=(typeof spotSourceLabel==='function')?spotSourceLabel():'kitco.com'; h+=stat(lg.st.spot, tf(nv)); spotNote=lg.st.spotNote(src,last);
         }
         h+=stat(lg.st.low, tf(Math.min.apply(null,vals)))+stat(lg.st.high, tf(Math.max.apply(null,vals)));
       } else {
@@ -1339,6 +1346,38 @@ const crosshairPlugin = {
   }
 };
 Chart.register(crosshairPlugin);
+
+/* Zoom-Knoepfe nur auf Touch-Geraeten: Ausschnitt verschieben und Zoom zuruecksetzen (Doppeltippen ist dort unzuverlaessig). */
+(function(){
+  var IDS={'modal-chart':1,'chart-compare':1,'chart-ratio':1,'chart-spot':1,'chart-fedr':1,'chart-sp500':1};
+  try{ Chart.defaults.plugins.zoom=Chart.defaults.plugins.zoom||{}; Chart.defaults.plugins.zoom.limits={x:{min:'original',max:'original'}}; }catch(e){}
+  function touch(){ try{ return window.matchMedia('(pointer:coarse)').matches; }catch(e){ return false; } }
+  function isDe(){ return (typeof currentLang!=='undefined') && currentLang==='de'; }
+  function barOf(cv){
+    var p=cv.parentElement, b=p.querySelector('.gp-zbar[data-for="'+cv.id+'"]');
+    if(b) return b;
+    if(getComputedStyle(p).position==='static') p.style.position='relative';
+    b=document.createElement('div'); b.className='gp-zbar'; b.setAttribute('data-for',cv.id);
+    b.innerHTML='<button type="button" data-a="l">\u25C0</button><button type="button" data-a="r">\u25B6</button><button type="button" data-a="x"></button>';
+    b.addEventListener('click',function(e){
+      e.stopPropagation();
+      var t=e.target.closest('button'); if(!t) return;
+      var c=Chart.getChart(cv), a=t.getAttribute('data-a'); if(!c) return;
+      if(a==='x'){ if(cv.id==='chart-spot' && window._spotZoomData && typeof renderSpotChart==='function') renderSpotChart(); else if(c.resetZoom) c.resetZoom(); }
+      else if(c.pan && c.chartArea){ c.pan({x:(a==='l'?1:-1)*c.chartArea.width/4},undefined,'none'); }
+    });
+    p.appendChild(b); return b;
+  }
+  Chart.register({id:'gpZoomBar',afterDraw:function(chart){
+    var cv=chart.canvas; if(!cv || !IDS[cv.id] || !touch()) return;
+    var b=barOf(cv), detail=(cv.id==='chart-spot' && !!window._spotZoomData);
+    var z=false; try{ z=!!(chart.isZoomedOrPanned && chart.isZoomedOrPanned()); }catch(e){}
+    b.classList.toggle('on',z||detail); b.classList.toggle('noarrows',detail);
+    var de=isDe(), x=b.querySelector('[data-a="x"]'), l=b.querySelector('[data-a="l"]'), r=b.querySelector('[data-a="r"]');
+    var tx=de?'Zoom zur\u00FCcksetzen':'Reset zoom'; if(x.textContent!==tx) x.textContent=tx;
+    l.setAttribute('aria-label',de?'Nach links':'Move left'); r.setAttribute('aria-label',de?'Nach rechts':'Move right');
+  }});
+})();
 
 const verticalGridPlugin = {
   id: "verticalGrid",
