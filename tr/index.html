@@ -176,7 +176,7 @@ tr[data-market].mkt-selected .mname::before{content:'✓ ';color:var(--gold)}
 .fedr-den .ctrl-btn{padding:5px 12px}
 @media(max-width:700px){.fedr-den{display:flex!important;flex-wrap:wrap;max-width:100%}.fedr-den .ctrl-btn{flex:1 1 auto;padding:5px 8px;font-size:12px;text-align:center}}
 #fedr-sels{display:none}
-.gp-zbar{display:none;position:absolute;top:4px;right:6px;z-index:6;gap:4px}
+.gp-zbar{display:none;justify-content:flex-end;gap:6px;margin-top:6px;flex-shrink:0}
 .gp-zbar.on{display:flex}
 .gp-zbar.noarrows [data-a="l"],.gp-zbar.noarrows [data-a="r"]{display:none}
 .gp-zbar button{min-height:34px;min-width:34px;padding:4px 10px;font-family:'Open Sans',sans-serif;font-size:12px;font-weight:600;background:rgba(14,16,21,.88);color:var(--gold);border:1px solid var(--border);border-radius:6px;cursor:pointer}
@@ -1354,9 +1354,8 @@ Chart.register(crosshairPlugin);
   function touch(){ try{ return window.matchMedia('(pointer:coarse)').matches; }catch(e){ return false; } }
   function isDe(){ return (typeof currentLang!=='undefined') && currentLang==='de'; }
   function barOf(cv){
-    var p=cv.parentElement, b=p.querySelector('.gp-zbar[data-for="'+cv.id+'"]');
+    var p=cv.parentElement, b=p.parentElement.querySelector('.gp-zbar[data-for="'+cv.id+'"]');
     if(b) return b;
-    if(getComputedStyle(p).position==='static') p.style.position='relative';
     b=document.createElement('div'); b.className='gp-zbar'; b.setAttribute('data-for',cv.id);
     b.innerHTML='<button type="button" data-a="l">\u25C0</button><button type="button" data-a="r">\u25B6</button><button type="button" data-a="x"></button>';
     b.addEventListener('click',function(e){
@@ -1366,7 +1365,7 @@ Chart.register(crosshairPlugin);
       if(a==='x'){ if(cv.id==='chart-spot' && window._spotZoomData && typeof renderSpotChart==='function') renderSpotChart(); else if(c.resetZoom) c.resetZoom(); }
       else if(c.pan && c.chartArea){ c.pan({x:(a==='l'?1:-1)*c.chartArea.width/4},undefined,'none'); }
     });
-    p.appendChild(b); return b;
+    p.insertAdjacentElement('afterend',b); return b;
   }
   Chart.register({id:'gpZoomBar',afterDraw:function(chart){
     var cv=chart.canvas; if(!cv || !IDS[cv.id] || !touch()) return;
