@@ -582,6 +582,7 @@ footer a:hover{text-decoration:underline}
     </div>
     <div class="ctrl-group fedr-den" id="fedr-den" style="display:inline-flex">
       <button class="ctrl-btn on" id="fedr-den-net" type="button" style="background:var(--gold);color:#0E1015">Gold – Cash</button>
+      <button class="ctrl-btn" id="fedr-den-mb" type="button" style="display:none">Gold – Monetary base</button>
       <button class="ctrl-btn" id="fedr-den-ta" type="button">Gold – Fed balance sheet</button>
     </div>
     <div class="range-btns" id="fedr-tabs">
@@ -612,7 +613,7 @@ footer a:hover{text-decoration:underline}
   function $(id){return document.getElementById(id);}
   function num(v,d){return (typeof fmt==='function')?fmt(v,d):Number(v).toFixed(d);}
   /*T-BEGIN*/
-  var FOOT_EN="<strong>Calculated figures, not balance-sheet items.</strong> The Federal Reserve does not own gold. The gold belongs to the U.S. Treasury (261,498,926 troy oz, carried at the statutory USD 42.2222 per oz); the Fed holds gold certificates at that rate, shown as “Gold Certificate Account” (about USD {gc} billion). The figures are calculated by GoldPremium from measured gold prices and published weekly balance-sheet data (Wednesday levels, H.4.1, USD million). “Notes in circulation” is the net figure, after deducting the Reserve Banks’ own holdings. Gold price: the series of the chart above (COMEX futures via Yahoo Finance, GoldPremium; current value: Kitco). GoldPremium.org is not affiliated with the Federal Reserve.", FOOT_DE="<strong>Rechengrößen, keine Bilanzposten.</strong> Die Federal Reserve besitzt kein Gold. Das Gold gehört dem US-Finanzministerium (261.498.926 Feinunzen, bewertet zum gesetzlichen Satz von 42,2222 USD je Unze); die Fed hält dafür Goldzertifikate zu diesem Satz, ausgewiesen als „Gold Certificate Account“ (rund {gc} Mrd. USD). Die Kennzahlen werden von GoldPremium aus gemessenen Goldpreisen und veröffentlichten wöchentlichen Bilanzzahlen berechnet (Mittwochswerte, H.4.1, Mio. USD). „Notenumlauf“ ist der Nettowert, also nach Abzug der Bestände der Reserve Banks. Goldpreis: die Reihe des Charts oben (COMEX-Futures via Yahoo Finance, GoldPremium; aktueller Wert: Kitco). GoldPremium.org steht in keiner Verbindung zur Federal Reserve.";
+  var FOOT_EN="<strong>Calculated figures, not balance-sheet items.</strong> The Federal Reserve does not own gold. The gold belongs to the U.S. Treasury (261,498,926 troy oz, carried at the statutory USD 42.2222 per oz); the Fed holds gold certificates at that rate, shown as “Gold Certificate Account” (about USD {gc} billion). The figures are calculated by GoldPremium from measured gold prices and published weekly balance-sheet data (Wednesday levels, H.4.1, USD million). “Notes in circulation” is the net figure, after deducting the Reserve Banks’ own holdings. The monetary base is calculated from notes in circulation and reserve balances in the weekly statements. It contains no coin, because coin is a liability of the U.S. Treasury and does not appear in the Fed’s weekly statement; the figure therefore runs about 1.3 percent below the officially published monetary base, which uses monthly data. Gold price: the series of the chart above (COMEX futures via Yahoo Finance, GoldPremium; current value: Kitco). GoldPremium.org is not affiliated with the Federal Reserve.", FOOT_DE="<strong>Rechengrößen, keine Bilanzposten.</strong> Die Federal Reserve besitzt kein Gold. Das Gold gehört dem US-Finanzministerium (261.498.926 Feinunzen, bewertet zum gesetzlichen Satz von 42,2222 USD je Unze); die Fed hält dafür Goldzertifikate zu diesem Satz, ausgewiesen als „Gold Certificate Account“ (rund {gc} Mrd. USD). Die Kennzahlen werden von GoldPremium aus gemessenen Goldpreisen und veröffentlichten wöchentlichen Bilanzzahlen berechnet (Mittwochswerte, H.4.1, Mio. USD). „Notenumlauf“ ist der Nettowert, also nach Abzug der Bestände der Reserve Banks. Die Geldbasis wird aus Notenumlauf und Reserveguthaben der Wochenausweise berechnet. Sie enthält keine Münzen, weil Münzen eine Verbindlichkeit des Finanzministeriums sind und im Wochenausweis der Fed nicht vorkommen; dadurch liegt der Wert rund 1,3 Prozent unter der amtlich veröffentlichten Geldbasis, die Monatswerte verwendet. Goldpreis: die Reihe des Charts oben (COMEX-Futures via Yahoo Finance, GoldPremium; aktueller Wert: Kitco). GoldPremium.org steht in keiner Verbindung zur Federal Reserve.";
   var SRC_EN="Sources: Board of Governors of the Federal Reserve System (US); U.S. Department of the Treasury; Kitco.", SRC_DE="Quellen: Board of Governors of the Federal Reserve System (US); U.S. Department of the Treasury; Kitco.";
   var T={
    en:{
@@ -620,14 +621,18 @@ footer a:hover{text-decoration:underline}
     expl:{frn_net:"A macroeconomic valuation indicator that sets the gold price against the physical U.S. cash supply. It shows how highly gold is valued compared with the actual circulation of Federal Reserve notes.",
           total_assets:"The ratio of the gold price to the total assets of the U.S. central bank (Federal Reserve) serves as a macro indicator for the valuation of gold relative to the central-bank liquidity created. It indicates whether the gold price is historically cheap or expensive compared with the expansion or contraction of U.S. monetary policy."},
     views:["Ratio","Percent","Coverage value","Index"],
-    den:{frn_net:"Gold – Cash",total_assets:"Gold – Fed balance sheet"},
+    den:{frn_net:"Gold – Cash",monetary_base:"Gold – Monetary base",total_assets:"Gold – Fed balance sheet"},
     txt:{frn_net:{p:"The measure shows, over long periods, how the U.S. gold reserve stands against U.S. dollar cash in circulation. It makes visible in particular:",
                   ol:["How the implied gold coverage of the cash in circulation has changed over the period shown.","How the gold price and the cash in circulation have developed relative to each other."]},
          total_assets:{p:"The measure shows how the market value of the U.S. gold reserve has developed relative to the Fed's total assets over the period shown. The ratio is driven by:",
                   ol:[["QE (quantitative easing):","Purchases of government bonds and mortgage-backed securities (MBS) expand the Fed's total assets. With an unchanged gold price, the ratio falls."],
                       ["QT (quantitative tightening):","Running down securities holdings tends to shrink the Fed's total assets. The ratio may rise as a result."],
-                      ["Gold price movement:","If the gold price rises faster than the Fed's total assets, the ratio rises."]]}},
-    dn:{frn_net:"notes in circulation",total_assets:"total assets"},
+                      ["Gold price movement:","If the gold price rises faster than the Fed's total assets, the ratio rises."]]},
+         monetary_base:{p:"The measure shows how the market value of the U.S. gold reserve has developed relative to the monetary base over the period shown — notes in circulation plus banks' reserve balances at the Fed. The figure is calculated from weekly data and runs about 1.3 percent below the official monthly figure. The ratio is driven by:",
+                  ol:[["QE and QT:","When the Fed buys securities, new reserve balances arise and the monetary base grows. Running holdings down shrinks it. With an unchanged gold price, the ratio moves the other way."],
+                      ["Difference from total assets:","Not every Fed liability is part of the monetary base. When funds move out of reserve balances into the Treasury's account or into reverse repurchase agreements, total assets stay the same while the monetary base falls. This is where this view differs from Gold – Fed balance sheet."],
+                      ["Gold price movement:","If the gold price rises faster than the monetary base, the ratio rises."]]}},
+    dn:{frn_net:"notes in circulation",monetary_base:"monetary base",total_assets:"total assets"},
     start:"Start date (= 100)", zoom:"Drag to zoom · Double-click to reset", unavailable:"Data currently unavailable.", infoLbl:"Information",
     st:{latest:"Latest",goldMkt:"Gold price (market)",spot:function(src,last){return "With current spot ("+src+", Fed data "+last+")";},low:"Low",high:"High",goldIdx:"Gold (index)",idx:"(index)",base:"Base date"},
     v:[null,
@@ -637,6 +642,7 @@ footer a:hover{text-decoration:underline}
      {axis:function(b){return "Index, "+b+" = 100";},note:"The picture depends entirely on the chosen start date.",leg:function(){return ["Gold price","Selected denominator"];},sub:function(dn,b){return "Gold price and "+dn+", "+b+" = 100";}}
     ],
     info:function(v){return {
+     monetary_base:[],
      frn_net:[
       {h:"Economic significance",items:[
        ["A measure of money-supply coverage:","The ratio lets you estimate what an ounce of gold would have to cost in order to theoretically cover a given share of the U.S. cash supply."],
@@ -650,7 +656,7 @@ footer a:hover{text-decoration:underline}
        ["Liquidity and inflation-hedge indicator.","A historically low value suggests that the central bank has pumped a great deal of liquidity into the system while the gold price has not yet fully priced that expansion in. A high value conversely signals that gold has already reacted strongly to monetary policy risks, inflation expectations or crises."],
        ["Cyclical turning points.","Over long horizons (e.g. 10 to 20 years), phases of under- or overvaluation become visible. If the Fed shrinks its balance sheet (quantitative tightening) while the gold price holds steady or rises, the ratio increases noticeably."]]}]
     };},
-    tbl:{frn_net:{h:"Interpretation of the values",table:{head:["Movement of the ratio","Possible cause","Market interpretation"],rows:[["Ratio rises","The gold price rises faster than currency in circulation.","Gold gains value against the cash in circulation."],["Ratio falls","Currency in circulation grows faster than the gold price, or the gold price falls.","Gold loses value against the cash in circulation."]]},after:"Currency in circulation changes slowly and steadily. Movements in this ratio are therefore mostly driven by the gold price."},total_assets:{h:"Interpretation of the values",table:{
+    tbl:{monetary_base:{h:"Interpretation of the values",table:{head:["Movement of the ratio","Possible cause","Market interpretation"],rows:[["Ratio rises","The gold price rises faster than the monetary base, or reserve balances fall.","Gold gains value against the central-bank money the Fed has created."],["Ratio falls","Reserve balances grow faster than the gold price, for example through Fed securities purchases.","Gold lags the expansion of central-bank money."]]},after:"Notes in circulation change slowly while reserve balances fluctuate strongly. Movements in this ratio are therefore driven mainly by the gold price and by reserve balances."},frn_net:{h:"Interpretation of the values",table:{head:["Movement of the ratio","Possible cause","Market interpretation"],rows:[["Ratio rises","The gold price rises faster than currency in circulation.","Gold gains value against the cash in circulation."],["Ratio falls","Currency in circulation grows faster than the gold price, or the gold price falls.","Gold loses value against the cash in circulation."]]},after:"Currency in circulation changes slowly and steadily. Movements in this ratio are therefore mostly driven by the gold price."},total_assets:{h:"Interpretation of the values",table:{
        head:["Movement of the ratio","Possible cause","Market interpretation"],
        rows:[["Ratio rises","The gold price rises faster than the Fed balance sheet, or the Fed shrinks its balance sheet.","Gold gains value relative to U.S. central-bank liquidity; often a sign of strong demand for hedging, or of tighter monetary policy alongside a robust gold price."],
              ["Ratio falls","The Fed expands its balance sheet sharply (e.g. through crisis programmes) while gold stagnates.","Gold lags money creation; can be read as potential catch-up."]]}}},
@@ -663,14 +669,18 @@ footer a:hover{text-decoration:underline}
     expl:{frn_net:"Ein makroökonomischer Bewertungsindikator, der den Goldpreis ins Verhältnis zur physischen US-Bargeldmenge setzt. Er zeigt, wie hoch Gold im Vergleich zum tatsächlichen Umlauf an Federal-Reserve-Banknoten bewertet ist.",
           total_assets:"Das Verhältnis aus Goldpreis und der Bilanzsumme der US-Notenbank (Federal Reserve) dient als Makro-Indikator für die Bewertung von Gold im Verhältnis zur geschaffenen Zentralbankliquidität. Es zeigt an, ob der Goldpreis im Vergleich zur Ausweitung oder Schrumpfung der US-Geldpolitik historisch günstig oder teuer bewertet ist."},
     views:["Ratio","Percent","Coverage value","Index"],
-    den:{frn_net:"Gold – Bargeld",total_assets:"Gold – Fed-Bilanz"},
+    den:{frn_net:"Gold – Bargeld",monetary_base:"Gold – Geldbasis",total_assets:"Gold – Fed-Bilanz"},
     txt:{frn_net:{p:"Die Kennzahl zeigt über lange Zeiträume, wie die Goldreserve der USA zum umlaufenden US-Dollar-Bargeld steht. Sichtbar wird insbesondere:",
                   ol:["Wie sich die rechnerische Golddeckung des Bargeldumlaufs im dargestellten Zeitraum verändert hat.","Wie sich Goldpreis und Bargeldumlauf im Vergleich entwickelt haben."]},
          total_assets:{p:"Die Kennzahl zeigt, wie sich der Marktwert der Goldreserve der USA gegenüber der Bilanzsumme der Fed im dargestellten Zeitraum entwickelt hat. Auf das Verhältnis wirken:",
                   ol:[["QE (Quantitative Easing):","Durch den Ankauf von Staatsanleihen und hypothekenbesicherten Wertpapieren (MBS) wächst die Fed-Bilanzsumme. Bei unverändertem Goldpreis sinkt das Verhältnis."],
                       ["QT (Quantitative Tightening):","Durch den Abbau von Wertpapierbeständen schrumpft die Fed-Bilanzsumme tendenziell. Das Verhältnis kann dadurch steigen."],
-                      ["Goldpreisentwicklung:","Steigt der Goldpreis schneller als die Fed-Bilanzsumme, steigt das Verhältnis."]]}},
-    dn:{frn_net:"Notenumlauf",total_assets:"Bilanzsumme"},
+                      ["Goldpreisentwicklung:","Steigt der Goldpreis schneller als die Fed-Bilanzsumme, steigt das Verhältnis."]]},
+         monetary_base:{p:"Die Kennzahl zeigt, wie sich der Marktwert der Goldreserve der USA gegenüber der Geldbasis im dargestellten Zeitraum entwickelt hat — dem Notenumlauf plus den Reserveguthaben der Banken bei der Fed. Der Wert ist aus Wochenwerten gerechnet und liegt rund 1,3 Prozent unter dem amtlichen Monatswert. Auf das Verhältnis wirken:",
+                  ol:[["QE und QT:","Kauft die Fed Wertpapiere, entstehen neue Reserveguthaben und die Geldbasis wächst. Baut sie Bestände ab, schrumpft sie. Bei unverändertem Goldpreis bewegt sich das Verhältnis gegenläufig."],
+                      ["Unterschied zur Bilanzsumme:","Nicht jede Verbindlichkeit der Fed gehört zur Geldbasis. Wandern Mittel aus den Reserveguthaben in das Konto des Finanzministeriums oder in Reverse-Repo-Geschäfte, bleibt die Bilanzsumme gleich, die Geldbasis sinkt. Darin unterscheidet sich diese Darstellung von Gold – Fed-Bilanz."],
+                      ["Goldpreisentwicklung:","Steigt der Goldpreis schneller als die Geldbasis, steigt das Verhältnis."]]}},
+    dn:{frn_net:"Notenumlauf",monetary_base:"Geldbasis",total_assets:"Bilanzsumme"},
     start:"Startdatum (= 100)", zoom:"Zum Zoomen ziehen · Doppelklick zum Zurücksetzen", unavailable:"Daten derzeit nicht verfügbar.", infoLbl:"Information",
     st:{latest:"Aktuell",goldMkt:"Goldpreis (Markt)",spot:function(src,last){return "Mit aktuellem Spot ("+src+", Fed-Daten "+last+")";},low:"Tief",high:"Hoch",goldIdx:"Gold (Index)",idx:"(Index)",base:"Basisdatum"},
     v:[null,
@@ -680,6 +690,7 @@ footer a:hover{text-decoration:underline}
      {axis:function(b){return "Index, "+b+" = 100";},note:"Das Bild hängt vollständig vom gewählten Startdatum ab.",leg:function(){return ["Goldpreis","Gewählter Nenner"];},sub:function(dn,b){return "Goldpreis und "+dn+", "+b+" = 100";}}
     ],
     info:function(v){return {
+     monetary_base:[],
      frn_net:[
       {h:"Ökonomische Bedeutung",items:[
        ["Maßstab für Geldmengen-Deckung:","Die Kennzahl lässt abschätzen, wie viel eine Unze Gold kosten müsste, um einen bestimmten Teil der US-Dollar-Bargeldmenge theoretisch zu decken."],
@@ -693,7 +704,7 @@ footer a:hover{text-decoration:underline}
        ["Liquiditäts- und Inflationsschutz-Indikator.","Ein historisch niedriger Wert deutet darauf hin, dass die Zentralbank viel Liquidität in das System gepumpt hat, der Goldpreis diese Ausweitung aber noch nicht vollständig eingepreist hat. Ein hoher Wert signalisiert umgekehrt, dass Gold bereits stark auf geldpolitische Risiken, Inflationserwartungen oder Krisen reagiert hat."],
        ["Zyklische Trendwechsel.","Im langfristigen Vergleich (z. B. über 10 bis 20 Jahre) lassen sich Phasen von Unter- oder Überbewertung erkennen. Wenn die Fed ihre Bilanz abbaut (Quantitative Tightening) und der Goldpreis gleichzeitig stabil bleibt oder steigt, erhöht sich die Kennzahl spürbar."]]}]
     };},
-    tbl:{frn_net:{h:"Interpretation der Werte",table:{head:["Entwicklung der Kennzahl","Mögliche Ursache","Marktinterpretation"],rows:[["Kennzahl steigt","Der Goldpreis steigt schneller als der Bargeldumlauf.","Gold gewinnt gegenüber dem umlaufenden Bargeld an Wert."],["Kennzahl sinkt","Der Bargeldumlauf wächst schneller als der Goldpreis, oder der Goldpreis fällt.","Gold verliert gegenüber dem umlaufenden Bargeld."]]},after:"Der Bargeldumlauf verändert sich langsam und stetig. Bewegungen dieser Kennzahl gehen deshalb überwiegend auf den Goldpreis zurück."},total_assets:{h:"Interpretation der Werte",table:{
+    tbl:{monetary_base:{h:"Interpretation der Werte",table:{head:["Entwicklung der Kennzahl","Mögliche Ursache","Marktinterpretation"],rows:[["Kennzahl steigt","Der Goldpreis steigt schneller als die Geldbasis, oder die Reserveguthaben sinken.","Gold gewinnt gegenüber dem von der Fed geschaffenen Zentralbankgeld an Wert."],["Kennzahl sinkt","Die Reserveguthaben wachsen schneller als der Goldpreis, etwa durch Wertpapierkäufe der Fed.","Gold bleibt hinter der Ausweitung des Zentralbankgeldes zurück."]]},after:"Der Notenumlauf verändert sich langsam, die Reserveguthaben schwanken stark. Bewegungen dieser Kennzahl gehen deshalb überwiegend auf den Goldpreis und die Reserveguthaben zurück."},frn_net:{h:"Interpretation der Werte",table:{head:["Entwicklung der Kennzahl","Mögliche Ursache","Marktinterpretation"],rows:[["Kennzahl steigt","Der Goldpreis steigt schneller als der Bargeldumlauf.","Gold gewinnt gegenüber dem umlaufenden Bargeld an Wert."],["Kennzahl sinkt","Der Bargeldumlauf wächst schneller als der Goldpreis, oder der Goldpreis fällt.","Gold verliert gegenüber dem umlaufenden Bargeld."]]},after:"Der Bargeldumlauf verändert sich langsam und stetig. Bewegungen dieser Kennzahl gehen deshalb überwiegend auf den Goldpreis zurück."},total_assets:{h:"Interpretation der Werte",table:{
        head:["Entwicklung der Kennzahl","Mögliche Ursache","Marktinterpretation"],
        rows:[["Kennzahl steigt","Goldpreis steigt schneller als die Fed-Bilanz oder die Fed baut ihre Bilanz ab.","Gold gewinnt relativ zur US-Zentralbankliquidität an Wert; oft ein Zeichen für hohe Nachfrage nach Absicherung oder straffere Geldpolitik bei gleichzeitig robustem Goldpreis."],
              ["Kennzahl sinkt","Die Fed weitet ihre Bilanz stark aus (z. B. durch Krisenprogramme), während Gold stagniert.","Gold hinkt der Geldschöpfung hinterher; lässt sich als potenzielle Aufholchance lesen."]]}}},
@@ -739,6 +750,9 @@ footer a:hover{text-decoration:underline}
     $('fedr-title').textContent=lg.title;
     for(i=1;i<=4;i++) $('fedr-tab-'+i).textContent=lg.views[i-1];
     $('fedr-den-net').textContent=lg.den.frn_net; $('fedr-den-ta').textContent=lg.den.total_assets;
+    $('fedr-den-mb').textContent=lg.den.monetary_base;
+    // Dritter Nenner nur, wenn die optionale Reihe der API vorliegt (sie kann fehlen).
+    $('fedr-den-mb').style.display=(st.fed && st.fed.monetary_base)?'':'none';
     $('fedr-base-lbl').textContent=lg.start; $('fedr-zoom').textContent=lg.zoom;
     var b=$('fedr-info-btn'); b.setAttribute('aria-label',lg.infoLbl); b.title=lg.infoLbl; $('fedr-info').setAttribute('aria-label',lg.infoLbl);
     $('fedr-info').innerHTML=infoHtml();
@@ -782,11 +796,11 @@ footer a:hover{text-decoration:underline}
     }
     for(i=bi;i<D.length;i++){
       lab.push(D[i]);
-      var p=P[i], n=N[i]*1e6;
-      if(st.tab===1) A.push(p!=null ? p/(n/1e9) : null);
-      else if(st.tab===2) A.push(p!=null ? Q*p/n*100 : null);
-      else if(st.tab===3){ A.push(n/Q); B.push(p); }
-      else { A.push(p!=null ? p/P[bi]*100 : null); B.push(N[i]/N[bi]*100); }
+      var p=P[i], nv=N[i], n=(nv!=null)?nv*1e6:null;
+      if(st.tab===1) A.push((p!=null&&n) ? p/(n/1e9) : null);
+      else if(st.tab===2) A.push((p!=null&&n) ? Q*p/n*100 : null);
+      else if(st.tab===3){ A.push(n!=null ? n/Q : null); B.push(p); }
+      else { A.push(p!=null ? p/P[bi]*100 : null); B.push(nv!=null ? nv/N[bi]*100 : null); }
     }
     return {lab:lab, A:A, B:B, base:D[bi]};
   }
@@ -845,8 +859,13 @@ footer a:hover{text-decoration:underline}
   }
 
   function setTab(t){ st.tab=t; for(var i=1;i<=4;i++) $('fedr-tab-'+i).classList.toggle('on',i===t); applyView(); if(st.fed) draw(); }
-  function setDen(d){ st.den=d; var a=$('fedr-den-net'), b=$('fedr-den-ta'); [a,b].forEach(function(x){ x.classList.remove('on'); x.style.background=''; x.style.color=''; });
-    var on=(d==='frn_net')?a:b; on.classList.add('on'); on.style.background='var(--gold)'; on.style.color='#0E1015'; applyStatic(); if(st.fed) draw(); }
+  var DEN_BTN={frn_net:'fedr-den-net', monetary_base:'fedr-den-mb', total_assets:'fedr-den-ta'};
+  function setDen(d){
+    if(d==='monetary_base' && !(st.fed && st.fed.monetary_base)) return;
+    st.den=d;
+    Object.keys(DEN_BTN).forEach(function(k){ var x=$(DEN_BTN[k]); x.classList.remove('on'); x.style.background=''; x.style.color=''; });
+    var on=$(DEN_BTN[d]||DEN_BTN.frn_net); on.classList.add('on'); on.style.background='var(--gold)'; on.style.color='#0E1015';
+    applyStatic(); if(st.fed) draw(); }
 
   window._fedrChart={redraw:function(){ if(st.fed) draw(); }, resize:function(){ if(st.chart) st.chart.resize(); }};
   document.addEventListener('gp-lang',function(){ applyStatic(); if(st.fed) draw(); });
@@ -854,14 +873,15 @@ footer a:hover{text-decoration:underline}
   function init(){
     for(var i=1;i<=4;i++){ (function(t){ $('fedr-tab-'+t).addEventListener('click',function(){ setTab(t); }); })(i); }
     $('fedr-den-net').addEventListener('click',function(){ setDen('frn_net'); });
+    $('fedr-den-mb').addEventListener('click',function(){ setDen('monetary_base'); });
     $('fedr-den-ta').addEventListener('click',function(){ setDen('total_assets'); });
     $('fedr-base').addEventListener('change',function(){ var v=this.value; if(!v||v<MIN_DATE) v=MIN_DATE; if(st.fed && v>st.fed.last) v=st.fed.last; st.base=v; this.value=v; if(st.fed) draw(); });
     $('chart-fedr').addEventListener('dblclick',function(){ if(st.chart && st.chart.resetZoom) st.chart.resetZoom(); });
     $('fedr-info-btn').addEventListener('click',function(e){ e.stopPropagation(); var o=!$('fedr-info').classList.contains('open'); if(o) setVInfo(false); setInfo(o); });
     $('fedr-vbtn').addEventListener('click',function(e){ e.stopPropagation(); var o=!$('fedr-vinfo').classList.contains('open'); if(o) setInfo(false); setVInfo(o); });
     document.addEventListener('click',function(e){ var t=e.target; if(!(t && t.closest)) return;
-      if($('fedr-info').classList.contains('open') && !t.closest('#fedr-info-btn,#fedr-info,#fedr-den-net,#fedr-den-ta')) setInfo(false);
-      if($('fedr-vinfo').classList.contains('open') && !t.closest('#fedr-vbtn,#fedr-vinfo,#fedr-tabs,#fedr-den-net,#fedr-den-ta')) setVInfo(false); });
+      if($('fedr-info').classList.contains('open') && !t.closest('#fedr-info-btn,#fedr-info,#fedr-den-net,#fedr-den-mb,#fedr-den-ta')) setInfo(false);
+      if($('fedr-vinfo').classList.contains('open') && !t.closest('#fedr-vbtn,#fedr-vinfo,#fedr-tabs,#fedr-den-net,#fedr-den-mb,#fedr-den-ta')) setVInfo(false); });
     document.addEventListener('keydown',function(e){ if(e.key!=='Escape') return;
       if($('fedr-info').classList.contains('open')){ setInfo(false); $('fedr-info-btn').focus(); }
       if($('fedr-vinfo').classList.contains('open')){ setVInfo(false); $('fedr-vbtn').focus(); } });
