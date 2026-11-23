@@ -180,6 +180,7 @@ tr[data-market].mkt-selected .mname::before{content:'✓ ';color:var(--gold)}
 .gp-fs>.chart-container{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:0;margin:0!important;border:0;border-radius:0;background:transparent}
 .gp-fs .chart-header{flex-shrink:0;align-items:center;flex-wrap:wrap;gap:4px 10px;margin-bottom:4px}
 .gp-fs .chart-header>div:first-child{flex:1 1 auto;min-width:0}
+.fedr-head>div:first-child{flex:0 0 370px;max-width:100%}
 .gp-fs .chart-sub,.gp-fs #fedr-info-btn{display:none}
 .gp-fs .gp-fs-bar{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
 .gp-fs .rbtn,.gp-fs .ctrl-btn{padding:4px 10px;font-size:12px}
@@ -615,7 +616,7 @@ footer a:hover{text-decoration:underline}
 }
 </style>
 <div class="chart-container" id="fed-ratio-container" style="margin-top:24px">
-  <div class="chart-header">
+  <div class="chart-header fedr-head">
     <div>
       <div class="chart-title"><span id="fedr-title">U.S. gold coverage and valuation metrics</span><button id="fedr-info-btn" type="button" aria-expanded="false" aria-controls="fedr-info" aria-label="Information" title="Information">ⓘ</button></div>
       <div class="chart-sub" id="fedr-sub"></div>
